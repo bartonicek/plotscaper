@@ -1,0 +1,54 @@
+---
+title: "Getting Started with Plotscape"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with Plotscape}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Getting started with `plotscape` is easy! Use `ps_scene(data, width, height)` function to create a frame to hold all your interactive plots, of pre-specified dimensions, and finally add as many interactive plots as you want with `ps_[plottype]`. For example, here's how you make an interactive scene with the famous `mtcars` data:
+
+```{r setup}
+
+library(plotscapeTest)
+
+ps_scene(mtcars, 900, 600) |>
+  ps_scatter(list(x = "wt", y = "mpg")) |>
+  ps_histo(list(x = "drat")) |>
+  ps_scatter(list(x = "disp", y = "qsec")) |>
+  ps_bar(list(x = "am")) |>
+  ps_wrapper_plot("square", list(x = "gear", y = "cyl"))
+
+```
+
+Once you have a scene set up, you can interact with it by using mouse/touchpad and pressing keys on a keyboard. Some useful commands are:
+
+- Click a plot to make it active
+- +/- to increase/decrease size of objects in the (active) plot
+- [/] to decrease/increase opacity of objects
+- Click an object to transiently select it, click-and-drag to select more than one object
+- Hold down 1, 2, ... while clicking (or clicking-and-dragging) to make a permanent (group) selection
+
+It's easy to use `plotscape` programmatically. For example, here's how you can set up a scatterplot-matrix (SPLOM) of the `iris` dataset:
+
+```{r}
+
+# Create a matrix of all unique combinations of 2 variables in the iris data
+vars <- names(iris)
+xy <- matrix(vars[combn(1:4, 2)], ncol = 2, byrow = TRUE)
+
+s1 <- ps_scene(iris, 1000, 800)
+for (i in seq_len(nrow(xy))) {
+  s1 <- s1 |> ps_scatter(ps_map(xy[i, 1], xy[i, 2]))
+}
+s1
+
+```

@@ -388,6 +388,7 @@ var PLOTSCAPE = (() => {
                     "KeyR",
                     "Digit1",
                     "Digit2",
+                    "Digit3",
                 ];
                 this.redrawKeys = ["Equal", "Minus", "BracketLeft", "BracketRight", "KeyR"];
                 this.pressing = false;
@@ -440,9 +441,9 @@ var PLOTSCAPE = (() => {
                 this.plotIds = [];
                 this.plotsActive = [];
                 this.plotContainers = [];
-                this.validStates = ["not", "or", "group1", "group2"];
-                this.stateKeys = ["ControlLeft", "ShiftLeft", "Digit1", "Digit2"];
-                this.membershipArray = [1, 128, 2, 3];
+                this.validStates = ["not", "or", "group1", "group2", "group3"];
+                this.stateKeys = ["ControlLeft", "ShiftLeft", "Digit1", "Digit2", "Digit3"];
+                this.membershipArray = [1, 128, 2, 3, 4];
             }
             get currentId() {
                 var _a;
@@ -505,10 +506,10 @@ var PLOTSCAPE = (() => {
         exports.globalParameters = {
             bgCol: `#f2efde`,
             reps: {
-                col: [`#cccccc`, `#1b9e77`, `#d95f02`, `#ffffffCC`],
-                strokeCol: [null, null, null, `#000000`],
-                strokeWidth: [null, null, null, 1],
-                radius: [5, 5, 5, 5],
+                col: [`#cccccc`, `#1b9e77`, `#d95f02`, `#7570b3`, `#ffffffCC`],
+                strokeCol: [null, null, null, null, `#000000`],
+                strokeWidth: [1, 1, 1, 1, 1],
+                radius: [5, 5, 5, 5, 5],
             },
         };
     });
@@ -517,7 +518,7 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.GraphicLayer = void 0;
         class GraphicLayer {
-            constructor(globals) {
+            constructor(globals, dimensions) {
                 this.resize = () => {
                     this.canvas.style.width = `${this.width}px`;
                     this.canvas.style.height = `${this.height}px`;
@@ -594,7 +595,7 @@ var PLOTSCAPE = (() => {
                     context.lineWidth = strokeWidth;
                     x.forEach((e, i) => {
                         context.beginPath();
-                        context.arc(e, y[i], rs[i], 0, Math.PI * 2);
+                        context.arc(e, y[i], rs[i] / 2, 0, Math.PI * 2);
                         strokeCol ? context.stroke() : null;
                         col ? context.fill() : null;
                     });
@@ -667,15 +668,20 @@ var PLOTSCAPE = (() => {
                     context.restore();
                 };
                 this.globals = globals;
+                this.dimensions = dimensions;
                 this.canvas = document.createElement("canvas");
                 this.context = this.canvas.getContext("2d");
                 this.backgroundColour = globalparameters_js_1.globalParameters.bgCol;
                 this.resize();
             }
             get width() {
+                if (this.dimensions)
+                    return this.dimensions.width;
                 return this.globals.plotWidth;
             }
             get height() {
+                if (this.dimensions)
+                    return this.dimensions.height;
                 return this.globals.plotHeight;
             }
             get scaleFactor() {
@@ -1060,9 +1066,10 @@ var PLOTSCAPE = (() => {
                     const mappings = ["x", "y", "size"];
                     let [x, y, size] = mappings.map((e) => this.getMapping(e, membership));
                     const radius = this.getPars(membership).radius;
-                    size = size
-                        ? size.map((e) => radius * e * this.sizeMultiplier)
-                        : Array.from(Array(x.length), (e) => radius).map((e) => e * this.sizeMultiplier);
+                    size =
+                        size.length > 0
+                            ? size.map((e) => radius * e * this.sizeMultiplier)
+                            : Array.from(Array(x.length), (e) => radius * this.sizeMultiplier);
                     return [x, y, size];
                 };
                 this.drawBase = (context) => {
@@ -1556,26 +1563,31 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.GraphicStack = void 0;
         class GraphicStack {
-            constructor(element, globals) {
+            constructor(element, globals, dimensions) {
                 this.initialize = () => {
                     const graphicLayers = ["graphicBase", "graphicUser", "graphicHighlight"];
                     this.graphicDiv.appendChild(this.graphicContainer);
                     this.graphicContainer.setAttribute("class", "graphicContainer");
                     graphicLayers.forEach((e) => {
-                        this[e] = new GraphicLayer_js_1.GraphicLayer(this.globals);
+                        this[e] = new GraphicLayer_js_1.GraphicLayer(this.globals, this.dimensions);
                         this.graphicContainer.appendChild(this[e].canvas);
                     });
                     this.graphicBase.drawBackground();
                 };
-                this.globals = globals;
                 this.graphicDiv = element;
                 this.graphicContainer = document.createElement("div");
+                this.globals = globals;
+                this.dimensions = dimensions;
                 this.initialize();
             }
             get width() {
+                if (this.dimensions)
+                    return this.dimensions.width;
                 return this.globals.plotWidth;
             }
             get height() {
+                if (this.dimensions)
+                    return this.dimensions.height;
                 return this.globals.plotHeight;
             }
         }
@@ -1586,8 +1598,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.Plot = void 0;
         class Plot extends GraphicStack_js_1.GraphicStack {
-            constructor(id, element, mapping, globals) {
-                super(element, globals);
+            constructor(id, element, mapping, globals, dimensions) {
+                super(element, globals, dimensions);
                 this.resize = () => {
                     const graphicLayers = ["graphicBase", "graphicUser", "graphicHighlight"];
                     this.scales.x.setLength(this.width);
@@ -1812,7 +1824,7 @@ var PLOTSCAPE = (() => {
         "use strict";
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.plotTypeArray = exports.highlightMembershipArray = exports.validMembershipArray = exports.baseMembershipArray = void 0;
-        const baseMembershipArray = [1, 2, 3];
+        const baseMembershipArray = [1, 2, 3, 4];
         exports.baseMembershipArray = baseMembershipArray;
         const validMembershipArray = [
             ...baseMembershipArray,
@@ -1830,18 +1842,15 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.ScatterPlot = void 0;
         class ScatterPlot extends Plot_js_1.Plot {
-            constructor(id, element, mapping, globals) {
-                super(id, element, mapping, globals);
+            constructor(id, element, mapping, globals, dimensions) {
+                super(id, element, mapping, globals, dimensions);
                 this.mapping = mapping;
                 this.wranglers = {
-                    identity: new Wrangler_js_1.Wrangler(globals.data, mapping, globals.handlers.marker).extractAsIs("x", "y"),
+                    wrangler1: new Wrangler_js_1.Wrangler(globals.data, mapping, globals.handlers.marker).extractAsIs(...mapping.keys()),
                 };
-                this.scales = {
-                    x: new scls.XYScaleContinuous(this.width),
-                    y: new scls.XYScaleContinuous(this.height, -1),
-                };
+                this.scales = Object.assign({ x: new scls.XYScaleContinuous(this.width), y: new scls.XYScaleContinuous(this.height, -1) }, (mapping.get("size") && { size: new scls.AreaScaleContinuous(10) }));
                 this.representations = {
-                    points: new reps.Points(this.wranglers.identity),
+                    points: new reps.Points(this.wranglers.wrangler1),
                 };
                 this.initialize();
             }
@@ -1853,10 +1862,12 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.BubblePlot = void 0;
         class BubblePlot extends Plot_js_2.Plot {
-            constructor(id, element, mapping, globals) {
-                super(id, element, mapping, globals);
+            constructor(id, element, mapping, globals, dimensions) {
+                if (!mapping.has("size"))
+                    mapping.set("size", "_indicator");
+                super(id, element, mapping, globals, dimensions);
                 this.wranglers = {
-                    identity: new Wrangler_js_2.Wrangler(globals.data, mapping, globals.handlers.marker)
+                    wrangler1: new Wrangler_js_2.Wrangler(globals.data, mapping, globals.handlers.marker)
                         .splitBy("x", "y")
                         .splitWhat("size")
                         .doWithin("by", funs.unique)
@@ -1869,7 +1880,7 @@ var PLOTSCAPE = (() => {
                     size: new scls.AreaScaleContinuous(this.width),
                 };
                 this.representations = {
-                    points: new reps.Points(this.wranglers.identity),
+                    points: new reps.Points(this.wranglers.wrangler1),
                 };
                 this.initialize();
             }
@@ -1881,11 +1892,11 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.BarPlot = void 0;
         class BarPlot extends Plot_js_3.Plot {
-            constructor(id, element, mapping, globals) {
-                super(id, element, mapping, globals);
+            constructor(id, element, mapping, globals, dimensions) {
+                super(id, element, mapping, globals, dimensions);
                 this.mapping = mapping;
                 this.wranglers = {
-                    summary: new Wrangler_js_3.Wrangler(globals.data, mapping, globals.handlers.marker)
+                    wrangler1: new Wrangler_js_3.Wrangler(globals.data, mapping, globals.handlers.marker)
                         .splitBy("x")
                         .splitWhat("y")
                         .doWithin("by", funs.unique)
@@ -1897,7 +1908,7 @@ var PLOTSCAPE = (() => {
                     y: new scls.XYScaleContinuous(this.height, -1, true),
                 };
                 this.representations = {
-                    bars: new reps.Bars(this.wranglers.summary, 0.8),
+                    bars: new reps.Bars(this.wranglers.wrangler1, 0.8),
                 };
                 this.initialize();
             }
@@ -1909,10 +1920,10 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.HistoPlot = void 0;
         class HistoPlot extends Plot_js_4.Plot {
-            constructor(id, element, mapping, globals) {
-                super(id, element, mapping, globals);
+            constructor(id, element, mapping, globals, dimensions) {
+                super(id, element, mapping, globals, dimensions);
                 this.wranglers = {
-                    summary: new Wrangler_js_4.Wrangler(globals.data, mapping, globals.handlers.marker)
+                    wrangler1: new Wrangler_js_4.Wrangler(globals.data, mapping, globals.handlers.marker)
                         .splitBy("x")
                         .splitWhat("y")
                         .doAcross("by", funs.bin, 10)
@@ -1925,7 +1936,7 @@ var PLOTSCAPE = (() => {
                     y: new scls.XYScaleContinuous(this.height, -1, true),
                 };
                 this.representations = {
-                    bars: new reps.Bars(this.wranglers.summary, 1),
+                    bars: new reps.Bars(this.wranglers.wrangler1, 1),
                 };
                 this.initialize();
             }
@@ -1937,10 +1948,12 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.SquarePlot = void 0;
         class SquarePlot extends Plot_js_5.Plot {
-            constructor(id, element, mapping, globals) {
-                super(id, element, mapping, globals);
+            constructor(id, element, mapping, globals, dimensions) {
+                if (!mapping.has("size"))
+                    mapping.set("size", "_indicator");
+                super(id, element, mapping, globals, dimensions);
                 this.wranglers = {
-                    identity: new Wrangler_js_5.Wrangler(globals.data, mapping, globals.handlers.marker)
+                    wrangler1: new Wrangler_js_5.Wrangler(globals.data, mapping, globals.handlers.marker)
                         .splitBy("x", "y")
                         .splitWhat("size")
                         .doWithin("by", funs.unique)
@@ -1953,7 +1966,7 @@ var PLOTSCAPE = (() => {
                     size: new scls.AreaScaleContinuous(this.width),
                 };
                 this.representations = {
-                    points: new reps.Squares(this.wranglers.identity),
+                    points: new reps.Squares(this.wranglers.wrangler1),
                 };
                 this.initialize();
             }
@@ -1976,33 +1989,51 @@ var PLOTSCAPE = (() => {
         class Mapping extends Map {
             constructor(...mappings) {
                 super([...mappings]);
+                if (!this.has("y"))
+                    this.set("y", "_indicator");
             }
         }
         exports.Mapping = Mapping;
     });
-    define("Scene", ["require", "exports", "datastructures", "handlers/handlers", "plot/plots"], function (require, exports, dtstr, hndl, plts) {
+    define("helppaneltext", ["require", "exports"], function (require, exports) {
+        "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
+        exports.helpPanelText = void 0;
+        exports.helpPanelText = `
+        Welcome to Plotscape! <br>
+        Try interacting with the plots in the following ways: <br> <br>
+        <kbd>Click</kbd> a plot to make it active <br>
+        <kbd>+</kbd>/<kbd>-</kbd> to increase/decrease size of objects <br>
+        <kbd>[</kbd>/<kbd>]</kbd> to decrease/increase opacity (alpha) of objects <br>
+        <kbd>R</kbd> to reset graphical settings of the active plot <br>
+        <kbd>Click-and-drag</kbd>/<kbd>click</kbd> to transiently select objects<br>
+        <kbd>1</kbd>,<kbd>2</kbd>,<kbd>...</kbd> + <kbd>click-and-drag</kbd> to make a permanent (group) selection <br>
+        <kbd>Double-click</kbd> to reset selection
+    
+        <br>
+    `;
+    });
+    define("Scene", ["require", "exports", "datastructures", "handlers/handlers", "plot/plots", "helppaneltext"], function (require, exports, dtstr, hndl, plts, helppaneltext_js_1) {
         "use strict";
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.Scene = void 0;
         class Scene {
             constructor(element, data) {
-                this.addPlotWrapper = (plotType, mapping) => {
+                this.addPlotWrapper = (plotType, mapping, dimensions) => {
                     const { element, plotIds, plots, globals } = this;
                     this.globals.nPlots++;
                     const plotTypeIndex = dtstr.plotTypeArray.findIndex((e) => e === plotType);
                     this.nPlotsOfType[plotTypeIndex]++;
                     const plotId = `${plotType}${this.nPlotsOfType[plotTypeIndex]}`;
-                    this.plots[plotId] = new PlotProxy(plotType, plotId, element, mapping, globals);
+                    this.plots[plotId] = new PlotProxy(plotType, plotId, element, mapping, globals, dimensions);
                     plotIds.push(plotId);
                     globals.handlers.state.plotIds.push(plotId);
                     globals.handlers.state.plotsActive.push(false);
                     globals.handlers.state.plotContainers.push(this.plots[plotId].graphicContainer);
-                    if (plotIds.length > 1) {
-                        plotIds.forEach((e) => {
-                            plots[e].resize();
-                            plots[e].drawRedraw();
-                        });
-                    }
+                    plotIds.forEach((e) => {
+                        plots[e].resize();
+                        plots[e].drawRedraw();
+                    });
                     return this;
                 };
                 this.element = element;
@@ -2042,9 +2073,9 @@ var PLOTSCAPE = (() => {
                 // Add help button and panel
                 const helpButton = document.createElement("button");
                 const helpPanel = document.createElement("div");
-                helpButton.innerText = "?";
+                helpButton.innerText = `?`;
                 helpButton.classList.add("buttonHelp");
-                helpPanel.innerText = "Hello, welcome to Plotscape";
+                helpPanel.innerHTML = helppaneltext_js_1.helpPanelText;
                 helpPanel.classList.add("helpPanel");
                 const helpButtonDim = Math.min(this.globals.sceneWidth, this.globals.sceneHeight) * 0.05;
                 helpButton.style.width = `${helpButtonDim}px`;
@@ -2073,14 +2104,14 @@ var PLOTSCAPE = (() => {
             }
         }
     });
-    define("main", ["require", "exports", "Scene", "DataFrame", "Mapping", "functions"], function (require, exports, Scene_js_1, DataFrame_js_1, Mapping_js_1, functions_js_1) {
+    define("main", ["require", "exports", "Scene", "plot/Plot", "DataFrame", "Mapping", "functions"], function (require, exports, Scene_js_1, Plot_js_6, DataFrame_js_1, Mapping_js_1, functions_js_1) {
         "use strict";
         Object.defineProperty(exports, "__esModule", { value: true });
         __exportStar(Scene_js_1, exports);
+        __exportStar(Plot_js_6, exports);
         __exportStar(DataFrame_js_1, exports);
         __exportStar(Mapping_js_1, exports);
         __exportStar(functions_js_1, exports);
-        1;
     });
     
     'marker:resolver';

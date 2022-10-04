@@ -13,12 +13,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 devtools::load_all()
 
-scene(mtcars, 900, 600) |>
-  add_plot_wrapper("scatter", list(x = "wt", y = "mpg")) |>
-  add_plot_wrapper("histo", list(x = "drat", y = "_indicator")) |>
-  add_plot_wrapper("bar", list(x = "am", y = "_indicator")) |>
-  add_plot_wrapper("scatter", list(x = "disp", y = "qsec"))
+ps_scene(mtcars, 900, 600) |>
+  ps_scatter(list(x = "wt", y = "mpg")) |>
+  ps_histo(list(x = "drat")) |>
+  ps_scatter(list(x = "disp", y = "qsec")) |>
+  ps_bar(list(x = "am")) |>
+  ps_wrapper_plot("square", list(x = "gear", y = "cyl"))
 
 ```
 
 ## You can have interactive plots that communicate together in RMarkdown!
+
+
+```{r}
+
+ps_scene(MASS::Boston, 900, 500) |>
+  ps_scatter(list(x = "age", y = "medv")) |>
+  ps_bar(list(x = "chas")) |>
+  ps_scatter(list(x = "nox", y = "dis")) |>
+  ps_histo(list(x = "crim")) |>
+  ps_histo(list(x = "ptratio"))
+
+```

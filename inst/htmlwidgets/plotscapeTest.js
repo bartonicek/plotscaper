@@ -17,10 +17,14 @@ HTMLWidgets.widget({
         el.innerText = PLOTSCAPE.mean(x.data);
         const scene = new PLOTSCAPE.Scene(el, new PLOTSCAPE.DataFrame(x.data))
 
-        x.types.forEach((e, i) => {
+        console.log(x.dims[0])
+
+        const typeArray = Array.isArray(x.types) ? x.types : [x.types]
+        typeArray.forEach((e, i) => {
           const mapping = x.mappings[i]
+          const dims = x.dims[i]
           const mappingArray = Object.keys(mapping).map(e => [e, mapping[e]])
-          scene.addPlotWrapper(e, new PLOTSCAPE.Mapping(...mappingArray))
+          scene.addPlotWrapper(e, new PLOTSCAPE.Mapping(...mappingArray), dims)
         })
 
       },

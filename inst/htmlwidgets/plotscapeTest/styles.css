@@ -28,42 +28,39 @@
 
 .helpPanel {
   z-index: 1;
-  width: 0px;
-  height: max-content;
-  padding-top: 20px;
-  padding-bottom: 100px;
-  margin: 0px;
   position: absolute;
-  white-space: nowrap;
-  top: 20px;
-  right: 20px;
-  background-color: #00000090;
+  top: 2%;
+  right: 0%;
+  width: 0%;
+  margin: 0%;
+  height: max-content;
+  padding-left: 0%;
+  padding-top: 2.5%;
+  padding-bottom: 2.5%;
+  background-color: #00000095;
   color: rgba(1, 1, 1, 0);
+  white-space: nowrap;
+  text-overflow: "...";
   font-family: serif;  
-  font-size: 20pt;
+  font-size: 2vmin;
   text-align: left;
   text-shadow: #2E3532;
+  line-height: 1.5;
   transition: 1s;
 }
 
 .helpPanel.activePanel{
   color: white;
   width: 90%;
+  padding-left: 5%;
 }
-
-/* .textHelp {
-  padding-left: 20px;
-  padding-right: 5px;
-  padding-top: 5px;
-  margin: 10px;
-  overflow: hidden;
-} */
 
 kbd {
   background-color:#2E3532;
   border-radius: 3px;
   padding: 2px 4px;
   box-shadow: 2px 2px 3px #00000025;
+  color: white;
   white-space: nowrap;
 }
 

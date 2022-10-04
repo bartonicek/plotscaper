@@ -1,36 +1,3 @@
-#' <Add Title>
-#'
-#' <Add Description>
-#'
-#' @import htmlwidgets
-#'
-#' @export
-scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
-
-  # forward options using x
-  x = list(
-    data = data,
-    types = c(),
-    mappings = list()
-  )
-
-  # create widget
-  htmlwidgets::createWidget(
-    name = 'plotscapeTest',
-    x,
-    width = width,
-    height = height,
-    package = 'plotscapeTest',
-    elementId = elementId
-  )
-}
-
-add_plot_wrapper <- function(scene, type, mapping) {
-  scene$x$types <- c(scene$x$types, type)
-  scene$x$mappings <- append(scene$x$mappings, list(mapping))
-  return(scene)
-}
-
 #' Shiny bindings for plotscapeTest
 #'
 #' Output and render functions for using plotscapeTest within Shiny
