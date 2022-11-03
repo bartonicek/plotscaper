@@ -4,7 +4,7 @@
 \alias{ps_histo}
 \title{Add a histogram to a plotscape scene}
 \usage{
-ps_histo(scene, mapping)
+ps_histo(scene, mapping, ...)
 }
 \arguments{
 \item{scene}{A plotscape scene object}

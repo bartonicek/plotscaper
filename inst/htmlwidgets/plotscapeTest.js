@@ -1,7 +1,6 @@
 HTMLWidgets.widget({
 
   name: 'plotscapeTest',
-
   type: 'output',
 
   factory: function(el, width, height) {
@@ -14,17 +13,15 @@ HTMLWidgets.widget({
 
         // TODO: code to render the widget, e.g.
         el.classList.add("graphicDiv")
-        el.innerText = PLOTSCAPE.mean(x.data);
-        const scene = new PLOTSCAPE.Scene(el, new PLOTSCAPE.DataFrame(x.data))
+        this.scene = new PLOTSCAPE.Scene(el, new PLOTSCAPE.DataFrame(x.data),
+                                          {layout : x.layout})
 
-        console.log(x.dims[0])
-
+        if (!x.types) return
         const typeArray = Array.isArray(x.types) ? x.types : [x.types]
         typeArray.forEach((e, i) => {
           const mapping = x.mappings[i]
-          const dims = x.dims[i]
           const mappingArray = Object.keys(mapping).map(e => [e, mapping[e]])
-          scene.addPlotWrapper(e, new PLOTSCAPE.Mapping(...mappingArray), dims)
+          this.scene.addPlotWrapper(e, new PLOTSCAPE.Mapping(...mappingArray))
         })
 
       },
@@ -32,6 +29,7 @@ HTMLWidgets.widget({
       resize: function(width, height) {
 
         // TODO: code to re-render the widget with a new size
+        this.scene.resize()
 
       }
 

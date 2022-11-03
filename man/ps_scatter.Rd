@@ -4,7 +4,7 @@
 \alias{ps_scatter}
 \title{Add a scatterplot to a plotscape scene}
 \usage{
-ps_scatter(scene, mapping)
+ps_scatter(scene, mapping, ...)
 }
 \arguments{
 \item{scene}{A plotscape scene object}

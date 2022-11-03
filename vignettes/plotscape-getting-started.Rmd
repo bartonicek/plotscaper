@@ -20,12 +20,11 @@ Getting started with `plotscape` is easy! Use `ps_scene(data, width, height)` fu
 
 library(plotscapeTest)
 
-ps_scene(mtcars, 900, 600) |>
-  ps_scatter(list(x = "wt", y = "mpg")) |>
-  ps_histo(list(x = "drat")) |>
-  ps_scatter(list(x = "disp", y = "qsec")) |>
-  ps_bar(list(x = "am")) |>
-  ps_wrapper_plot("square", list(x = "gear", y = "cyl"))
+ps_scene(mtcars, width = 600, height = 400) |>
+  ps_scatter(ps_map("wt", "mpg")) |>
+  ps_bar(ps_map("cyl")) |>
+  ps_histo(ps_map("disp")) |>
+  ps_square(ps_map("gear", "am"))
 
 ```
 
@@ -45,7 +44,8 @@ It's easy to use `plotscape` programmatically. For example, here's how you can s
 vars <- names(iris)
 xy <- matrix(vars[combn(1:4, 2)], ncol = 2, byrow = TRUE)
 
-s1 <- ps_scene(iris, 1000, 800)
+s1 <- ps_scene(iris, width = 600, height = 400)
+
 for (i in seq_len(nrow(xy))) {
   s1 <- s1 |> ps_scatter(ps_map(xy[i, 1], xy[i, 2]))
 }

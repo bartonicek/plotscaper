@@ -4,7 +4,7 @@
 \alias{ps_bar}
 \title{Add a barplot to a plotscape scene}
 \usage{
-ps_bar(scene, mapping)
+ps_bar(scene, mapping, ...)
 }
 \arguments{
 \item{scene}{A plotscape scene object}

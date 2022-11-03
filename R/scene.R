@@ -9,17 +9,18 @@
 #' @import htmlwidgets
 #' @export
 #'
-#' @examples scene(mtcars, 900, 500)
-#' |> ps_wrapper_plot("scatter", list(x = "wt", y = "mpg"))
-#' |> ps_wrapper_plot("bar", list(x = "cyl", y = "_indicator"))
-ps_scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
+#' @examples
+#' ps_scene(mtcars, 900, 500) |> ps_wrapper_plot("scatter", list(x = "wt", y = "mpg")) |> ps_wrapper_plot("bar", list(x = "cyl", y = "_indicator"))
+#'
+ps_scene <- function(data, width = NULL, height = NULL, elementId = NULL,
+                     layout = NULL) {
 
   # forward options using x
   x = list(
     data = data,
     types = c(),
     mappings = list(),
-    dims = list()
+    layout = layout
   )
 
   # create widget

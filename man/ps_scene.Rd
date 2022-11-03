@@ -17,7 +17,8 @@ ps_scene(data, width = NULL, height = NULL, elementId = NULL)
 Function that creates a skeleton of an interactive visual scene.
 }
 \examples{
-scene(mtcars, 900, 500)
+ps_scene(mtcars, 900, 500)
 |> ps_wrapper_plot("scatter", list(x = "wt", y = "mpg"))
 |> ps_wrapper_plot("bar", list(x = "cyl", y = "_indicator"))
+
 }

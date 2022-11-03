@@ -1,0 +1,21 @@
+---
+title: "Untitled"
+author: "Adam Bartonicek"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+
+library(plotscapeTest)
+
+scene1 <- ps_scene(mtcars)
+scene1
+
+```
+
+```{r}
+
+scene1 |> ps_scatter(ps_map("wt", "mpg"))
+
+```

@@ -4,7 +4,7 @@
 \alias{ps_wrapper_plot}
 \title{Add a ready-made plot to a plotscape scene}
 \usage{
-ps_wrapper_plot(scene, type, mapping)
+ps_wrapper_plot(scene, type, mapping, height = NULL, width = NULL)
 }
 \arguments{
 \item{scene}{A plotscape scene object}

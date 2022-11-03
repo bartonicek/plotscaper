@@ -1,26 +1,26 @@
 
-.graphicDiv {
+.sceneDiv {
   position: relative;
   background-color: #BDC7C2;
-  text-align: center;
-  margin: 0px;
-  top: 0;
-  right: 0;
-  padding-top: 2.5%;
-  padding-bottom: 2.5%;
+  display: grid !important;
+  grid-template-columns: repeat(var(--nCols), 1fr);
+  grid-template-rows: repeat(var(--nRows), 1fr);
+  box-sizing: border-box;
+  padding: 2%;
+  padding-top: 4%;
+  padding-bottom: 4%;
+  grid-gap: 2%;
   box-shadow: inset 2px 2px 5px #00000025;
   overflow: hidden;
 }
 
-.graphicContainer {
+.containerDiv {
   position: relative;
-  display: inline-block;
-  padding: 0px;
-  margin: 1%;
+  display: inherit !important;
   box-shadow: 5px 5px 3px #00000025;
 }
 
-.graphicContainer canvas {
+.containerDiv canvas {
   position: absolute;
   top: 0;
   left: 0;
@@ -83,7 +83,7 @@ kbd {
   background-color:#39413D
 }
 
-.active {
+.containerDiv.active {
   outline: 3px solid #2E3532
 }
 
