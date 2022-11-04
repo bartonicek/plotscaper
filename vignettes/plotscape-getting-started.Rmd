@@ -44,11 +44,17 @@ It's easy to use `plotscape` programmatically. For example, here's how you can s
 vars <- names(iris)
 xy <- matrix(vars[combn(1:4, 2)], ncol = 2, byrow = TRUE)
 
-s1 <- ps_scene(iris, width = 600, height = 400)
+lay1 <- matrix(c(
+  1, 7, 7, 2, 
+  3, 7, 7, 4,
+  5, 7, 7, 6
+), ncol = 4, byrow = TRUE)
 
+s1 <- ps_scene(iris, layout = lay1, width = 600, height = 400)
 for (i in seq_len(nrow(xy))) {
   s1 <- s1 |> ps_scatter(ps_map(xy[i, 1], xy[i, 2]))
 }
+s1 <- s1 |> ps_bar(ps_map("Species"))
 s1
 
 ```

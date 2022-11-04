@@ -217,7 +217,7 @@ var PLOTSCAPE = (() => {
             canv.width = size;
             canv.height = size;
             const ctx = canv.getContext("2d");
-            ctx.fillStyle = `${colour}CC`;
+            ctx.fillStyle = colour;
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(0, size / 4);
@@ -246,7 +246,7 @@ var PLOTSCAPE = (() => {
         exports.createStripePattern = createStripePattern;
         // Function to construct "pretty" breaks, inspired by R's pretty()
         const prettyBreaks = (x, n = 4) => {
-            const [minimum, maximum] = [min(x), max(x)];
+            const [minimum, maximum] = [min(x) * 0.9, max(x) * 1.1];
             const range = maximum - minimum;
             const unitGross = range / n;
             const base = Math.floor(Math.log10(unitGross));
@@ -254,8 +254,8 @@ var PLOTSCAPE = (() => {
             const dists = neatValues.map((e) => Math.pow((e - unitGross / Math.pow(10, base)), 2));
             const unitNeat = Math.pow(10, base) * neatValues[dists.indexOf(min(dists))];
             const big = Math.abs(base) > 4;
-            const minimumNeat = Math.round(minimum / unitNeat) * unitNeat;
-            const maximumNeat = Math.round(maximum / unitNeat) * unitNeat;
+            const minimumNeat = Math.ceil(minimum / unitNeat) * unitNeat;
+            const maximumNeat = Math.floor(maximum / unitNeat) * unitNeat;
             const middle = Array.from(Array(Math.round((maximumNeat - minimumNeat) / unitNeat - 1)), (_, i) => minimumNeat + (i + 1) * unitNeat);
             const breaks = [minimumNeat, ...middle, maximumNeat].map((e) => parseFloat(e.toFixed(4)));
             return big ? breaks.map((e) => e.toExponential()) : breaks;
@@ -673,7 +673,7 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.Scale = void 0;
         class Scale {
-            constructor(length, direction = 1, expand = 0.1) {
+            constructor(length, plot, direction = 1, expand = 0.1) {
                 this.setLength = (length) => {
                     this.lengthOriginal = length;
                     this.offsetOriginal = this.direction === -1 ? length : 0;
@@ -695,14 +695,14 @@ var PLOTSCAPE = (() => {
                         : units.map((e) => e / length);
                 };
                 this.dataToPlot = (data) => { };
+                this.plot = plot;
                 this.lengthOriginal = length;
                 this.offsetOriginal = this.direction === -1 ? length : 0;
-                this.span = 1;
                 this.direction = direction;
                 this.expand = expand;
             }
             get length() {
-                return this.lengthOriginal * this.span;
+                return this.lengthOriginal;
             }
             get offset() {
                 return this.offsetOriginal;
@@ -715,8 +715,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.ScaleContinuous = void 0;
         class ScaleContinuous extends Scale_js_1.Scale {
-            constructor(length, direction = 1, includeZero = false, expand = 0.1) {
-                super(length, direction, expand);
+            constructor(length, plot, direction = 1, includeZero = false, expand = 0.1) {
+                super(length, plot, direction, expand);
                 this.data = [];
                 this.registerData = (data) => {
                     this.data = this.includeZero
@@ -799,8 +799,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.ScaleDiscrete = void 0;
         class ScaleDiscrete extends Scale_js_2.Scale {
-            constructor(length, direction = 1, expand = 0.1) {
-                super(length, direction, expand);
+            constructor(length, plot, direction = 1, expand = 0.1) {
+                super(length, plot, direction, expand);
                 this.toString = (x) => {
                     if (typeof x === "string" || typeof x[0] === "string")
                         return x;
@@ -842,8 +842,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.AreaScaleContinuous = void 0;
         class AreaScaleContinuous extends ScaleContinuous_js_1.ScaleContinuous {
-            constructor(length, direction = 1, zero = false) {
-                super(length, direction, zero);
+            constructor(length, plot, direction = 1, zero = false) {
+                super(length, plot, direction, zero);
                 this.dataToPlot = (data) => {
                     const res = this.dataToUnits(data);
                     return typeof res === "number"
@@ -862,8 +862,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.LengthScaleContinuous = void 0;
         class LengthScaleContinuous extends ScaleContinuous_js_2.ScaleContinuous {
-            constructor(length, direction = 1, zero = false) {
-                super(length, direction, zero);
+            constructor(length, plot, direction = 1, zero = false) {
+                super(length, plot, direction, zero);
                 this.dataToPlot = (data) => {
                     const res = this.dataToUnits(data);
                     return res;
@@ -880,8 +880,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.XYScaleDiscrete = void 0;
         class XYScaleDiscrete extends ScaleDiscrete_js_1.ScaleDiscrete {
-            constructor(length, direction = 1, expand = 0.1, margins = { lower: 0.2, upper: 0.1 }) {
-                super(length, direction, expand);
+            constructor(length, plot, direction = 1, expand = 0.1) {
+                super(length, plot, direction, expand);
                 this.dataToPlot = (data) => {
                     return this.dataToUnits(data);
                 };
@@ -891,12 +891,18 @@ var PLOTSCAPE = (() => {
                 this.plotToPct = (units) => {
                     return this.unitsToPct(units);
                 };
-                this.margins = margins;
-                this.span = 1 - margins.lower - margins.upper;
+            }
+            get margins() {
+                return {
+                    lower: 4 * this.plot.fontsize,
+                    upper: 2 * this.plot.fontsize,
+                };
             }
             get offset() {
-                return (this.offsetOriginal +
-                    this.direction * this.lengthOriginal * this.margins.lower);
+                return this.offsetOriginal + this.direction * this.margins.lower;
+            }
+            get length() {
+                return this.lengthOriginal - this.margins.lower - this.margins.upper;
             }
             get plotMin() {
                 return this.pctToUnits(0);
@@ -916,8 +922,8 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.XYScaleContinuous = void 0;
         class XYScaleContinuous extends ScaleContinuous_js_3.ScaleContinuous {
-            constructor(length, direction = 1, zero = false, expand = 0.1, margins = { lower: 0.2, upper: 0.1 }) {
-                super(length, direction, zero, expand);
+            constructor(length, plot, direction = 1, zero = false, expand = 0.1) {
+                super(length, plot, direction, zero, expand);
                 this.dataToPlot = (data) => {
                     return this.dataToUnits(data);
                 };
@@ -930,12 +936,18 @@ var PLOTSCAPE = (() => {
                 this.plotToPct = (units) => {
                     return this.unitsToPct(units);
                 };
-                this.margins = margins;
-                this.span = 1 - margins.lower - margins.upper;
+            }
+            get margins() {
+                return {
+                    lower: 4 * this.plot.fontsize,
+                    upper: 2 * this.plot.fontsize,
+                };
             }
             get offset() {
-                return (this.offsetOriginal +
-                    this.direction * this.lengthOriginal * this.margins.lower);
+                return this.offsetOriginal + this.direction * this.margins.lower;
+            }
+            get length() {
+                return this.lengthOriginal - this.margins.lower - this.margins.upper;
             }
             get plotMin() {
                 return this.pctToUnits(0);
@@ -1579,15 +1591,15 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.AxisText = void 0;
         class AxisText extends Auxiliary_js_2.Auxiliary {
-            constructor(along, nbreaks) {
+            constructor(along, plot, nbreaks) {
                 super();
                 this.getLabelMetrics = (context) => {
                     return this.labels.map((label) => context.context.measureText(label));
                 };
                 this.draw = (context) => {
-                    const { scales, along, other, breaks } = this;
-                    const size = Math.min(...[along, other].map((e) => 0.3 * scales[e].margins.lower * scales[e].length));
-                    const intercepts = Array.from(Array(breaks.length), (e) => scales[other].plotMin + (along === "x" ? 5 : -5));
+                    const { scales, along, other, breaks, plot } = this;
+                    const size = plot.fontsize;
+                    const intercepts = Array.from(Array(breaks.length), (e) => scales[other].plotMin + ((along === "x" ? 1 : -1) * size) / 2);
                     const coords = { x: null, y: null };
                     coords[along] = breaks;
                     coords[other] = intercepts;
@@ -1599,7 +1611,6 @@ var PLOTSCAPE = (() => {
                         context.context.textBaseline = "middle";
                         context.context.textAlign = "right";
                     }
-                    //    context.context.textAlign = along === "x" ? "center" : "right";
                     context.drawText(coords.x, coords.y, this.labels, size);
                 };
                 this.drawBase = (context) => {
@@ -1607,6 +1618,7 @@ var PLOTSCAPE = (() => {
                 };
                 this.along = along;
                 this.other = along === "x" ? "y" : "x";
+                this.plot = plot;
                 this.nbreaks = nbreaks !== null && nbreaks !== void 0 ? nbreaks : 4;
             }
             get dataBreaks() {
@@ -1629,7 +1641,7 @@ var PLOTSCAPE = (() => {
         Object.defineProperty(exports, "__esModule", { value: true });
         exports.AxisTitle = void 0;
         class AxisTitle extends Auxiliary_js_3.Auxiliary {
-            constructor(along, label) {
+            constructor(along, label, plot) {
                 super();
                 this.getLabelMetrics = (context) => {
                     return context.context.measureText(this.label);
@@ -1637,16 +1649,13 @@ var PLOTSCAPE = (() => {
                 this.draw = (context) => {
                     if (this.label === "_indicator")
                         return;
-                    const { scales, along, other } = this;
-                    const size = Math.min(...[along, other].map((e) => 0.4 * scales[e].margins.lower * scales[e].length));
+                    const { scales, along, other, plot } = this;
+                    const size = Math.floor(plot.fontsize * 1.5);
                     const coords = { x: null, y: null };
                     coords[along] = scales[along].pctToPlot(0.5);
                     coords[other] =
                         scales[other].pctToPlot(0) +
-                            (along === "x" ? 1 : -1) *
-                                0.85 *
-                                scales[other].margins.lower *
-                                scales[other].length;
+                            (along === "x" ? 1 : -1) * plot.fontsize * 2.5;
                     const rot = this.along === "x" ? 0 : 270;
                     context.context.textAlign = "center";
                     context.context.textBaseline = "middle";
@@ -1658,6 +1667,7 @@ var PLOTSCAPE = (() => {
                 this.along = along;
                 this.other = along === "x" ? "y" : "x";
                 this.label = label;
+                this.plot = plot;
             }
         }
         exports.AxisTitle = AxisTitle;
@@ -1942,15 +1952,19 @@ var PLOTSCAPE = (() => {
                 };
                 this.auxiliaries = {
                     axisbox: new auxs.AxisBox(),
-                    axistextx: new auxs.AxisText("x"),
-                    axistexy: new auxs.AxisText("y"),
-                    axistitlex: new auxs.AxisTitle("x", mapping.get("x")),
-                    axistitley: new auxs.AxisTitle("y", mapping.get("y")),
+                    axistextx: new auxs.AxisText("x", this),
+                    axistexy: new auxs.AxisText("y", this),
+                    axistitlex: new auxs.AxisTitle("x", mapping.get("x"), this),
+                    axistitley: new auxs.AxisTitle("y", mapping.get("y"), this),
                     highlightrects: new auxs.HighlightRects(this.handlers),
                 };
+                console.log(this.fontsize);
             }
             get active() {
                 return this.handlers.state.isActive(this.id);
+            }
+            get fontsize() {
+                return Math.floor(Math.min(this.width, this.height) * 0.05);
             }
         }
         exports.Plot = Plot;
@@ -1967,7 +1981,9 @@ var PLOTSCAPE = (() => {
                 this.wranglers = {
                     wrangler1: new Wrangler_js_1.Wrangler(data, mapping, globals.marker).extractAsIs(...mapping.keys()),
                 };
-                this.scales = Object.assign({ x: new scls.XYScaleContinuous(this.width), y: new scls.XYScaleContinuous(this.height, -1) }, (mapping.get("size") && { size: new scls.AreaScaleContinuous(1) }));
+                this.scales = Object.assign({ x: new scls.XYScaleContinuous(this.width, this), y: new scls.XYScaleContinuous(this.height, this, -1) }, (mapping.get("size") && {
+                    size: new scls.AreaScaleContinuous(1, this),
+                }));
                 this.representations = {
                     points: new reps.Points(this.wranglers.wrangler1),
                 };
@@ -1995,9 +2011,9 @@ var PLOTSCAPE = (() => {
                         .assignIndices(),
                 };
                 this.scales = {
-                    x: new scls.XYScaleDiscrete(this.width),
-                    y: new scls.XYScaleDiscrete(this.height, -1),
-                    size: new scls.AreaScaleContinuous(this.width),
+                    x: new scls.XYScaleDiscrete(this.width, this),
+                    y: new scls.XYScaleDiscrete(this.height, this, -1),
+                    size: new scls.AreaScaleContinuous(this.width, this),
                 };
                 this.representations = {
                     points: new reps.Points(this.wranglers.wrangler1),
@@ -2024,8 +2040,8 @@ var PLOTSCAPE = (() => {
                         .assignIndices(),
                 };
                 this.scales = {
-                    x: new scls.XYScaleDiscrete(this.width),
-                    y: new scls.XYScaleContinuous(this.height, -1, true),
+                    x: new scls.XYScaleDiscrete(this.width, this),
+                    y: new scls.XYScaleContinuous(this.height, this, -1, true),
                 };
                 this.representations = {
                     bars: new reps.Bars(this.wranglers.wrangler1, 0.8),
@@ -2053,8 +2069,8 @@ var PLOTSCAPE = (() => {
                         .assignIndices(),
                 };
                 this.scales = {
-                    x: new scls.XYScaleContinuous(this.width),
-                    y: new scls.XYScaleContinuous(this.height, -1, true),
+                    x: new scls.XYScaleContinuous(this.width, this),
+                    y: new scls.XYScaleContinuous(this.height, this, -1, true),
                 };
                 this.representations = {
                     bars: new reps.Bars(this.wranglers.wrangler1, 1),
@@ -2083,9 +2099,9 @@ var PLOTSCAPE = (() => {
                         .assignIndices(),
                 };
                 this.scales = {
-                    x: new scls.XYScaleDiscrete(this.width),
-                    y: new scls.XYScaleDiscrete(this.height, -1),
-                    size: new scls.LengthScaleContinuous(1),
+                    x: new scls.XYScaleDiscrete(this.width, this),
+                    y: new scls.XYScaleDiscrete(this.height, this, -1),
+                    size: new scls.LengthScaleContinuous(1, this),
                 };
                 this.representations = {
                     squares: new reps.Squares(this.wranglers.wrangler1),
@@ -2115,9 +2131,9 @@ var PLOTSCAPE = (() => {
                         .assignIndices(),
                 };
                 this.scales = {
-                    x: new scls.XYScaleContinuous(this.width),
-                    y: new scls.XYScaleContinuous(this.height, -1),
-                    size: new scls.LengthScaleContinuous(1),
+                    x: new scls.XYScaleContinuous(this.width, this),
+                    y: new scls.XYScaleContinuous(this.height, this, -1),
+                    size: new scls.LengthScaleContinuous(1, this),
                 };
                 this.representations = {
                     squares: new reps.Squares(this.wranglers.wrangler1),
@@ -2222,8 +2238,6 @@ var PLOTSCAPE = (() => {
                 this.nObs = data[Object.keys(data)[0]].length;
                 this.nPlots = 0;
                 this.nPlotsOfType = Array(dtstr.plotTypeArray.length).fill(0);
-                this.width = parseInt(getComputedStyle(element).width, 10);
-                this.height = parseInt(getComputedStyle(element).height, 10);
                 this.plots = {};
                 this.plotIds = [];
                 this.globals = {
@@ -2263,6 +2277,13 @@ var PLOTSCAPE = (() => {
                         .reduce((a, b) => `${a}"${b}"`, ``);
                     this.element.style.gridTemplateAreas = layoutString;
                 }
+                window.addEventListener("resize", this.resize);
+            }
+            get width() {
+                return parseInt(getComputedStyle(this.element).width, 10);
+            }
+            get height() {
+                return parseInt(getComputedStyle(this.element).height, 10);
             }
         }
         exports.Scene = Scene;

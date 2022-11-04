@@ -25,11 +25,15 @@ ps_scene <- function(data, width = NULL, height = NULL, elementId = NULL,
 
   # create widget
   htmlwidgets::createWidget(
-    name = 'plotscapeTest',
+    name = 'plotscaper',
     x,
     width = width,
     height = height,
-    package = 'plotscapeTest',
-    elementId = elementId
+    package = 'plotscaper',
+    elementId = elementId,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      padding = 0,
+      browser.fill = TRUE
+    )
   )
 }

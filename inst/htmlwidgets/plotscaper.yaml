@@ -1,7 +1,7 @@
 # (uncomment to add a dependency)
 dependencies:
- - name: plotscape
+ - name: plotscaper
    version: 1.0.0
-   src: htmlwidgets/plotscapeTest
+   src: htmlwidgets/plotscaper
    script: bundle.js
    stylesheet: styles.css
