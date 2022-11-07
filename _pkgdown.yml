@@ -1,0 +1,6 @@
+url: https://bartonicek.github.io/plotscaper/
+template:
+  bootstrap: 5
+
+development:
+  mode: auto
