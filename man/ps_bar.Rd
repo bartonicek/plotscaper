@@ -2,15 +2,15 @@
 % Please edit documentation in R/plots.R
 \name{ps_bar}
 \alias{ps_bar}
-\title{Add a barplot to a plotscape scene}
+\title{Add a barplot to a plotscaper scene}
 \usage{
 ps_bar(scene, mapping, ...)
 }
 \arguments{
-\item{scene}{A plotscape scene object}
+\item{scene}{A plotscaper scene object}
 
-\item{mapping}{A list which declares how variables in the data (belonging to scene) map to visual aesthetics/encodings}
+\item{mapping}{A mapping created with \code{ps_map()} or a list that declares how variables in the data (belonging to scene) map to visual aesthetics/encodings}
 }
 \description{
-Function that appends a ready-made barplot to a plotscape scene. A wrapper for ps_wrapper_plot(scene, type = "bar", mapping)
+Function that appends a ready-made barplot to a plotscaper scene. A wrapper for ps_wrapper_plot(scene, type = "bar", mapping)
 }

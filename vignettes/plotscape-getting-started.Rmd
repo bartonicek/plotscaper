@@ -3,58 +3,199 @@ title: "Getting Started with Plotscape"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with Plotscape}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  fig.width = 7,
+  fig.height = 4,
   collapse = TRUE,
   comment = "#>"
 )
 ```
 
-Getting started with `plotscape` is easy! Use `ps_scene(data, width, height)` function to create a frame to hold all your interactive plots, of pre-specified dimensions, and finally add as many interactive plots as you want with `ps_[plottype]`. For example, here's how you make an interactive scene with the famous `mtcars` data:
+## Installation
 
-```{r setup}
+Install the latest development version of `plotscaper` using the `devtools` package:
 
-library(plotscapeTest)
+```{r, eval=FALSE}
+devtools::install_github("bartonicek/plotscaper")
+```
+## Minimal Example: A Linked Barplot and Scatterplot
 
-ps_scene(mtcars, width = 600, height = 400) |>
-  ps_scatter(ps_map("wt", "mpg")) |>
-  ps_bar(ps_map("cyl")) |>
-  ps_histo(ps_map("disp")) |>
-  ps_square(ps_map("gear", "am"))
+The first step in making a `plotscaper` visualization is creating a visual scene. You can think of the scene as a box to hold all of your interactive plots. There are few other things going on in the background, but that's not important right now. 
+
+To create a visual scene, call the `ps_scene()` function with one or more arguments. The first argument that always has to be supplied is `data`, which needs to be an R `data.frame` (or `tibble`). Let's use the `mtcars` data available in base R:
+
+```{r}
+
+library(plotscaper)
+
+scene1 <- ps_scene(data = mtcars)
+
+scene1
 
 ```
 
-Once you have a scene set up, you can interact with it by using mouse/touchpad and pressing keys on a keyboard. Some useful commands are:
+All we can see right now is a grey rectangle with a small help button (marked `?`) in the top right corner. To actually leverage the power of `plotscaper`, we need to add some plots.
+
+To add plots to a `plotscaper` scene, call functions that have the `ps_[plot type]()` syntax. For example, to add a scatterplot use `ps_scatter()`, to add a histogram use `ps_histo()`, and so on and so on. In this case, the argument that always has to be supplied is `mapping`. Mapping specifies which variables in the data get mapped onto which aesthetics within the plot. This should feel familiar to `ggplot2` users. To specify mapping, use the `ps_map()` function with names of variables in the data as arguments. 
+
+We can chain adding multiple plots together using the native pive (`|>`) operator (`%*%` from the `magrittr` package works too). For example, to add a scatterplot of weight (`wt`) against mileage (`mpg`), and a barplot of the number of cylinders (`cyl`), we can do:
+
+```{r}
+
+scene1 <- scene1 |> 
+  ps_scatter(mapping = ps_map(x = "wt", y = "mpg")) |>
+  ps_bar(mapping = ps_map(x = "cyl"))
+
+scene1
+
+```
+
+The scene now contains a scatterplot and barplot, laid out side-by-side! But that's not everything. Try clicking on one of the points or bars to select it. You should see that the object (point or bar) becomes highlighted, as indicated by a more vibrant color. What's more, you should also see the other plot respond by highlighting it's own object(s), corresponding to the same cases in the data. 
+
+There are many ways we can interact with `plotscaper` scenes. Some useful commands are:
 
 - Click a plot to make it active
+- Double-click to deactivate all plots and clear all selections
 - +/- to increase/decrease size of objects in the (active) plot
 - [/] to decrease/increase opacity of objects
 - Click an object to transiently select it, click-and-drag to select more than one object
 - Hold down 1, 2, ... while clicking (or clicking-and-dragging) to make a permanent (group) selection
 
-It's easy to use `plotscape` programmatically. For example, here's how you can set up a scatterplot-matrix (SPLOM) of the `iris` dataset:
+You might be wondering what the terms *transient* and *permanent* mentioned above mean. Put simply, they represent two different modes of selecting objects. 
+
+Transient selection is the default. When you click-and-drag to select objects without holding down any additional keys, the objects will be transiently selected. Clicking somewhere else in the plot will clear transient selection. Conversely, holding down either the "1", "2", or "3" key while clicking-and-dragging will lead to the objects being permanently selected. Permanently selected objects are highlighted by a different color, and the selection does not get cleared after a single click (however, double-clicking the scene *will* remove all selections). What's more, once you have at least one case in your data permanently selected, transient selection will change its behavior: instead of highlighting the objects with solid color, it will now overlay them with a striped pattern. 
+
+Using transient and permanent selection together is useful for comparing *within* groups. For example, we can assign all heavy and inefficient cars (mileage lower than 20 miles per gallon, weigh more than 3,000 pounds, lower right quadrant of the scatterplot) to group 1, all other cars to group 2, and then check which of the 6-cylinder cars belong to either group by transiently selecting the relevant bar in the barplot.
+
+If you want to practice doing selections manually, go ahead and try to do this in the plot above. If you're just after the big picture, take a look at the plot below, which showcases another handy `plotscaper` function: `ps_premark()`. `ps_premark()` can be used to initialize the scene with selections already present upon rendering, like so:     
 
 ```{r}
 
+heavy_inefficient_cars <- which(mtcars$wt > 3 & mtcars$mpg < 20)
+light_efficient_cars <- setdiff(1:32, heavy_inefficient_cars)
+six_cylinder_cars <- which(mtcars$cyl == 6)
+
+scene1 |> 
+  ps_premark(heavy_inefficient_cars, 2) |>
+  ps_premark(light_efficient_cars, 3) |>
+  ps_premark(six_cylinder_cars, 128)
+
+```
+
+Simultaneously using transient and selection allows us to see which of the 6-cylinder cars belong to the heavy-and-inefficient and light-and-efficient category. Further, the above plot illustrates how we can use `ps_premark()` to mark the scene with highlighted selections before the user even touches it. Importantly, the scene remains a regular interactive `plotscaper` scene and so the selections can be cleared with a double-click. As such, `ps_premark()` can be useful if you want to show someone else some interesting features of your data but also allow them the freedom to venture out on their own!
+
+We have played around with a barplot and a scatterplot for a while. How about adding some more plots types to the mix?
+
+```{r}
+scene1 <- scene1 |>
+  ps_histo(ps_map(x = "disp")) |>
+  ps_square(ps_map("gear", "am"))
+
+scene1
+```
+
+Histograms are a time-proven classic, and "squareplots" (let me know if you know of a better name) are handy because they allow us to easily visualize two categorical variables at once.
+
+Interactive graphics can be a really fun and efficient way of discovering interesting trends and patterns in the data. For example, have a look at the top-left scatterplot in the scene below:
+
+```{r}
+five_gear_automatic <-  which(mtcars$am == 1 & mtcars$gear == 5)
+
+scene1 |>
+  ps_premark(five_gear_automatic, 128)
+```
+
+I been playing around with the `mtcars` dataset for years, while testing out different models and ways of visualizing data. However, I have never noticed that if you look at the weight and mileage of the 5-gear automatic cars, they all lie below the main diagonal. This means that these cars are less efficient than we would expect for cars of equivalent weight.
+
+To come up with this kind of insight using regular static plots would take either a lot of time or knowing what to look for. With `plotscaper`, we can generate insights on the fly!
+
+## Getting More Creative with Layouts and Adding Plots Programmatically
+
+There are two powerful tools for creating interesting `plotscaper` scenes: CSS grid layout and leveraging R to add plots to an existing scene dynamically, using code.
+
+### CSS grid layout
+
+CSS grid layout can be used to define the size, position, and aspect ratio of plots within a scene. It is specified using a matrix of numbers (integers), where each number represents a plot, in order that they get added to the scene. For example, if we supply the following layout:
+
+```
+1 1 1 2
+3 3 4 2
+3 3 5 2
+```
+
+We will end up with a short-and-wide first plot occupying most of the top row, a tall-and-narrow second plot occupying the rightmost column, a larger square third plot occupying the bottom left corner, and the fourth and fifth plots squeezed in between. 
+
+To actually tell `plotscaper` what layout we want to use, we need to specify it using R's `matrix()` function. The only restriction is that the plots need to be arranged in contiguous rectangles, otherwise the scene will not be rendered. For example, the following layout will not render: 
+
+```
+1 2 1
+2 2 2
+1 2 1
+```
+
+But this one will:
+
+```
+1 2 1
+3 3 3
+1 4 1
+```
+
+### Leveraging R to add plots for us
+
+Since the functions to add plots to a `plotscaper` scene are regular R functions, we can write R code to specify which plots we want to add. Specifically, iteration using `for` loops or `sapply()`/`lapply()` can be very handy if we want to add multiple plots and don't want to write out every single call to `ps_[plot type]()` manually. 
+
+For example, if we want to plot multiple scatterplots, with the names of variables we want to plot on the x- and y-axis stored in a string vectors `xvars` and `yvars` respectively, we can do something like:
+
+```{r, eval=FALSE}
+
+scene <- ...
+
+for (i in seq_along(xvars)) {
+  scene <- scene |> ps_scatter(ps_map(xvars[i], yvars[i]))
+}
+
+```
+
+Putting this all together, here's how we can create an interesting scene of the `iris` dataset:
+
+```{r}
+
+# Create layout: 
+# - 6 small scatterplot in top-left corner
+# - 4 histograms in the right column
+# - One large barplot in bottom-left corner
+layout2 <- matrix(c(
+  1, 2, 3, 8, 8,
+  4, 5, 6, 9, 9,
+  7, 7, 7, 10, 10,
+  7, 7, 7, 11, 11), ncol = 5, byrow = TRUE)
+
+scene2 <- ps_scene(iris, layout = layout2)
+
 # Create a matrix of all unique combinations of 2 variables in the iris data
 vars <- names(iris)
-xy <- matrix(vars[combn(1:4, 2)], ncol = 2, byrow = TRUE)
+xyvars <- matrix(vars[combn(1:4, 2)], ncol = 2, byrow = TRUE)
 
-lay1 <- matrix(c(
-  1, 7, 7, 2, 
-  3, 7, 7, 4,
-  5, 7, 7, 6
-), ncol = 4, byrow = TRUE)
-
-s1 <- ps_scene(iris, layout = lay1, width = 600, height = 400)
-for (i in seq_len(nrow(xy))) {
-  s1 <- s1 |> ps_scatter(ps_map(xy[i, 1], xy[i, 2]))
+# Add scatterplots
+for (i in seq_along(xyvars[, 1])) {
+  scene2 <- scene2 |> ps_scatter(ps_map(xyvars[i, 1], xyvars[i, 2]))
 }
-s1 <- s1 |> ps_bar(ps_map("Species"))
-s1
 
+# Add barplot
+scene2 <- scene2 |> ps_bar(ps_map("Species"))
+
+# Add histograms
+for (i in seq_along(names(iris)[-5])) {
+  scene2 <- scene2 |> ps_histo(ps_map(names(iris)[i]))
+}
+
+scene2
 ```

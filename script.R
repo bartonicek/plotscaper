@@ -1,6 +1,9 @@
 
+# devtools::document()
 devtools::load_all()
 devtools::install()
+
+library(plotscaper)
 
 lay1 <- matrix(c(1, 1, 2,
                  1, 1, 3,
@@ -9,10 +12,10 @@ lay1 <- matrix(c(1, 1, 2,
 
 ps_scene(mtcars, layout = lay1) |>
   ps_scatter(ps_map("wt", "mpg")) |>
-  ps_bar(ps_map("cyl")) |>
   ps_square(ps_map("gear", "am")) |>
+  ps_bar(ps_map("cyl")) |>
   ps_histo(ps_map("disp")) |>
-  ps_bar(ps_map("vs"))
+  ps_bubble(ps_map("carb", "vs"))
 
 ps_scene(iris) |>
   ps_scatter(list(x = "Sepal.Width", y = "Sepal.Length")) |>

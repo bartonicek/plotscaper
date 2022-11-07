@@ -2,19 +2,19 @@
 % Please edit documentation in R/plots.R
 \name{ps_wrapper_plot}
 \alias{ps_wrapper_plot}
-\title{Add a ready-made plot to a plotscape scene}
+\title{Add a ready-made plot to a plotscaper scene}
 \usage{
-ps_wrapper_plot(scene, type, mapping, height = NULL, width = NULL)
+ps_wrapper_plot(scene, type, mapping)
 }
 \arguments{
-\item{scene}{A plotscape scene object}
+\item{scene}{A plotscaper scene object}
 
 \item{type}{A string declaring the type of plot to be added, e.g. "scatter", "histo", "bar", "square"}
 
-\item{mapping}{A list which declares how variables in the data (belonging to scene) map to visual aesthetics/encodings}
+\item{mapping}{A mapping created with \code{ps_map()} or a list that declares how variables in the data (belonging to scene) map to visual aesthetics/encodings}
 }
 \description{
-Function that appends a ready-made plot of a specific type to an existing plotscape scene
+Function that appends a ready-made plot of a specific type to an existing plotscaper scene
 }
 \examples{
 s1 <- scene(mtcars, 900, 500)

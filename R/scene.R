@@ -20,7 +20,8 @@ ps_scene <- function(data, width = NULL, height = NULL, elementId = NULL,
     data = data,
     types = c(),
     mappings = list(),
-    layout = layout
+    layout = layout,
+    premark = list(indices = list(), membership = list())
   )
 
   # create widget

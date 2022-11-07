@@ -32,7 +32,7 @@ ps_wrapper_plot <- function(scene, type, mapping) {
 
   scene$x$types <- c(scene$x$types, type)
   scene$x$mappings <- append(scene$x$mappings, list(mapping))
-  return(scene)
+  scene
 }
 
 #' Add a scatterplot to a plotscaper scene
@@ -71,7 +71,7 @@ ps_histo <- function(scene, mapping, ...) {
   ps_wrapper_plot(scene, "histo", mapping, ...)
 }
 
-#' Add a squareplot to a plotscaper
+#' Add a squareplot to a plotscaper scene
 #'
 #' Function that appends a ready-made "squareplot" to a plotscaper scene. A wrapper for ps_wrapper_plot(scene, type = "histo", mapping)
 #'
@@ -81,4 +81,28 @@ ps_histo <- function(scene, mapping, ...) {
 #' @export
 ps_square <- function(scene, mapping, ...) {
   ps_wrapper_plot(scene, "square", mapping, ...)
+}
+
+#' Add a bubbleplot to a plotscaper scene
+#'
+#' Function that appends a ready-made bubbleplot/bubblechart to a plotscaper scene. A wrapper for ps_wrapper_plot(scene, type = "histo", mapping)
+#'
+#' @param scene A plotscaper scene object
+#' @param mapping A mapping created with `ps_map()` or a list that declares how variables in the data (belonging to scene) map to visual aesthetics/encodings
+#'
+#' @export
+ps_bubble <- function(scene, mapping, ...) {
+  ps_wrapper_plot(scene, "bubble", mapping, ...)
+}
+
+#' Add a square heatmap to a plotscaper scene
+#'
+#' Function that appends a ready-made "square heatmap" (with square size representing count, not colour) to a plotscaper scene. A wrapper for ps_wrapper_plot(scene, type = "histo", mapping)
+#'
+#' @param scene A plotscaper scene object
+#' @param mapping A mapping created with `ps_map()` or a list that declares how variables in the data (belonging to scene) map to visual aesthetics/encodings
+#'
+#' @export
+ps_squareheat <- function(scene, mapping, ...) {
+  ps_wrapper_plot(scene, "squareheat", mapping, ...)
 }

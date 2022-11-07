@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{ps_map}
 \alias{ps_map}
-\title{Create a plotscape mapping}
+\title{Create a plotscaper mapping}
 \usage{
 ps_map(x = NULL, y = NULL, size = NULL)
 }
@@ -14,5 +14,5 @@ ps_map(x = NULL, y = NULL, size = NULL)
 \item{size}{Variable mapped to the size aesthetic (string)}
 }
 \description{
-A helper function to create an aesthetic mapping for plotscape plots
+A helper function to create an aesthetic mapping for plotscaper plots
 }

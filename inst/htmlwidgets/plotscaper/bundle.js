@@ -246,7 +246,7 @@ var PLOTSCAPE = (() => {
         exports.createStripePattern = createStripePattern;
         // Function to construct "pretty" breaks, inspired by R's pretty()
         const prettyBreaks = (x, n = 4) => {
-            const [minimum, maximum] = [min(x) * 0.9, max(x) * 1.1];
+            const [minimum, maximum] = [min(x), max(x)];
             const range = maximum - minimum;
             const unitGross = range / n;
             const base = Math.floor(Math.log10(unitGross));
@@ -348,9 +348,9 @@ var PLOTSCAPE = (() => {
                         }
                     });
                 };
-                this.publish = (name) => {
+                this.publish = (name, ...args) => {
                     var _a;
-                    (_a = this.callbacks.get(name)) === null || _a === void 0 ? void 0 : _a.forEach((e) => e());
+                    (_a = this.callbacks.get(name)) === null || _a === void 0 ? void 0 : _a.forEach((e) => e(...args));
                 };
                 this.callbacks = new Map();
             }
@@ -378,15 +378,19 @@ var PLOTSCAPE = (() => {
                 this.updateCurrent = (at, membership) => {
                     if (membership < 128 && at.length)
                         this.anyPersistent = true;
-                    this.clearCurrent();
+                    this.clearCurrent(true);
                     this.current.update(at, membership);
                     this.publish("updateCurrent");
                 };
-                this.mergeCurrent = () => {
-                    this.past.merge(this.current.asPersistent());
+                this.mergeCurrent = (keepTransient = false) => {
+                    if (!keepTransient)
+                        this.current.discardTransient();
+                    this.past.merge(this.current);
                 };
-                this.clearCurrent = () => {
-                    this.current = new MembershipArray([...this.past.asPersistent()]);
+                this.clearCurrent = (keepTransient = false) => {
+                    if (!keepTransient)
+                        this.past.discardTransient();
+                    this.current = new MembershipArray([...this.past]);
                     this.publish("clearAll");
                 };
                 this.clearAll = () => {
@@ -405,19 +409,10 @@ var PLOTSCAPE = (() => {
             constructor(arg) {
                 super(arg);
                 this.clear = () => this.fill(1);
-                this.asPersistent = () => {
-                    const res = new MembershipArray(this.length);
+                this.discardTransient = () => {
                     let i = this.length;
                     while (i--)
-                        res[i] = this[i] & ~128;
-                    return res;
-                };
-                this.asTransient = () => {
-                    const res = new MembershipArray(this.length);
-                    let i = this.length;
-                    while (i--)
-                        res[i] = this[i] & ~128;
-                    return res;
+                        this[i] = this[i] & ~128;
                 };
                 this.merge = (arr) => {
                     let i = this.length;
@@ -454,16 +449,17 @@ var PLOTSCAPE = (() => {
                         return;
                     this.pressing = true;
                     if (this.validKeys.includes(event.code)) {
+                        event.preventDefault();
                         this.lastPressed = event.code;
                         this.currentlyPressed[this.validKeys.indexOf(event.code)] = true;
-                        this.publish("keyPressed");
+                        this.publish("keyPressed", event.code);
                     }
                 };
                 this.keyReleased = (event) => {
                     this.pressing = false;
                     if (this.validKeys.includes(event.code)) {
                         this.currentlyPressed[this.validKeys.indexOf(event.code)] = false;
-                        this.publish("keyReleased");
+                        this.publish("keyReleased", event.code);
                     }
                 };
                 this.isPressed = (key) => {
@@ -505,52 +501,68 @@ var PLOTSCAPE = (() => {
         class StateHandler extends Handler_js_3.Handler {
             constructor() {
                 super();
+                this.updateBools = (index, value) => {
+                    const { states, keyStateValues } = this;
+                    const stateIndex = states.findIndex((e) => keyStateValues[index] === e);
+                    this.stateBool[stateIndex] = value;
+                    this.membershipBool[index] = value;
+                };
+                this.keyPressed = (key) => {
+                    if (this.keys.includes(key)) {
+                        const index = this.keys.findIndex((e) => e === key);
+                        this.updateBools(index, true);
+                    }
+                };
+                this.keyReleased = (key) => {
+                    if (this.keys.includes(key)) {
+                        const index = this.keys.findIndex((e) => e === key);
+                        this.updateBools(index, false);
+                    }
+                };
                 this.activate = (id) => {
                     this.plotsActive[this.plotIds.indexOf(id)] = true;
-                    this.plotContainers[this.plotIds.indexOf(id)].classList.add("active");
+                    this.containerDivs[this.plotIds.indexOf(id)].classList.add("active");
                 };
                 this.activateAll = () => {
                     this.plotsActive.fill(true);
-                    this.plotContainers.forEach((e) => e.classList.add("active"));
+                    this.containerDivs.forEach((e) => e.classList.add("active"));
                 };
                 this.deactivateAll = () => {
                     this.plotsActive.fill(false);
-                    this.plotContainers.forEach((e) => e.classList.remove("active"));
+                    this.containerDivs.forEach((e) => e.classList.remove("active"));
                 };
                 this.isActive = (id) => {
                     return this.plotsActive[this.plotIds.indexOf(id)];
                 };
-                this.inState = (state) => {
-                    const { keypressHandler, validStates, stateKeys } = this;
-                    if (state === "none" && !keypressHandler.currentlyPressed.some((e) => e))
-                        return true;
-                    return keypressHandler.isPressed(stateKeys[validStates.indexOf(state)]);
-                };
                 this.plotIds = [];
                 this.plotsActive = [];
-                this.plotContainers = [];
-                this.validStates = ["not", "or", "group1", "group2", "group3"];
-                this.stateKeys = ["ControlLeft", "ShiftLeft", "Digit1", "Digit2", "Digit3"];
-                this.membershipArray = [1, 128, 2, 3, 4];
+                this.containerDivs = [];
+                this.states = ["not", "or"];
+                this.keys = ["ControlLeft", "ShiftLeft", "Digit1", "Digit2", "Digit3"];
+                this.keyStateValues = ["not", "or", "or", "or", "or"];
+                this.keyMembershipValues = [1, 128, 2, 3, 4];
+                this.stateBool = Array(this.states.length).fill(false);
+                this.membershipBool = Array(this.keyMembershipValues.length).fill(false);
             }
-            get currentId() {
-                const { stateKeys, keypressHandler } = this;
-                let i = stateKeys.length;
-                let id = -1;
+            get none() {
+                return !this.stateBool.some((e) => e);
+            }
+            get or() {
+                return [1, 2, 3, 4].some((e) => this.stateBool[e]);
+            }
+            get membershipId() {
+                let [id, i] = [-1, this.membershipBool.length];
                 while (i--) {
-                    if (keypressHandler.isPressed(stateKeys[i])) {
+                    if (this.membershipBool[i]) {
                         id = i;
                         break;
                     }
                 }
                 return id;
             }
-            get current() {
-                return this.validStates[this.currentId];
-            }
             get membership() {
                 var _a;
-                return (_a = this.membershipArray[this.currentId]) !== null && _a !== void 0 ? _a : 128;
+                return (_a = this.keyMembershipValues[this.membershipId]) !== null && _a !== void 0 ? _a : 128;
             }
         }
         exports.StateHandler = StateHandler;
@@ -629,10 +641,10 @@ var PLOTSCAPE = (() => {
         __exportStar(StateHandler_js_1, exports);
         __exportStar(ClickHandler_js_1, exports);
     });
-    define("DataFrame", ["require", "exports"], function (require, exports) {
+    define("datastructures", ["require", "exports"], function (require, exports) {
         "use strict";
         Object.defineProperty(exports, "__esModule", { value: true });
-        exports.DataFrame = void 0;
+        exports.plotTypeArray = exports.highlightMembershipArray = exports.validMembershipArray = exports.baseMembershipArray = exports.Mapping = exports.DataFrame = void 0;
         class DataFrame {
             constructor(data) {
                 Object.keys(data).forEach((e) => (this[e] = data[e]));
@@ -642,11 +654,14 @@ var PLOTSCAPE = (() => {
             }
         }
         exports.DataFrame = DataFrame;
-    });
-    define("datastructures", ["require", "exports"], function (require, exports) {
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
-        exports.plotTypeArray = exports.highlightMembershipArray = exports.validMembershipArray = exports.baseMembershipArray = void 0;
+        class Mapping extends Map {
+            constructor(...mappings) {
+                super([...mappings]);
+                if (!this.has("y"))
+                    this.set("y", "_indicator");
+            }
+        }
+        exports.Mapping = Mapping;
         const baseMembershipArray = [1, 2, 3, 4];
         exports.baseMembershipArray = baseMembershipArray;
         const transientMembershipArray = [129, 130, 131, 132];
@@ -975,6 +990,7 @@ var PLOTSCAPE = (() => {
         exports.globalParameters = void 0;
         exports.globalParameters = {
             plot: {
+                scaleExpandFactor: 0.1,
                 backgroundColour: `#f2efde`,
             },
             reps: {
@@ -1330,7 +1346,7 @@ var PLOTSCAPE = (() => {
                     return selectedDatapoints;
                 };
                 // Handle generic keypress actions
-                this.onKeypress = (key) => {
+                this.keyPressed = (key) => {
                     const { sizeMultiplier, sizeLimits, alphaMultiplier, alphaLimits } = this;
                     if (key === "KeyR")
                         this.defaultize();
@@ -1357,8 +1373,8 @@ var PLOTSCAPE = (() => {
                 this.sizeMultiplier = 1;
                 this.alphaMultiplier = 1;
                 this.sizeLimits = {
-                    min: 0.001,
-                    max: 10,
+                    min: 1 / 5,
+                    max: 5,
                 };
                 this.alphaLimits = {
                     min: 0.01,
@@ -1465,7 +1481,11 @@ var PLOTSCAPE = (() => {
                 };
             }
             get defaultRadius() {
-                return Math.min(this.scales.x.length, this.scales.y.length) / 20;
+                const { x, y } = this.scales;
+                if (x.intervalWidth && y.intervalWidth) {
+                    return Math.min(x.intervalWidth, y.intervalWidth);
+                }
+                return Math.min(x.length, y.length) / 20;
             }
             get boundingRects() {
                 const [x, y, size] = this.getMappings(1);
@@ -1710,7 +1730,7 @@ var PLOTSCAPE = (() => {
                         context.drawClear();
                         return;
                     }
-                    if (!state.inState("none")) {
+                    if (!state.none) {
                         context.drawClear();
                         context.drawDim();
                         this.past.forEach((points) => {
@@ -1760,7 +1780,7 @@ var PLOTSCAPE = (() => {
                 this.initialize = () => {
                     const graphicLayers = ["graphicBase", "graphicUser", "graphicHighlight"];
                     this.sceneDiv.appendChild(this.containerDiv);
-                    this.containerDiv.setAttribute("class", "containerDiv");
+                    this.containerDiv.classList.add("plotscape-container");
                     graphicLayers.forEach((e) => {
                         this[e] = new GraphicLayer_js_1.GraphicLayer(this.containerDiv);
                         this.containerDiv.appendChild(this[e].canvas);
@@ -1798,37 +1818,24 @@ var PLOTSCAPE = (() => {
                     this.handlers.state.deactivateAll();
                     this.handlers.state.activate(this.id);
                 };
-                // Calls a method (string) on each child of a property (string)
-                // e.g. call method "drawBase" on each child of "representations"
-                this.callChildren = (object, fun, ...args) => {
-                    const obj = this[object];
-                    Object.keys(obj).forEach((child) => {
-                        obj[child][fun] ? obj[child][fun](...args) : null;
-                    });
-                };
-                // Returns a result of a function [string] from each child of a property [string]
-                // e.g. return selected points from each representation
-                this.mapChildren = (object, fun, ...args) => {
-                    const obj = this[object];
-                    return Object.keys(obj).map((child) => {
-                        return obj[child][fun] ? obj[child][fun](...args) : null;
-                    });
-                };
                 // Gets all unique values of a mapping [string], across all wranglers
                 this.getUnique = (mapping) => {
-                    const { wranglers } = this;
-                    const arr = Object.keys(wranglers).flatMap((name) => { var _a; return (_a = wranglers[name][mapping].extract()) !== null && _a !== void 0 ? _a : []; });
-                    return Array.from(new Set(arr));
+                    const arr = Object.keys(this.wranglers).map((name) => { var _a; return (_a = this.wranglers[name][mapping]) === null || _a === void 0 ? void 0 : _a.extract(); });
+                    return Array.from(new Set(arr.flat()));
                 };
                 // Given an array of selection points, checks each representation
                 this.inSelection = (selPoints) => {
-                    const { mapChildren } = this;
-                    const allPoints = mapChildren("representations", "inSelection", selPoints);
+                    const allPoints = Object.keys(this.representations).map((e) => {
+                        var _a, _b;
+                        return (_b = (_a = this.representations[e]) === null || _a === void 0 ? void 0 : _a.inSelection) === null || _b === void 0 ? void 0 : _b.call(_a, selPoints);
+                    });
                     return Array.from(new Set(allPoints.flat()));
                 };
                 this.inClickPosition = (clickPoint) => {
-                    const { mapChildren } = this;
-                    const allPoints = mapChildren("representations", "atClick", clickPoint);
+                    const allPoints = Object.keys(this.representations).map((e) => {
+                        var _a, _b;
+                        return (_b = (_a = this.representations[e]) === null || _a === void 0 ? void 0 : _a.atClick) === null || _b === void 0 ? void 0 : _b.call(_a, clickPoint);
+                    });
                     return Array.from(new Set(allPoints.flat()));
                 };
                 this.updateCurrent = () => this.drawHighlight();
@@ -1836,7 +1843,7 @@ var PLOTSCAPE = (() => {
                 this.startDrag = () => {
                     const { state, drag } = this.handlers;
                     const { highlightrects } = this.auxiliaries;
-                    if (!state.inState("none") && highlightrects.lastComplete) {
+                    if (!state.none && highlightrects.lastComplete) {
                         highlightrects.pushLastToPast();
                     }
                     highlightrects.updateCurrentOrigin(drag.start);
@@ -1846,48 +1853,45 @@ var PLOTSCAPE = (() => {
                     const { highlightrects } = this.auxiliaries;
                     highlightrects.updateCurrentEndpoint(drag.end);
                     highlightrects.updateLast();
-                    this.drawUser();
                     marker.updateCurrent(this.inSelection([drag.start, drag.end]), state.membership);
+                    if (this.active || state.none)
+                        this.draw("user");
                 };
                 this.endDrag = () => {
-                    const { marker, state } = this.handlers;
                     const { highlightrects } = this.auxiliaries;
-                    marker.mergeCurrent();
-                    if (!state.inState("none") && highlightrects.lastComplete) {
+                    if (!this.handlers.state.none && highlightrects.lastComplete) {
                         highlightrects.pushLastToPast();
                     }
                 };
-                this.keyPressed = () => {
-                    const { callChildren, drawBase, drawHighlight } = this;
-                    const { keypress } = this.handlers;
-                    callChildren("handlers", "onKeypress", keypress.lastPressed);
-                    console.log(this.active);
+                this.keyPressed = (key) => {
                     if (this.active) {
-                        callChildren("representations", "onKeypress", keypress.lastPressed);
-                        drawBase();
-                        drawHighlight();
+                        Object.keys(this.representations).forEach((e) => {
+                            this.representations[e].keyPressed(key);
+                        });
+                        this.drawBase();
+                        this.drawHighlight();
                     }
                 };
-                this.keyReleased = () => {
-                    const { handlers, callChildren } = this;
-                    callChildren("handlers", "onKeyRelease", handlers.keypress.lastPressed);
-                    if (this.active) {
-                        callChildren("representations", "onKeyRelease", handlers.keypress.lastPressed);
-                    }
-                };
-                this.mouseDownAnywhere = () => {
-                    const { marker, state } = this.handlers;
-                    if (state.inState("none")) {
+                this.keyReleased = () => { };
+                this.mouseDownAnyPlot = (event) => {
+                    var _a;
+                    event.cancelBubble = true;
+                    (_a = event.stopPropagation) === null || _a === void 0 ? void 0 : _a.call(event);
+                    if (this.handlers.state.none) {
                         this.auxiliaries.highlightrects.clear();
                         this.drawUser();
                     }
                 };
-                this.mouseDownHere = () => {
-                    const { marker, click, drag, state } = this.handlers;
-                    const { highlightrects } = this.auxiliaries;
-                    if (state.inState("none")) {
+                this.mouseDownThisPlot = (event) => {
+                    var _a;
+                    const { marker, click, state } = this.handlers;
+                    event.cancelBubble = true;
+                    (_a = event.stopPropagation) === null || _a === void 0 ? void 0 : _a.call(event);
+                    marker.mergeCurrent(state.membership === 128);
+                    if (state.none) {
                         marker.clearCurrent();
                         this.auxiliaries.highlightrects.clear();
+                        this.drawUser();
                     }
                     state.deactivateAll();
                     this.activate();
@@ -1903,36 +1907,38 @@ var PLOTSCAPE = (() => {
                     state.deactivateAll();
                 };
                 this.draw = (context, ...args) => {
-                    const { callChildren } = this;
-                    const what = "draw" + funs.capitalize(context);
-                    const where = "graphic" + funs.capitalize(context);
+                    const { representations, auxiliaries } = this;
+                    const [what, where] = [
+                        "draw" + funs.capitalize(context),
+                        "graphic" + funs.capitalize(context),
+                    ];
                     if (context !== "user")
                         this[where].drawClear();
                     if (context === "base")
                         this[where].drawBackground();
-                    callChildren("representations", what, this[where], ...args);
-                    callChildren("auxiliaries", what, this[where], ...args);
+                    const repsAndAuxs = Object.assign(Object.assign({}, representations), auxiliaries);
+                    Object.keys(repsAndAuxs).forEach((e) => {
+                        var _a, _b;
+                        (_b = (_a = repsAndAuxs[e]) === null || _a === void 0 ? void 0 : _a[what]) === null || _b === void 0 ? void 0 : _b.call(_a, this[where], ...args);
+                    });
                 };
                 this.drawBase = () => this.draw("base");
                 this.drawHighlight = () => this.draw("highlight");
-                this.drawUser = () => {
-                    if (this.active || this.handlers.state.inState("none"))
-                        this.draw("user");
-                };
+                this.drawUser = () => this.draw("user");
                 this.drawRedraw = () => {
                     this.drawBase();
                     this.drawHighlight();
                     this.drawUser();
                 };
                 this.initialize = () => {
-                    const { handlers, scales, callChildren, mouseDownHere, mouseDownAnywhere, doubleClick, drawBase, containerDiv, sceneDiv, } = this;
-                    Object.keys(scales).forEach((mapping) => {
-                        var _a;
-                        (_a = scales[mapping]) === null || _a === void 0 ? void 0 : _a.registerData(this.getUnique(mapping));
-                    });
-                    callChildren("representations", "registerScales", scales);
-                    callChildren("auxiliaries", "registerScales", scales);
+                    const { representations, auxiliaries, handlers, scales, mouseDownThisPlot: mouseDownHere, mouseDownAnyPlot: mouseDownAnywhere, doubleClick, drawBase, containerDiv, sceneDiv, } = this;
                     this.handlers.drag.state = this.handlers.state;
+                    Object.keys(scales).forEach((e) => {
+                        var _a, _b;
+                        (_b = (_a = scales[e]).registerData) === null || _b === void 0 ? void 0 : _b.call(_a, this.getUnique(e));
+                    });
+                    const repsAndAuxs = Object.assign(Object.assign({}, representations), auxiliaries);
+                    Object.keys(repsAndAuxs).forEach((e) => { var _a, _b; return (_b = (_a = repsAndAuxs[e]).registerScales) === null || _b === void 0 ? void 0 : _b.call(_a, scales); });
                     sceneDiv.addEventListener("dblclick", doubleClick);
                     sceneDiv.addEventListener("mousedown", mouseDownAnywhere);
                     containerDiv.addEventListener("mousedown", mouseDownHere);
@@ -1958,7 +1964,6 @@ var PLOTSCAPE = (() => {
                     axistitley: new auxs.AxisTitle("y", mapping.get("y"), this),
                     highlightrects: new auxs.HighlightRects(this.handlers),
                 };
-                console.log(this.fontsize);
             }
             get active() {
                 return this.handlers.state.isActive(this.id);
@@ -2013,7 +2018,7 @@ var PLOTSCAPE = (() => {
                 this.scales = {
                     x: new scls.XYScaleDiscrete(this.width, this),
                     y: new scls.XYScaleDiscrete(this.height, this, -1),
-                    size: new scls.AreaScaleContinuous(this.width, this),
+                    size: new scls.AreaScaleContinuous(1, this),
                 };
                 this.representations = {
                     points: new reps.Points(this.wranglers.wrangler1),
@@ -2101,7 +2106,7 @@ var PLOTSCAPE = (() => {
                 this.scales = {
                     x: new scls.XYScaleDiscrete(this.width, this),
                     y: new scls.XYScaleDiscrete(this.height, this, -1),
-                    size: new scls.LengthScaleContinuous(1, this),
+                    size: new scls.AreaScaleContinuous(1, this),
                 };
                 this.representations = {
                     squares: new reps.Squares(this.wranglers.wrangler1),
@@ -2133,7 +2138,7 @@ var PLOTSCAPE = (() => {
                 this.scales = {
                     x: new scls.XYScaleContinuous(this.width, this),
                     y: new scls.XYScaleContinuous(this.height, this, -1),
-                    size: new scls.LengthScaleContinuous(1, this),
+                    size: new scls.AreaScaleContinuous(1, this),
                 };
                 this.representations = {
                     squares: new reps.Squares(this.wranglers.wrangler1),
@@ -2152,19 +2157,6 @@ var PLOTSCAPE = (() => {
         __exportStar(HistoPlot_js_1, exports);
         __exportStar(SquarePlot_js_1, exports);
         __exportStar(SquareHeatmap_js_1, exports);
-    });
-    define("Mapping", ["require", "exports"], function (require, exports) {
-        "use strict";
-        Object.defineProperty(exports, "__esModule", { value: true });
-        exports.Mapping = void 0;
-        class Mapping extends Map {
-            constructor(...mappings) {
-                super([...mappings]);
-                if (!this.has("y"))
-                    this.set("y", "_indicator");
-            }
-        }
-        exports.Mapping = Mapping;
     });
     define("helppaneltext", ["require", "exports"], function (require, exports) {
         "use strict";
@@ -2192,14 +2184,14 @@ var PLOTSCAPE = (() => {
             constructor(element, data, opts) {
                 this.setRowsCols = () => {
                     if (this.layout) {
-                        this.element.style.setProperty("--nRows", `${this.layout.length}`);
-                        this.element.style.setProperty("--nCols", `${this.layout[0].length}`);
+                        this.sceneDiv.style.setProperty("--nrows", `${this.layout.length}`);
+                        this.sceneDiv.style.setProperty("--ncols", `${this.layout[0].length}`);
                         return;
                     }
                     const nRows = Math.floor(Math.sqrt(this.nPlots));
                     const nCols = Math.ceil(this.nPlots / nRows);
-                    this.element.style.setProperty("--nRows", `${nRows}`);
-                    this.element.style.setProperty("--nCols", `${nCols}`);
+                    this.sceneDiv.style.setProperty("--nrows", `${nRows}`);
+                    this.sceneDiv.style.setProperty("--ncols", `${nCols}`);
                 };
                 this.resize = () => {
                     this.plotIds.forEach((e) => {
@@ -2208,7 +2200,7 @@ var PLOTSCAPE = (() => {
                     });
                 };
                 this.addPlotWrapper = (type, mapping) => {
-                    const { element, data, plotIds, globals } = this;
+                    const { sceneDiv: element, data, plotIds, globals } = this;
                     this.nPlots++;
                     const plotTypeIndex = dtstr.plotTypeArray.findIndex((e) => e === type);
                     this.nPlotsOfType[plotTypeIndex]++;
@@ -2225,14 +2217,14 @@ var PLOTSCAPE = (() => {
                     plotIds.push(id);
                     globals.state.plotIds.push(id);
                     globals.state.plotsActive.push(false);
-                    globals.state.plotContainers.push(this.plots[id].containerDiv);
+                    globals.state.containerDivs.push(this.plots[id].containerDiv);
                     if (this.layout) {
                         this.plots[id].containerDiv.style.gridArea = `p${this.nPlots}`;
                     }
                     this.resize();
                     return this;
                 };
-                this.element = element;
+                this.sceneDiv = element;
                 this.data = data;
                 this.layout = opts === null || opts === void 0 ? void 0 : opts.layout;
                 this.nObs = data[Object.keys(data)[0]].length;
@@ -2245,45 +2237,49 @@ var PLOTSCAPE = (() => {
                     keypress: new hndl.KeypressHandler(),
                     state: new hndl.StateHandler(),
                 };
-                element.classList.add("sceneDiv");
+                this.sceneDiv.classList.add("plotscape-scene");
+                this.sceneDiv.classList.add("js-plotscape-scene");
                 this.globals.state.keypressHandler = this.globals.keypress;
+                this.globals.keypress.subscribe(this.globals.state);
                 // Inject css
                 const head = document.head;
                 const link = document.createElement("link");
-                link.type = "text/css";
-                link.rel = "stylesheet";
-                link.href = "./styles.css";
+                [link.type, link.rel, link.href] = [
+                    "text/css",
+                    "stylesheet",
+                    "./styles.css",
+                ];
                 head.appendChild(link);
                 // Add help button and panel
-                const helpButton = document.createElement("button");
-                const helpPanel = document.createElement("div");
+                const [helpButton, helpPanel] = ["button", "div"].map((e) => document.createElement(e));
                 helpButton.innerText = `?`;
-                helpButton.classList.add("buttonHelp");
                 helpPanel.innerHTML = helppaneltext_js_1.helpPanelText;
-                helpPanel.classList.add("helpPanel");
+                helpButton.classList.add("help-button", "js-help-button");
+                helpPanel.classList.add("help-panel", "js-help-panel");
                 const helpButtonDim = Math.min(this.width, this.height) * 0.05;
-                helpButton.style.width = `${helpButtonDim}px`;
-                helpButton.style.height = `${helpButtonDim}px`;
-                helpButton.style.fontSize = `${0.5 * helpButtonDim}px`;
-                element.appendChild(helpPanel);
-                element.appendChild(helpButton);
-                helpButton.addEventListener("click", (event) => {
-                    helpPanel.classList.toggle("activePanel");
-                });
+                const hs = helpButton.style;
+                [hs.width, hs.height, hs.fontSize] = [
+                    `${helpButtonDim}px`,
+                    `${helpButtonDim}px`,
+                    `${0.5 * helpButtonDim}px`,
+                ];
+                [helpButton, helpPanel].forEach((e) => this.sceneDiv.appendChild(e));
+                const activateHelpPanel = () => helpPanel.classList.toggle("active");
+                helpButton.addEventListener("click", activateHelpPanel);
                 // Add CSS grid layout template if available
                 if (this.layout) {
                     const layoutString = this.layout
                         .map((row) => row.map((e) => `p${e.toString()}`).join(" "))
                         .reduce((a, b) => `${a}"${b}"`, ``);
-                    this.element.style.gridTemplateAreas = layoutString;
+                    this.sceneDiv.style.gridTemplateAreas = layoutString;
                 }
                 window.addEventListener("resize", this.resize);
             }
             get width() {
-                return parseInt(getComputedStyle(this.element).width, 10);
+                return parseInt(getComputedStyle(this.sceneDiv).width, 10);
             }
             get height() {
-                return parseInt(getComputedStyle(this.element).height, 10);
+                return parseInt(getComputedStyle(this.sceneDiv).height, 10);
             }
         }
         exports.Scene = Scene;
@@ -2303,13 +2299,12 @@ var PLOTSCAPE = (() => {
             }
         }
     });
-    define("main", ["require", "exports", "Scene", "plot/Plot", "DataFrame", "Mapping", "functions", "scales/scales"], function (require, exports, Scene_js_1, Plot_js_7, DataFrame_js_1, Mapping_js_1, functions_js_1, scales_js_1) {
+    define("main", ["require", "exports", "Scene", "datastructures", "plot/Plot", "functions", "scales/scales"], function (require, exports, Scene_js_1, datastructures_js_1, Plot_js_7, functions_js_1, scales_js_1) {
         "use strict";
         Object.defineProperty(exports, "__esModule", { value: true });
         __exportStar(Scene_js_1, exports);
+        __exportStar(datastructures_js_1, exports);
         __exportStar(Plot_js_7, exports);
-        __exportStar(DataFrame_js_1, exports);
-        __exportStar(Mapping_js_1, exports);
         __exportStar(functions_js_1, exports);
         __exportStar(scales_js_1, exports);
     });

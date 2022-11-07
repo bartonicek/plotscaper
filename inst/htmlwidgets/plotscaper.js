@@ -24,6 +24,14 @@ HTMLWidgets.widget({
           this.scene.addPlotWrapper(e, new PLOTSCAPE.Mapping(...mappingArray))
         })
 
+        console.log(x)
+
+        x.premark.indices.forEach((e, i) => {
+          this.scene.globals.marker.updateCurrent(e, x.premark.membership[i])
+          this.scene.globals.marker.mergeCurrent(true)
+        })
+
+
       },
 
       resize: function(width, height) {
