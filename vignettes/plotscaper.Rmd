@@ -1,8 +1,8 @@
 ---
-title: "Getting Started with Plotscape"
+title: "Getting Started with Plotscaper"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting Started with Plotscape}
+  %\VignetteIndexEntry{Getting Started with Plotscaper}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
