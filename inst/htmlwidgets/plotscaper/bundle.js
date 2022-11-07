@@ -1874,19 +1874,14 @@ var PLOTSCAPE = (() => {
                 };
                 this.keyReleased = () => { };
                 this.mouseDownAnyPlot = (event) => {
-                    var _a;
-                    event.cancelBubble = true;
-                    (_a = event.stopPropagation) === null || _a === void 0 ? void 0 : _a.call(event);
+                    console.log("aaaaa");
                     if (this.handlers.state.none) {
                         this.auxiliaries.highlightrects.clear();
                         this.drawUser();
                     }
                 };
                 this.mouseDownThisPlot = (event) => {
-                    var _a;
                     const { marker, click, state } = this.handlers;
-                    event.cancelBubble = true;
-                    (_a = event.stopPropagation) === null || _a === void 0 ? void 0 : _a.call(event);
                     marker.mergeCurrent(state.membership === 128);
                     if (state.none) {
                         marker.clearCurrent();
@@ -1931,7 +1926,7 @@ var PLOTSCAPE = (() => {
                     this.drawUser();
                 };
                 this.initialize = () => {
-                    const { representations, auxiliaries, handlers, scales, mouseDownThisPlot: mouseDownHere, mouseDownAnyPlot: mouseDownAnywhere, doubleClick, drawBase, containerDiv, sceneDiv, } = this;
+                    const { representations, auxiliaries, handlers, scales, mouseDownThisPlot, mouseDownAnyPlot, doubleClick, drawBase, containerDiv, sceneDiv, } = this;
                     this.handlers.drag.state = this.handlers.state;
                     Object.keys(scales).forEach((e) => {
                         var _a, _b;
@@ -1940,8 +1935,8 @@ var PLOTSCAPE = (() => {
                     const repsAndAuxs = Object.assign(Object.assign({}, representations), auxiliaries);
                     Object.keys(repsAndAuxs).forEach((e) => { var _a, _b; return (_b = (_a = repsAndAuxs[e]).registerScales) === null || _b === void 0 ? void 0 : _b.call(_a, scales); });
                     sceneDiv.addEventListener("dblclick", doubleClick);
-                    sceneDiv.addEventListener("mousedown", mouseDownAnywhere);
-                    containerDiv.addEventListener("mousedown", mouseDownHere);
+                    sceneDiv.addEventListener("mousedown", mouseDownAnyPlot);
+                    containerDiv.addEventListener("mousedown", mouseDownThisPlot);
                     Object.keys(handlers).forEach((e) => handlers[e].subscribe(this));
                     drawBase();
                 };
