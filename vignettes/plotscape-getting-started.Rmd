@@ -25,9 +25,12 @@ Install the latest development version of `plotscaper` using the `devtools` pack
 ```{r, eval=FALSE}
 devtools::install_github("bartonicek/plotscaper")
 ```
-## Minimal Example: A Linked Barplot and Scatterplot
+
+## Minimal Example: `mtcars`
 
 The first step in making a `plotscaper` visualization is creating a visual scene. You can think of the scene as a box to hold all of your interactive plots. There are few other things going on in the background, but that's not important right now. 
+
+### Create a visual scene
 
 To create a visual scene, call the `ps_scene()` function with one or more arguments. The first argument that always has to be supplied is `data`, which needs to be an R `data.frame` (or `tibble`). Let's use the `mtcars` data available in base R:
 
@@ -42,6 +45,8 @@ scene1
 ```
 
 All we can see right now is a grey rectangle with a small help button (marked `?`) in the top right corner. To actually leverage the power of `plotscaper`, we need to add some plots.
+
+### Add plots
 
 To add plots to a `plotscaper` scene, call functions that have the `ps_[plot type]()` syntax. For example, to add a scatterplot use `ps_scatter()`, to add a histogram use `ps_histo()`, and so on and so on. In this case, the argument that always has to be supplied is `mapping`. Mapping specifies which variables in the data get mapped onto which aesthetics within the plot. This should feel familiar to `ggplot2` users. To specify mapping, use the `ps_map()` function with names of variables in the data as arguments. 
 
@@ -68,6 +73,8 @@ There are many ways we can interact with `plotscaper` scenes. Some useful comman
 - Click an object to transiently select it, click-and-drag to select more than one object
 - Hold down 1, 2, ... while clicking (or clicking-and-dragging) to make a permanent (group) selection
 
+### Transient and persistent selection
+
 You might be wondering what the terms *transient* and *permanent* mentioned above mean. Put simply, they represent two different modes of selecting objects. 
 
 Transient selection is the default. When you click-and-drag to select objects without holding down any additional keys, the objects will be transiently selected. Clicking somewhere else in the plot will clear transient selection. Conversely, holding down either the "1", "2", or "3" key while clicking-and-dragging will lead to the objects being permanently selected. Permanently selected objects are highlighted by a different color, and the selection does not get cleared after a single click (however, double-clicking the scene *will* remove all selections). What's more, once you have at least one case in your data permanently selected, transient selection will change its behavior: instead of highlighting the objects with solid color, it will now overlay them with a striped pattern. 
@@ -90,6 +97,8 @@ scene1 |>
 ```
 
 Simultaneously using transient and selection allows us to see which of the 6-cylinder cars belong to the heavy-and-inefficient and light-and-efficient category. Further, the above plot illustrates how we can use `ps_premark()` to mark the scene with highlighted selections before the user even touches it. Importantly, the scene remains a regular interactive `plotscaper` scene and so the selections can be cleared with a double-click. As such, `ps_premark()` can be useful if you want to show someone else some interesting features of your data but also allow them the freedom to venture out on their own!
+
+### Adding more plots
 
 We have played around with a barplot and a scatterplot for a while. How about adding some more plots types to the mix?
 
@@ -116,7 +125,7 @@ I been playing around with the `mtcars` dataset for years, while testing out dif
 
 To come up with this kind of insight using regular static plots would take either a lot of time or knowing what to look for. With `plotscaper`, we can generate insights on the fly!
 
-## Getting More Creative with Layouts and Adding Plots Programmatically
+## Getting More Creative
 
 There are two powerful tools for creating interesting `plotscaper` scenes: CSS grid layout and leveraging R to add plots to an existing scene dynamically, using code.
 
@@ -166,7 +175,7 @@ for (i in seq_along(xvars)) {
 
 Putting this all together, here's how we can create an interesting scene of the `iris` dataset:
 
-```{r}
+```{r, fig.width=8, fig.height=8}
 
 # Create layout: 
 # - 6 small scatterplot in top-left corner
