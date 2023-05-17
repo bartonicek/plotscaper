@@ -1,8 +1,5 @@
-
 .plotscape-scene {
   position: relative;
-  background-color: #BDC7C2;
-  border: 3px solid #2E3532;
   display: grid !important;
   grid-template-columns: repeat(var(--ncols), 1fr);
   grid-template-rows: repeat(var(--nrows), 1fr);
@@ -16,13 +13,14 @@
 }
 
 .plotscape-container {
+  border: 1px solid #999690;
   position: relative;
   display: inherit !important;
   box-shadow: 5px 5px 3px #00000025;
 }
 
 .plotscape-container.active {
-  outline: 3px solid #2E3532
+  outline: 1px solid #999690
 }
 
 .plotscape-container canvas {

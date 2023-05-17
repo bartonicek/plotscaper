@@ -68,18 +68,20 @@ There are many ways we can interact with `plotscaper` scenes. Some useful comman
 
 - Click a plot to make it active
 - Double-click to deactivate all plots and clear all selections
-- +/- to increase/decrease size of objects in the (active) plot
-- [/] to decrease/increase opacity of objects
-- Click an object to transiently select it, click-and-drag to select more than one object
-- Hold down 1, 2, ... while clicking (or clicking-and-dragging) to make a permanent (group) selection
+- `+/-` to increase/decrease size of objects in the (active) plot
+- `[/]` to decrease/increase opacity of objects
+- Left-click an object to transiently select it, left-click-and-drag to select multiple objects
+- Hold down `1, 2, ...` while left-clicking (or left-clicking-and-dragging) to make a permanent (group) selection
+- Right-click and drag to pan
+- `R` to reset all graphical attributes (including panning coordinates)
 
 ### Transient and persistent selection
 
 You might be wondering what the terms *transient* and *permanent* mentioned above mean. Put simply, they represent two different modes of selecting objects. 
 
-Transient selection is the default. When you click-and-drag to select objects without holding down any additional keys, the objects will be transiently selected. Clicking somewhere else in the plot will clear transient selection. Conversely, holding down either the "1", "2", or "3" key while clicking-and-dragging will lead to the objects being permanently selected. Permanently selected objects are highlighted by a different color, and the selection does not get cleared after a single click (however, double-clicking the scene *will* remove all selections). What's more, once you have at least one case in your data permanently selected, transient selection will change its behavior: instead of highlighting the objects with solid color, it will now overlay them with a striped pattern. 
+Transient selection is the default. When you left-click-and-drag to select objects without holding down any additional keys, the objects will be transiently selected. Clicking anywhere else will clear transient selection. Permanent selection behaves differently. First, to make a permanent selection, we need to hold down either the "1", "2", or "3" key while left-clicking-and-dragging. The permanently selected objects will be highlighted by a different color, and the selection will not disappear after a single click (however, double-clicking *will* remove all selections). What's more, once at least one case in the data is permanently selected, transient selection will change its behavior, showing instead an overlay.
 
-Using transient and permanent selection together is useful for comparing *within* groups. For example, we can assign all heavy and inefficient cars (mileage lower than 20 miles per gallon, weigh more than 3,000 pounds, lower right quadrant of the scatterplot) to group 1, all other cars to group 2, and then check which of the 6-cylinder cars belong to either group by transiently selecting the relevant bar in the barplot.
+Using transient and permanent selection together is useful for comparing *within* groups in the data. For example, we can assign all heavy and inefficient cars (mileage lower than 20 miles per gallon, weigh more than 3,000 pounds, lower right quadrant of the scatterplot) to group 1, all other cars to group 2, and then check which of the 6-cylinder cars belong to either group by transiently selecting the relevant bar in the barplot.
 
 If you want to practice doing selections manually, go ahead and try to do this in the plot above. If you're just after the big picture, take a look at the plot below, which showcases another handy `plotscaper` function: `ps_premark()`. `ps_premark()` can be used to initialize the scene with selections already present upon rendering, like so:     
 
@@ -96,7 +98,7 @@ scene1 |>
 
 ```
 
-Simultaneously using transient and selection allows us to see which of the 6-cylinder cars belong to the heavy-and-inefficient and light-and-efficient category. Further, the above plot illustrates how we can use `ps_premark()` to mark the scene with highlighted selections before the user even touches it. Importantly, the scene remains a regular interactive `plotscaper` scene and so the selections can be cleared with a double-click. As such, `ps_premark()` can be useful if you want to show someone else some interesting features of your data but also allow them the freedom to venture out on their own!
+Simultaneously using transient and permanent selection allows us to see which of the 6-cylinder cars belong to the heavy-and-inefficient and light-and-efficient category. Further, the above plot illustrates how we can use `ps_premark()` to mark the scene with selections before the user even touches it. Importantly, the scene remains a regular interactive `plotscaper` scene and so the selections can be cleared with a double-click. As such, `ps_premark()` can be useful for showing someone else some interesting features of your data but also giving them the freedom to venture out on their own!
 
 ### Adding more plots
 
