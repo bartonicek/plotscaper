@@ -1,11 +1,20 @@
-#' <Add Title>
+#' Set up an interactive scene
 #'
-#' <Add Description>
+#' This function constructs the underlying skeleton of an interactive
+#' `plotscaper` scene. Specifically, it parses the data, sends it to
+#' to `plotscape` via `htmlwidgets`, and sets up the scene object which
+#' takes care of adding plots and between-plot interactions.
 #'
+#' @param data A dataframe that will be converted to JSON
+#' (missing values are not currently supported).
+#' @param width Width of the scene
+#' @param height Height of the scene
+#'
+#' @examples
+#' set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))
 #' @import htmlwidgets
-#'
 #' @export
-scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
+set_scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
 
   typeMap <- list(
     numeric = "continuous",

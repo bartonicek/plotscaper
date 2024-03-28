@@ -11,7 +11,6 @@ HTMLWidgets.widget({
 
       renderValue: function(x) {
 
-        console.log(x)
         const spec = {};
 
         for (const [k, v] of Object.entries(x.types)) {
@@ -19,10 +18,21 @@ HTMLWidgets.widget({
         }
 
         const data = plotscape.parseColumns(x.data, spec);
+        const scene = plotscape.newScene(el, data)
 
-        // TODO: code to render the widget, e.g.
-        el.innerText = x.message;
+        for (const v of Object.values(x.plots)) {
+          const { type, encoding } = v
 
+          const selectfn = (object) => {
+            const result = {}
+            for (const [k, v] of Object.entries(encoding)) {
+              result[k] = object[v]
+            }
+            return result
+          }
+
+          scene.addPlotByKey(type, selectfn)
+        }
       },
 
       resize: function(width, height) {
