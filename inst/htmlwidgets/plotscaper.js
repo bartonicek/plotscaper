@@ -12,15 +12,16 @@ HTMLWidgets.widget({
       renderValue: function(x) {
 
         const spec = {};
+        const { data, types, plots, layout } = x
 
-        for (const [k, v] of Object.entries(x.types)) {
+        for (const [k, v] of Object.entries(types)) {
           spec[k] = plotscape.col(v);
         }
 
-        const data = plotscape.parseColumns(x.data, spec);
-        const scene = plotscape.newScene(el, data)
+        const parsedData = plotscape.parseColumns(data, spec);
+        const scene = plotscape.newScene(el, parsedData)
 
-        for (const v of Object.values(x.plots)) {
+        for (const v of Object.values(plots)) {
           const { type, encoding } = v
 
           const selectfn = (object) => {
@@ -33,6 +34,8 @@ HTMLWidgets.widget({
 
           scene.addPlotByKey(type, selectfn)
         }
+
+        if (layout) scene.setLayout(layout)
       },
 
       resize: function(width, height) {

@@ -47,7 +47,7 @@ plot_types <- c("scatter", "bar", "histo", "histo2d",
 #' each kind of plot.
 #'
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param type A string representing the plot type.
 #' @param encoding A vector of variable encodings.
 #'
@@ -76,7 +76,7 @@ add_plot <- function(scene, type = NULL, encoding = NULL) {
 #'
 #' This function adds a scatterplot to an interactive scene.
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param encoding A vector of variable encodings:
 #' `v1` and `v2` (discrete or continuous), `v3` continuous (optional).
 #'
@@ -94,7 +94,7 @@ add_scatterplot <- function(scene, encoding = NULL) {
 #' This function adds a barplot to an interactive scene.
 #' Can be transformed into spineplot by pressing the normalize ("N") key.
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1` a discrete variable, `v2` a continuous variable (optional).
 #'
@@ -112,7 +112,7 @@ add_barplot <- function(scene, encoding = NULL) {
 #' This function adds a histogram to an interactive scene.
 #' Can be transformed into spinogram by pressing the normalize ("N") key.
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1` a continuous variable, `v2` a continuous variable (optional).
 #'
@@ -131,7 +131,7 @@ add_histogram <- function(scene, encoding = NULL) {
 #' This function adds a fluctuation diagram to an interactive scene.
 #' The squares' areas can be normalized by pressing the normalize ("N") key.
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1` and `v2` discrete variables.
 #'
@@ -150,7 +150,7 @@ add_fluctplot <- function(scene, encoding = NULL) {
 #' The variables can be put on common scale by pressing the normalize ("N")
 #' key (only works if all continuous).
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1`, `v2`, `v3`, ... (continuous or discrete variables).
 #'
@@ -168,7 +168,7 @@ add_parcoords <- function(scene, encoding = NULL) {
 #' This function adds a 2D histogram to an interactive scene
 #' The squares' areas can be normalized by pressing the normalize ("N") key.
 #'
-#' @param scene A scene object.
+#' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables: `v1` and `v2` continuous.
 #'
 #' @seealso [add_plot()]
@@ -186,7 +186,7 @@ add_histogram2d <- function(scene, encoding = NULL) {
 #' an actual plot but just a simple HTML `textarea` element that you can
 #' use to take notes.
 #'
-#' @param scene A scene object
+#' @param scene A `plotscaper` scene object.
 #'
 #' @import htmlwidgets
 #' @export

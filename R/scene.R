@@ -14,7 +14,9 @@
 #' set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))
 #' @import htmlwidgets
 #' @export
-set_scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
+set_scene <- function(data = NULL, width = NULL, height = NULL, elementId = NULL) {
+
+  if (is.null(data)) stop("Please provide a valid dataset.")
 
   typeMap <- list(
     numeric = "continuous",
@@ -39,7 +41,8 @@ set_scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
   x = list(
     data = data,
     types = types,
-    plots = list()
+    plots = list(),
+    layout = NULL
   )
 
   # create widget
@@ -49,8 +52,29 @@ set_scene <- function(data, width = NULL, height = NULL, elementId = NULL) {
     width = width,
     height = height,
     package = 'plotscaper',
-    elementId = elementId
+    elementId = elementId,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      viewer.padding = 0,
+      viewer.paneHeight = 500,
+      browser.fill = TRUE
+    )
   )
+}
+
+#' Set interactive scene layout
+#'
+#' This function sets a layout for the interactive scene, similar to the
+#' `graphics::layout` function.
+#'
+#' @param scene A `plotscaper` scene object.
+#'
+set_layout <- function(scene = NULL, layout = NULL) {
+  if (is.null(layout) || !is.matrix(layout) || !is.numeric(layout)) {
+    stop("Please provide a valid layout in the form of a numeric matrix.")
+  }
+
+  scene$x$layout <- layout
+  scene
 }
 
 #' Shiny bindings for plotscaper
