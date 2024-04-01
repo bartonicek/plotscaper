@@ -53,9 +53,20 @@ Try moving your mouse somewhere over the big scatterplot on the top
 left, clicking and dragging to select some points. You should see the
 corresponding cases highlight across all the other plots!
 
-There are many other ways interacting with the figure. Click on the
-question mark button in the top right of the figure to see a list of the
-available options.
+There are many other ways interacting with `plotscaper` figures. The
+list includes:
+
+- Assigning selected cases to persistent groups
+- Changing the size of objects
+- Increasing/decreasing the opacity (alpha)
+- Panning
+- Manipulating parameters such as histogram binwidth and anchor
+- Modifying continuous axis limits
+- Sorting and reordering discrete axes
+- Changing the size of the individual plots
+
+Click on the question mark in the top right of the figure to see the
+list plus the corresponding key/mouse bindings.
 
 ## Anatomy of a `plotscaper` figure
 
@@ -124,9 +135,9 @@ s <- set_scene(iris_smaller)
 
 for (i in 1:3) {
   for (j in 1:3) {
-    # Add a scatterplot if row & column # different
+    # Add a scatterplot if row & column no.'s different
     if (i != j) s <- s |> add_scatterplot(c(keys[i], keys[j]))
-    # Add a histogram if row & column # match
+    # Add a histogram if row & column no.'s match
     else s <- s |> add_histogram(c(keys[i])) 
   }
 }
@@ -139,13 +150,15 @@ s
 ### Layout
 
 We can control the figure layout by using the `set_layout` function.
-This works similar to the `layout` function from the `graphics` package,
-in that we give it a matrix of numeric values representing the plot ids,
-and the figure automatically resizes the plots based on how many
-equal-sized rectangles in a grid each plot takes up. For example, here’s
-how we can create a figure with large scatterplot on the top-left, a
-tall histogram on the right-hand side, a short wide histogram on the
-bottom, and a small section for notes on the bottom-right:
+This works similar to the `layout` function from the `graphics` package.
+We give it a matrix of numeric values representing the plot ids, and the
+figure automatically resizes the plots based on how many equal-sized
+rectangles in a grid each plot takes up.
+
+Here’s how we can create a figure with large scatterplot on the
+top-left, a tall histogram on the right-hand side, a short wide
+histogram on the bottom, and a small section for notes (not-(e)-plot,
+pardon the pun) on the bottom-right:
 
 ``` r
 
@@ -169,6 +182,10 @@ set_scene(sacramento) |>
 function, as all the important stuff happens when the HTML for the
 figure gets generated)
 
+The individual plots can still be resized by pressing and holding the
+`S` key and then dragging a widget in the bottom right of the plot area.
+Note however that this may result in gaps in the layout.
+
 ## Performance
 
 While `plotscaper` wasn’t designed specifically for performance, it can
@@ -188,22 +205,29 @@ set_scene(ggplot2::diamonds) |>
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
-With 50,000 cases, brushing the scatterplot is a bit sluggish on my
-machine, but still fast enough to feel like “an interactive figure”
-rather than “a slideshow”. Your mileage may vary. Note however, that
-most of the slowdown is due to rendering rather than computation -
-i.e. removing the scatterplot with its 50,000 points makes the
+With 50,000 cases, dragging to select points in the scatterplot becomes
+a bit sluggish on my machine, but still fast enough to give the figure
+an “interactive” rather than “slideshow” feel. Your mileage may vary.
+Note that most of the slowdown is due to rendering rather than
+computation - removing the scatterplot with its 50,000 points makes the
 interactions a lot snappier.
 
-Also, frustratingly, there seems to a small slowdown when interacting
+Also, frustratingly, there seems to be a small slowdown when interacting
 with the figure in the RStudio viewer panel rather than in the browser
 window. Interestingly, this does not seem to be related to the dataset
 size. I’m not very familiar with the RStudio internals and have no idea
 why this might be, but for now, if you want faster interactions I
-recommend just opening up the browser, e.g. by clicking the icon in the
-top right of the viewer:
+recommend just opening up a browser window, e.g. by clicking the icon in
+the top right of the viewer:
 
 <img src="man/figures/browser.png" width="75%" height="75%" style="display: block; margin: auto;" />
 
 (if you know the reason behind this slowdown, please email me at
 <abar435@aucklanduni.ac.nz>)
+
+Anyway, if you need fast figures with larger datasets, I recommend:
+
+- Run the figure in the browser rather than viewer
+- Use plots which summarize the data (e.g. barplots, 2D histograms),
+  rather than plots which show all of the datapoints
+- If everything else fails, subsample the data
