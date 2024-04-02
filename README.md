@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # Plotscaper
@@ -7,8 +6,8 @@
 <!-- badges: end -->
 
 Plotscaper is an R package designed for making interactive figures
-geared towards data exploration. All plots in a `plotscaper` figure
-support linked highlighting by default, and include a wide variety of
+geared towards data exploration. All plots in a `plotscaper` figures
+support linked highlighting by default, as well as a wide variety of
 other interactions, including switching representation, changing
 parameters, zooming, panning, and reordering.
 
@@ -16,13 +15,13 @@ parameters, zooming, panning, and reordering.
 
 To get started, install `plotscaper` with:
 
-``` r
+```r
 devtools::install_github("bartonicek/plotscape/packages/plotscaper")
 ```
 
 Next, open up RStudio and run the following code:
 
-``` r
+```r
 library(plotscaper)
 
 layout <- matrix(c(
@@ -79,7 +78,7 @@ placed.
 
 To set up a scene, run:
 
-``` r
+```r
 set_scene(data = sacramento)
 ```
 
@@ -90,7 +89,7 @@ On its own, however, a scene doesn’t do anything. To create an
 interactive figure, we need to populate it with plots. That’s what the
 various `add_*plot` functions are for:
 
-``` r
+```r
 set_scene(sacramento) |>
   add_scatterplot(c("longitude", "latitude")) |>
   add_barplot("city")
@@ -108,7 +107,7 @@ packages up the underlying HTML and sends it to the RStudio viewer
 (which is a kind of Web browser). Thus, if we do something like this,
 nothing happens:
 
-``` r
+```r
 s <- set_scene(sacramento) |>
   add_scatterplot(c("longitude", "latitude")) |>
   add_barplot("city")
@@ -116,7 +115,7 @@ s <- set_scene(sacramento) |>
 
 However, printing the `s` object generates the figure:
 
-``` r
+```r
 s
 ```
 
@@ -126,7 +125,7 @@ We can use this fact to generate figures programmatically using R. For
 example, here’s how we could create an interactive scatterplot matrix
 (SPLOM) of the `Iris` dataset:
 
-``` r
+```r
 
 iris_smaller <- iris[, 1:3]
 keys <- names(iris_smaller)
@@ -138,7 +137,7 @@ for (i in 1:3) {
     # Add a scatterplot if row & column no.'s different
     if (i != j) s <- s |> add_scatterplot(c(keys[i], keys[j]))
     # Add a histogram if row & column no.'s match
-    else s <- s |> add_histogram(c(keys[i])) 
+    else s <- s |> add_histogram(c(keys[i]))
   }
 }
 
@@ -160,7 +159,7 @@ top-left, a tall histogram on the right-hand side, a short wide
 histogram on the bottom, and a small section for notes (not-(e)-plot,
 pardon the pun) on the bottom-right:
 
-``` r
+```r
 
 layout <- matrix(c(
   1, 1, 2,
@@ -196,7 +195,7 @@ V8, rather than any real ability on my part).
 For example, if you want to put it to a stress test, try creating a
 figure with the entire `diamonds` dataset from the `ggplot2` package:
 
-``` r
+```r
 set_scene(ggplot2::diamonds) |>
   add_scatterplot(c("carat", "price")) |>
   add_fluctplot(c("cut", "color")) |>
