@@ -68,7 +68,8 @@ add_plot <- function(scene, type = NULL, encoding = NULL) {
     encoding <- split(encoding, keys)
   }
 
-  scene$x$plots[[length(scene$x$plots) + 1]] <- list(type = type, encoding = encoding)
+  scene$x$plots[[length(scene$x$plots) + 1]] <- list(type = type,
+                                                     encoding = encoding)
   scene
 }
 
