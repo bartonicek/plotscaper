@@ -2,6 +2,14 @@
 plot_types <- c("scatter", "bar", "histo", "histo2d",
                 "fluct", "pcoords", "note")
 
+#' Create a list of plot options
+#'
+#' This function is a wrapper for creating a list of options
+#'
+options <- function(reducer = NULL) {
+  list(reducer = reducer)
+}
+
 #' Add plot to an interactive scene
 #'
 #' This function adds the specification for an additional plot to
@@ -50,10 +58,11 @@ plot_types <- c("scatter", "bar", "histo", "histo2d",
 #' @param scene A `plotscaper` scene object.
 #' @param type A string representing the plot type.
 #' @param encoding A vector of variable encodings.
+#' @param options A list of options.
 #'
 #' @import htmlwidgets
 #' @export
-add_plot <- function(scene, type = NULL, encoding = NULL) {
+add_plot <- function(scene, type = NULL, encoding = NULL, options = NULL) {
   if (is.null(type) || !(type %in% plot_types)) {
     message <- paste("Please provide a valid plot type:",
                      paste(plot_types, collapse = ', '))
@@ -69,7 +78,8 @@ add_plot <- function(scene, type = NULL, encoding = NULL) {
   }
 
   scene$x$plots[[length(scene$x$plots) + 1]] <- list(type = type,
-                                                     encoding = encoding)
+                                                     encoding = encoding,
+                                                     options = options)
   scene
 }
 
@@ -98,14 +108,15 @@ add_scatterplot <- function(scene, encoding = NULL) {
 #' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1` a discrete variable, `v2` a continuous variable (optional).
+#' @param options A list of options.
 #'
 #' @seealso [add_plot()]
 #'
 #' @import htmlwidgets
 #' @export
-add_barplot <- function(scene, encoding = NULL) {
+add_barplot <- function(scene, encoding = NULL, options = NULL) {
   if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' discrete ('v2' continuous)")
-  add_plot(scene, "bar", encoding)
+  add_plot(scene, "bar", encoding, options)
 }
 
 #' Add a histogram to an interactive scene
@@ -116,13 +127,14 @@ add_barplot <- function(scene, encoding = NULL) {
 #' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1` a continuous variable, `v2` a continuous variable (optional).
+#' @param options A list of options.
 #'
 #' @seealso [add_plot()]
 #'
 #' @import htmlwidgets
 #' @export
 #'
-add_histogram <- function(scene, encoding = NULL) {
+add_histogram <- function(scene, encoding = NULL, options = NULL) {
   if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' continuous")
   add_plot(scene, "histo", encoding)
 }
@@ -135,12 +147,13 @@ add_histogram <- function(scene, encoding = NULL) {
 #' @param scene A `plotscaper` scene object.
 #' @param encoding Encoding of the variables:
 #' `v1` and `v2` discrete variables.
+#' @param options A list of options.
 #'
 #' @seealso [add_plot()]
 #'
 #' @import htmlwidgets
 #' @export
-add_fluctplot <- function(scene, encoding = NULL) {
+add_fluctplot <- function(scene, encoding = NULL, options = NULL) {
   if (is.null(encoding)) stop("Please provide a valid encoding: 'v1', 'v2' discrete")
   add_plot(scene, "fluct", encoding)
 }

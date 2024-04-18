@@ -168,6 +168,25 @@ set_scene(sacramento) |>
 The individual plots can still be resized by pressing and holding the `S` key and then 
 dragging a widget in the bottom right of the plot area. Note however that this may result in gaps in the layout. 
 
+## Using reducers
+
+```{r}
+
+library(htmlwidgets)
+
+reducer1 <- reducer(
+  name = "max",
+  initialfn = JS("() => -Infinity"),
+  reducefn = JS("(a, b) => Math.max(a, b)")
+)
+
+set_scene(sacramento) |>
+  add_scatterplot(c("sqft", "price")) |>
+  add_barplot(c("city", "price"), 
+              options(reducer = reducer1))
+
+```
+
 ## Performance
 
 While `plotscaper` wasn't designed specifically for performance, it can perform fairly well on moderately-sized datasets (thanks largely to the work of the super smart people who optimize the JavaScript engines like V8, rather than any real ability on my part). 
