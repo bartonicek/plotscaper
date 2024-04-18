@@ -136,7 +136,7 @@ add_barplot <- function(scene, encoding = NULL, options = NULL) {
 #'
 add_histogram <- function(scene, encoding = NULL, options = NULL) {
   if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' continuous")
-  add_plot(scene, "histo", encoding)
+  add_plot(scene, "histo", encoding, options)
 }
 
 #' Add a fluctuation diagram to an interactive scene
