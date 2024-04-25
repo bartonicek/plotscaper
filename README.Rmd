@@ -426,3 +426,5 @@ Anyway, if you need fast figures with larger datasets, I recommend:
 - Use plots which summarize the data (e.g. barplots, 2D histograms), 
 rather than plots which show all of the datapoints
 - If everything else fails, subsample the data
+
+# References

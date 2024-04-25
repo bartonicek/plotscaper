@@ -568,6 +568,8 @@ Anyway, if you need fast figures with larger datasets, I recommend:
   rather than plots which show all of the datapoints
 - If everything else fails, subsample the data
 
+# References
+
 <div id="refs" class="references csl-bib-body hanging-indent">
 
 <div id="ref-wilke2019" class="csl-entry">
