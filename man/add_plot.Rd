@@ -4,14 +4,16 @@
 \alias{add_plot}
 \title{Add plot to an interactive scene}
 \usage{
-add_plot(scene, type = NULL, encoding = NULL)
+add_plot(scene, type = NULL, encoding = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A scene object}
+\item{scene}{A \code{plotscaper} scene object.}
 
-\item{type}{A string representing the plot type}
+\item{type}{A string representing the plot type.}
 
-\item{encoding}{A vector of variable encodings}
+\item{encoding}{A vector of variable encodings.}
+
+\item{options}{A list of options.}
 }
 \description{
 This function adds the specification for an additional plot to

@@ -4,13 +4,20 @@
 \alias{add_histogram}
 \title{Add a histogram to an interactive scene}
 \usage{
-add_histogram(scene, encoding = NULL)
+add_histogram(scene, encoding = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A scene object}
+\item{scene}{A \code{plotscaper} scene object.}
 
-\item{encoding}{Encoding of the variables: \code{v1} a continuous variable}
+\item{encoding}{Encoding of the variables:
+\code{v1} a continuous variable, \code{v2} a continuous variable (optional).}
+
+\item{options}{A list of options.}
 }
 \description{
-Function that adds a histogram to an interactive scene
+This function adds a histogram to an interactive scene.
+Can be transformed into spinogram by pressing the normalize ("N") key.
+}
+\seealso{
+\code{\link[=add_plot]{add_plot()}}
 }

@@ -7,10 +7,16 @@
 add_parcoords(scene, encoding = NULL)
 }
 \arguments{
-\item{scene}{A scene object}
+\item{scene}{A \code{plotscaper} scene object.}
 
-\item{encoding}{Encoding of the variables: \code{v1}, \code{v2}, \code{v3}, ... (continuous or discrete variables)}
+\item{encoding}{Encoding of the variables:
+\code{v1}, \code{v2}, \code{v3}, ... (continuous or discrete variables).}
 }
 \description{
-Function that adds a parallel coordinates plot to an interactive scene
+This function adds a parallel coordinates plot to an interactive scene
+The variables can be put on common scale by pressing the normalize ("N")
+key (only works if all continuous).
+}
+\seealso{
+\code{\link[=add_plot]{add_plot()}}
 }

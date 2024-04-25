@@ -4,13 +4,20 @@
 \alias{add_fluctplot}
 \title{Add a fluctuation diagram to an interactive scene}
 \usage{
-add_fluctplot(scene, encoding = NULL)
+add_fluctplot(scene, encoding = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A scene object}
+\item{scene}{A \code{plotscaper} scene object.}
 
-\item{encoding}{Encoding of the variables: \code{v1} and \code{v2} discrete variables,}
+\item{encoding}{Encoding of the variables:
+\code{v1} and \code{v2} discrete variables.}
+
+\item{options}{A list of options.}
 }
 \description{
-Function that adds a fluctuation diagram to an interactive scene
+This function adds a fluctuation diagram to an interactive scene.
+The squares' areas can be normalized by pressing the normalize ("N") key.
+}
+\seealso{
+\code{\link[=add_plot]{add_plot()}}
 }

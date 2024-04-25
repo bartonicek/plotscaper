@@ -7,8 +7,10 @@
 add_notes(scene)
 }
 \arguments{
-\item{scene}{A scene object}
+\item{scene}{A \code{plotscaper} scene object.}
 }
 \description{
-Function that adds a noteplot to an interactive scene
+Function that adds a "noteplot" to an interactive scene. This is not
+an actual plot but just a simple HTML \code{textarea} element that you can
+use to take notes.
 }

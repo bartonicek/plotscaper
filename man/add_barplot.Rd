@@ -4,14 +4,20 @@
 \alias{add_barplot}
 \title{Add a barplot to an interactive scene}
 \usage{
-add_barplot(scene, encoding = NULL)
+add_barplot(scene, encoding = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A scene object}
+\item{scene}{A \code{plotscaper} scene object.}
 
-\item{encoding}{Encoding of the variables: \code{v1} a discrete variable,
-\code{v2} a continuous variable (optional)}
+\item{encoding}{Encoding of the variables:
+\code{v1} a discrete variable, \code{v2} a continuous variable (optional).}
+
+\item{options}{A list of options.}
 }
 \description{
-Function that adds a barplot to an interactive scene
+This function adds a barplot to an interactive scene.
+Can be transformed into spineplot by pressing the normalize ("N") key.
+}
+\seealso{
+\code{\link[=add_plot]{add_plot()}}
 }
