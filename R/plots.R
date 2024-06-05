@@ -2,14 +2,6 @@
 plot_types <- c("scatter", "bar", "histo", "histo2d",
                 "fluct", "pcoords", "note")
 
-#' Create a list of plot options
-#'
-#' This function is a wrapper for creating a list of options
-#'
-options <- function(reducer = NULL) {
-  list(reducer = reducer)
-}
-
 #' Add plot to an interactive scene
 #'
 #' This function adds the specification for an additional plot to
@@ -63,20 +55,18 @@ options <- function(reducer = NULL) {
 #' @import htmlwidgets
 #' @export
 add_plot <- function(scene, type = NULL, encoding = NULL, options = NULL) {
+
   if (is.null(type) || !(type %in% plot_types)) {
-    message <- paste("Please provide a valid plot type:",
-                     paste(plot_types, collapse = ', '))
-    stop(message)
+    stop(paste("Please provide a valid plot type:",
+               paste(plot_types, collapse = ', ')))
   }
 
-  if (!is.null(encoding)) {
-    keys <- names(encoding)
-    if (is.null(keys)) {
-      keys <- paste0("v", 1:length(encoding))
-    }
-    encoding <- split(encoding, keys)
-  }
+  if (is.null(encoding)) stop("Please provide variable encodings")
 
+  keys <- names(encoding)
+  if (is.null(keys)) keys <- paste0("v", 1:length(encoding))
+
+  encoding <- split(encoding, keys)
   scene$x$plots[[length(scene$x$plots) + 1]] <- list(type = type,
                                                      encoding = encoding,
                                                      options = options)
@@ -115,7 +105,8 @@ add_scatterplot <- function(scene, encoding = NULL) {
 #' @import htmlwidgets
 #' @export
 add_barplot <- function(scene, encoding = NULL, options = NULL) {
-  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' discrete ('v2' continuous)")
+  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' discrete (optionally 'v2' continuous)")
+  if (!check_type(scene, encoding[1], "discrete")) stop("'v1' must be discrete")
   add_plot(scene, "bar", encoding, options)
 }
 
@@ -135,7 +126,8 @@ add_barplot <- function(scene, encoding = NULL, options = NULL) {
 #' @export
 #'
 add_histogram <- function(scene, encoding = NULL, options = NULL) {
-  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' continuous")
+  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' continuous (optionally 'v2' continuous)")
+  if (!check_type(scene, encoding[1], "continuous")) stop("'v1' must be continuous")
   add_plot(scene, "histo", encoding, options)
 }
 

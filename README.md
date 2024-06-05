@@ -504,7 +504,7 @@ max_reducer <- reducer(
 set_scene(sacramento) |>
   add_scatterplot(c("sqft", "price")) |>
   add_barplot(c("city", "price"), 
-              options(reducer = max_reducer))
+              options = list(reducer = max_reducer))
 ```
 
 <img src="man/figures/README-unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
