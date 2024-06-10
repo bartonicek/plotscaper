@@ -14,7 +14,8 @@
 #' set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))
 #' @import htmlwidgets
 #' @export
-set_scene <- function(data = NULL, width = NULL, height = NULL, elementId = NULL) {
+set_scene <- function(data = NULL, options = NULL,
+                      width = NULL, height = NULL, elementId = NULL) {
 
   if (is.null(data)) stop("Please provide a valid dataset.")
 
@@ -37,12 +38,19 @@ set_scene <- function(data = NULL, width = NULL, height = NULL, elementId = NULL
     typeMap[[class(x)[which(class(x) %in% names(typeMap))]]]
   })
 
+  if (!is.null(options)) {
+    for (key in names(options)) {
+      options[[snake_to_camel(key)]] = options[[key]]
+    }
+  }
+
   # forward options using x
   x = list(
     data = data,
     types = types,
     plots = list(),
-    layout = NULL
+    layout = NULL,
+    options = options
   )
 
   # create widget

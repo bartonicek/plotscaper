@@ -14,3 +14,7 @@ check_type <- function(scene, encoding, type) {
 check_missing <- function(scene, encoding) {
   length(setdiff(encoding, names(scene$x$types))) != 0
 }
+
+snake_to_camel <- function(x) {
+  gsub("_(\\w?)", "\\U\\1", x, perl = TRUE)
+}

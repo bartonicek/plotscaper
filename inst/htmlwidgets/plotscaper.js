@@ -18,8 +18,10 @@ HTMLWidgets.widget({
           spec[k] = plotscape.col(v);
         }
 
+        console.log(options)
+
         const parsedData = plotscape.parseColumns(data, spec);
-        const scene = plotscape.newScene(el, parsedData)
+        const scene = plotscape.newScene(el, parsedData, options)
 
         for (const v of Object.values(plots)) {
           const { type, encoding, options } = v
@@ -32,7 +34,6 @@ HTMLWidgets.widget({
             return result
           }
 
-          console.log(v)
           scene.addPlotByKey(type, selectfn, options)
         }
 
