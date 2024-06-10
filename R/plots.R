@@ -105,8 +105,7 @@ add_scatterplot <- function(scene, encoding = NULL) {
 #' @import htmlwidgets
 #' @export
 add_barplot <- function(scene, encoding = NULL, options = NULL) {
-  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' discrete (optionally 'v2' continuous)")
-  if (!check_type(scene, encoding[1], "discrete")) stop("'v1' must be discrete")
+  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' (optionally 'v2' continuous)")
   add_plot(scene, "bar", encoding, options)
 }
 
@@ -146,7 +145,7 @@ add_histogram <- function(scene, encoding = NULL, options = NULL) {
 #' @import htmlwidgets
 #' @export
 add_fluctplot <- function(scene, encoding = NULL, options = NULL) {
-  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1', 'v2' discrete")
+  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' and 'v2', 'v3' continuous optional")
   add_plot(scene, "fluct", encoding)
 }
 
@@ -165,7 +164,7 @@ add_fluctplot <- function(scene, encoding = NULL, options = NULL) {
 #' @import htmlwidgets
 #' @export
 add_parcoords <- function(scene, encoding = NULL) {
-  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1', 'v2', 'v3', ...")
+  if (is.null(encoding)) stop("Please provide valid encodings: 'v1', 'v2', 'v3', ...")
   add_plot(scene, "pcoords", encoding)
 }
 
@@ -182,7 +181,7 @@ add_parcoords <- function(scene, encoding = NULL) {
 #' @import htmlwidgets
 #' @export
 add_histogram2d <- function(scene, encoding = NULL) {
-  if (is.null(encoding)) stop("Please provide a valid encoding: 'v1', 'v2', 'v3', ...")
+  if (is.null(encoding)) stop("Please provide valid encodings: 'v1' and 'v2' continuos, 'v3' optional")
   add_plot(scene, "histo2d", encoding)
 }
 
