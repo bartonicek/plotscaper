@@ -18,10 +18,9 @@ HTMLWidgets.widget({
           spec[k] = plotscape.col(v);
         }
 
-        console.log(options)
-
         const parsedData = plotscape.parseColumns(data, spec);
         const scene = plotscape.newScene(el, parsedData, options)
+        x.scene = scene
 
         for (const v of Object.values(plots)) {
           const { type, encoding, options } = v
