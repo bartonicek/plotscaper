@@ -3,6 +3,7 @@ output: github_document
 editor_options: 
   chunk_output_type: console
 bibliography: "references.bib"
+always_allow_html: yes
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -12,7 +13,7 @@ bibliography: "references.bib"
 ratio <- (1 + sqrt(5)) / 2
 
 knitr::opts_chunk$set(
-  cache = TRUE,
+  # cache = TRUE,
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
@@ -28,7 +29,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-Plotscaper is an R package designed for making interactive figures geared towards data exploration. All plots in a `plotscaper` figure support linked highlighting by default, and include a wide variety of other interactions, including switching representation, changing parameters, zooming, panning, and reordering.
+Plotscaper is an R package designed for making interactive figures geared towards data exploration. All plots in `plotscaper` figures support linked selection, as well as wide variety of other interactions, including parameter manipulation, zooming, panning, reordering, and others.
 
 ## Quick start
 
@@ -61,9 +62,9 @@ set_scene(sacramento) |>
   set_layout(layout)
 ```
 
-In your viewer, you should now see something like the image above, however, your version should be fully interactive (the above image is only a static snapshot because `README.md` does not allow JavaScript).
+In your viewer, you should now see something like the image above, however, your version should be fully interactive (Github doesn't allow JavaScript in `README.md`, hence why the image above is static).
 
-Try moving your mouse somewhere over the big scatterplot on the top left, clicking and dragging to select some points. You should see the corresponding cases highlight across all the other plots! 
+Try moving your mouse somewhere over the scatterplot in the top left of the figure and clicking and dragging to select some points. You should see the corresponding cases get highlighted across all the other plots! 
 
 There are many other ways interacting with `plotscaper` figures, including:
 
@@ -80,20 +81,18 @@ Click on the question mark in the top right corner of the figure to see the list
 
 ## Anatomy of a `plotscaper` figure
 
-There are quite a few things happening in the code to create the figure above. Let's walk through them piece by piece.
+There are a bunch of things going on in the code that was used to create the figure above. Let's walk through them step by step.
 
-First, whenever we want to create a `plotscaper` figure, we need to set up a scene object. A scene is a kind of global context into which all plots get placed. 
-
-To set up a scene, run:
+First, whenever we want to create a `plotscaper` figure, we need to set up a scene, which is a kind of global context into which all of the plots get placed. To set up a scene, run:
 
 ```{r}
 #| eval: false
 set_scene(data = sacramento)
 ```
 
-where `data` is a `data.frame` object. Here we're using the Sacramento housing dataset from the `caret` package.
+where `data` is some `data.frame` object. Here we're using the Sacramento housing data set from the `caret` package.
 
-A scene on its own just shows up as an empty rectangle. To create a proper interactive figure, we need to populate the scene with plots. That's what the various `add_*` functions are for:
+If we run the code above, we will just get an empty rectangle. The reason for that is that, in order to do some things, we first need to fill the scene with plots. To populate the scene with plots, we can use the `add_*` functions:
 
 ```{r}
 #| out-height: 75%
@@ -103,9 +102,9 @@ set_scene(sacramento) |>
   add_barplot("city")
 ```
 
-The code above creates interactive figure with a linked scatterplot and a barplot. Simple as. We only need to specify which variables we want to show in each plot by simple character vectors of their names.
+The code above creates interactive figure with a linked scatterplot and a barplot. We only need to specify which variables we want to show in each plot by simple character vectors of their names. Simple as.
 
-Under the hood, each `plotscaper` figure is an `htmlwidgets` widget, which means that, whenever we print the figure object, `htmlwidgets` generates and packages up the underlying HTML and sends it to the RStudio viewer (which is a kind of Web browser). Thus, if we run code like below, nothing happens:
+Under the hood, a `plotscaper` figure is just a `htmlwidgets` widget. This means that, to render the figure, we need to print the underlying object. More specifically, when we print a `plotscaper` scene, `htmlwidgets` generates the underlying HTML, JavaScript, and CSS, and sends it to the RStudio viewer (which is a kind of Web browser). This operation is lazy - if we don't print the object, nothing happens:
 
 ```{r}
 s <- set_scene(sacramento) |>
@@ -113,15 +112,15 @@ s <- set_scene(sacramento) |>
   add_barplot("city")
 ```
 
-However, printing the `s` object generates the figure:
+However, printing `s` generates the figure:
 
 ```{r}
 #| out-height: 75%
 #| out-width: 75%
-s
+s # This is the same as print(s)
 ```
 
-We can use this fact to generate figures programmatically using R. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `Iris` dataset:
+We can use this laziness to generate figures programmatically with R. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `Iris` dataset:
 
 ```{r}
 
@@ -147,7 +146,7 @@ s
 
 We can control the figure layout by using the `set_layout` function. This function works similarly to the `layout` function from the `graphics` package. We just give the function a matrix of numeric values representing the plot ids, and the figure automatically resizes the plots based on how many equal-sized rectangles in a grid each plot takes up. 
 
-Here's how we can create a figure with large scatterplot on the top-left, a tall histogram on the right-hand side, a short wide histogram on the bottom, and a small section for notes (not-(e)-plot, pardon the pun) on the bottom-right:
+For example, here's how we can create a figure with large scatterplot on the top-left, a tall histogram on the right-hand side, a short wide histogram on the bottom, and a small section for notes (not-(e)-plot, pardon the pun) on the bottom-right:
 
 ```{r}
 
@@ -166,238 +165,244 @@ set_scene(sacramento) |>
 
 ```
 
-It doesn't matter when we call the `set_layout` function, as all the important stuff happens when the HTML for the figure gets generated. The order in which we add the plots to the scene does matter, however, as well as the number of plots & the plot ids in the layout. If you want the formatting to be correct, please ensure that the layout and the number of plots you add match. 
+You can still resize individual plots by pressing and holding the `S` key and then dragging a widget in the bottom right of the plot area. Note, however, that this feature is a bit finicky and may result in gaps. 
 
-Individual plots can still be resized by pressing and holding the `S` key and then 
-dragging a widget in the bottom right of the plot area. Note, however, that this feature isn't super reliable and may result in gaps in the layout. 
+## The algebra of highlighting
 
-## Reducers
+> This section delves into the deeper properties of `plotscaper`. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.
 
-> This section dives into the deeper properties of `plotscaper`. If you are happy using the default figures to explore the data, you can skip it, however, you may still find it an interesting read.
+When I started my PhD project, I wanted to create a framework for making interactive graphics that would support certain types of interaction out of the box. Specifically, I wanted every plot to support linked selection, i.e. being able to click or click and drag some objects in one plot and have all the corresponding cases get highlighted across all other plots. The reason why I wanted to support linked selection is because it allows you to quickly query different subsets of the data - you select a few objects in one plot and immediately see the summaries on that subset of the data - this makes it a really useful interactive feature and a lot of data visualization researchers swear by it [see e.g. @buja1996; @heer2012; @ward2015; @ware2019]. Anyway, alongside linked selection, I also wanted to be able to support various kinds of plots and statistical summaries, such that, if we were draw to draw a barplot, we could make the bars display a different summary statistic (instead of the usual counts), such as e.g. sums or means of some other variable. 
 
-One of the main goals of the `plotscaper` project is to explore the ways in which we can combine graphical objects and statistics to produce visualizations that behave in certain consistent or "natural" ways with interactive features such as linked selection.
+This all sounds simple enough, right? However, I kept running into this one issue, over and over again. I wanted all plots to support linked selection and to be able to show different kinds of summaries. In doing so, I wanted to treat the interaction (linked selection) and statistics in the plots as two independent components. Unfortunately, this is not how things work, and I kept hitting my head against the wall. However, by doing so, I also eventually stumbled upon something that I think is really interesting. I am now convinced that graphics, statistics, and interaction are inextricably linked, in a deep, algebraic way, and, if we want to create interactive data visualizations that look and behave in sensible ways, we need to be aware of that. I hope I can convince you too - let me start by laying out the problem I kept running into, starting with some simple static plots.     
 
 ### The problem
 
-Let's first lay out what the problem is. We'll use the example of a static plot constructed with `ggplot2`. Try and see if you can figure out what's wrong with the following plot:
+Try and see what's wrong with the following plot:
 
 ```{r}
+#| echo: false
 
 library(ggplot2)
-theme_set(theme_bw() + theme(panel.grid = element_blank()))
 
 mtcars$am <- factor(mtcars$am)
 mtcars$cyl <- factor(mtcars$cyl)
+```
 
-ggplot(mtcars, aes(x = am, y = mpg, fill = cyl)) +
+```{r}
+theme_set(theme_bw() + 
+            theme(panel.grid = element_blank(),
+                  panel.border = element_blank(),
+                  panel.background = element_rect(fill = "whitesmoke")))
+
+ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
   geom_bar(stat = "summary", fun = mean) +
-  scale_fill_brewer(palette = "Set2")
-
+  scale_fill_manual(values = c("#92c9f6", "#377eb8")) +
+  guides(fill = "none")
 ```
 
-Visually, this plot looks perfectly fine. However, take a closer look at the following line:
+The plot above looks like something that might result from linked selection, and, visually, it looks like a perfectly fine `ggplot2` figure. However, take a close look at the following line:
 
 ```{r}
 #| eval: false
-+ geom_bar(stat = "summary", fun = mean)
+geom_bar(stat = "summary", fun = mean)
 ```
 
-In `ggplot2`, this means that we want to draw bars by summarizing the y-axis variable by its average, within the levels defined by the product of the x-axis and fill variables. However, there's one more operation that's applied to the data, which is omitted from the above function call: 
+We're telling `ggplot2` that we want to draw bars by summarizing the y-axis variable by its average, within the levels defined by the Cartesian product of the `x` and `fill` variables (i.e. a table with `x` as rows and `fill` as columns). However, there's one important argument that is applied to the function call, which is a `ggplot2` default that we don't see unless we specify it explicitly: 
 
 ```{r}
 #| eval: false
-+ geom_bar(stat = "summary", fun = mean, position = "stack")
+geom_bar(stat = "summary", fun = mean, position = "stack")
 ```
 
 When using using the `fill` aesthetic with `geom_bar` (as well as other `geom`s), `ggplot2` applies the stack transformation by default. In the case of bars, this transformation stacks the bars vertically on top of each other, effectively summing up the heights of the coloured sub-bars.
 
-But herein lies the problem - stacking is not just a graphical operation. If we plot a barplot of counts or barplot of sums, then stacking the bars vertically makes sense: sum of counts and sum of sums are both valid overall statistics. However, "sum of averages" is a meaningless statistic, as some data visualization experts have pointed out:
+But herein lies the problem: what does the height of the stacked bars represent now? Since stacking bars is effectively summing the underlying statistic, each whole bar now represents the sum of the group averages. That is not a meaningful summary statistic - "sum of averages" is not a quantity that many people would care about or know how to interpret. This is the kind of problem that can easily trip up a data visualization rookie, and a good number of data visualization researchers have warned about this:   
 
 >"Stacking is useful when the sum of the amounts represented by the individual stacked bars is in itself a meaningful amount" [@wilke2019, p. 52].
 
->"Because this gives the visual impression of one element that is the sum of several others, it is very important that if the element’s size is used to display a statistic, then that statistic must be summable. Stacking bars that represent counts, sums, or percentages are fine, but a stacked bar chart where bars show average values is generally meaningless." [@wills2011, p. 112].
+>"[...] It is very important that if the element’s size is used to display a statistic, then that statistic must be summable. Stacking bars that represent counts, sums, or percentages are fine, but a stacked bar chart where bars show average values is generally meaningless." [@wills2011, p. 112].
 
-Alright, you might say, I cannot sum averages, but since summing sums is fine, what if we take an average of the averages? Unfortunately, although it may be tempting, this solution is not correct either - the mean of group means is not the same as the grand mean: 
+Alright, you might say, I cannot sum averages, but since summing sums is fine, what about taking an average of the averages? Unfortunately, this is not correct either - the mean of group means is not the same as the grand mean: 
 
 ```{r}
-set.seed(123456)
-
-A <- rnorm(10)
-B <- rnorm(10)
-C <- rnorm(10)
-
-# This is fine
-c(sum(c(A, B, C)), sum(sum(A), sum(B), sum(C)))
-
-# This isn't!
-c(mean(c(A, B, C)), mean(mean(A), mean(B), mean(C)))
-
+mean(1:3)
+mean(mean(1:2), 3)
 ```
 
-Data visualization experts have warned about this too:
+Some researchers have warned about this too:
 
 >"[...] We do this to ensure that aggregate statistics are always computed over the input data, and so users do not inadvertantly compute e.g., averages of averages, which can easily lead to misinterpretation." [@wu2022]
 
-So what is a data visualization practitioner to do? Those of you familiar with `ggplot2` may have one solution ready at hand: instead of stacking, let's use dodging and plot the bars side by side:
+So what should we do? If you're familiar with `ggplot2`, you may be thinking of one handy solution right now: instead of stacking the bars, let's use dodging and plot them side by side:
 
 ```{r}
-ggplot(mtcars, aes(x = am, y = mpg, fill = cyl)) +
+ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
   geom_bar(stat = "summary", fun = mean, position = "dodge") +
-  scale_fill_brewer(palette = "Set2")
+  scale_fill_manual(values = c("#92c9f6", "#377eb8")) +
+  guides(fill = "none")
 ```
 
-This works well for static graphics, however, in interactive graphics, this may not be a desirable solution, for several reasons. Specifically, if we want our interactive graphics to support linked selection, then our graphics need to be: a) selectable, and b) able to display selections. This might seem trivial, however, it does present some problems for dodging. For example, take a look at the following two sequences of static plots that could represent the results of linked selection:    
+This works well for static graphics. 
+
+However, in interactive graphics, dodging has several issues. Take a look at the following two rows of plots:    
 
 ```{r}
+#| echo: false
+#| fig-height: 6
+
 library(patchwork)
-theme_set(theme_bw() + theme(panel.grid = element_blank()))
+set.seed(59450)
 
-set.seed(12345)
-mtcars$cyl1 <- factor(mtcars$cyl)
-mtcars$cyl2 <- factor(sample(mtcars$cyl))
-mtcars$cyl3 <- factor(sample(mtcars$cyl))
-mtcars$cyl4 <- factor(sample(mtcars$cyl))
+mtcars$am1 <- factor(sample(rep(0:1, c(28, 4))))
+mtcars$am2 <- factor(sample(rep(0:1, c(16, 16))))
+mtcars$am3 <- factor(sample(rep(0:1, c(4, 28))))
 
-p0 <- ggplot(mtcars, aes(am)) + 
+p0 <- ggplot(mtcars, aes(cyl)) + 
   scale_y_continuous(breaks = seq(0, 24, by = 2), expand = c(0, 1)) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = c("#92c9f6", "#377eb8")) +
   labs(x = NULL, y = NULL) +
   guides(fill = "none")
 
 p <- list()
 
-for (i in 1:4) {
-  p[[i]] <- p0 + geom_bar(aes(fill = .data[[paste0("cyl", i)]]), width = 0.75)
-  p[[4 + i]] <- p0 + geom_bar(aes(fill = .data[[paste0("cyl", i)]]), 
+for (i in 1:3) {
+  p[[i]] <- p0 + geom_bar(aes(fill = .data[[paste0("am", i)]]), width = 0.75)
+  p[[3 + i]] <- plot_spacer()
+  p[[6 + i]] <- p0 + geom_bar(aes(fill = .data[[paste0("am", i)]]), 
                               position = "dodge")
 }
 
-wrap_plots(p, nrow = 2)
+wrap_plots(p, nrow = 3, heights = c(1, 0.2, 1))
 ```
 
-In the top row, we use stacking, and in the bottom row, dodging. Notice that in the top row, the overall shape of the plot remains constant throughout selection: we always have two "big bars" with constant height, and only the heights of the coloured sub-bars change. This also means that we always have two bars to click on or drag our mouse over to select. 
+In both rows, we represent the same data; in the top row we use stacking, in the bottom row we use dodging. We can imagine these barplots being produced by linked selection, with the dark-blue bars representing selected cases and more cases being selected as we move from left to right. Notice that in the top row, the overall contour of the plot remains constant even as the number of selected cases changes: we always have a tall left bar, tall right bar, and a short middle bar, and only the heights of the highlighted dark-blue sections fluctuate.
 
-The same is not true for dodging. With dodging, since we plot the sub-bars side-by-side, selection can affect the overall shape of the plot dramatically - bars may shrink or grow, or even pop and in out of existence (see second-from-left plot in the bottom row). As a further consequence, other parts of the plot such as the axis limits may be impacted too (see the changing upper y-axis limit in the bottom row).
+The same is not true for dodging. With dodging, since we plot the selected and non-selected cases side-by-side, selection can affect the overall shape of the plot dramatically - bars may shrink or grow, or even pop and in out of existence (see left-most plot in the bottom row). 
 
-In my experience, interactive figures with few objects that change gradually are more visually appealing and easier to read than figures in which many objects change rapidly. To be perfectly frank, I haven't found a great citation to support this hunch yet, but it seems clear from basic principles of visual perception. Objects on the screen compete for our attention, and the more there is of them, and the more they move and jump around, the harder it may be to stay on task. From the [Gestalt principles of visual perception](http://www.scholarpedia.org/article/Gestalt_principles), we know that if we want to group things visually together, we place them in a common, closed region. This is what stacking does - by stacking, we end up with fewer well-behaved objects to worry about.
+This may impact other parts of the plot too - see how the top y-axis limits changes across the plots. Thus, if we want to implement selection on a linked barplot with dodging, we have a tough choice over whether we make the axes react in response to selection or not. If we make the axes reactive then the user will be always able to see all of the data, however, when selection happens, the axis limits reset and we lose the context that they provide. If we don't make the axes reactive, we risk the bars growing outside of the plotting area. We don't have to worry about this in the case of the stacked barplot since selection does not affect the height of the tallest bar. 
 
-### Reducers to the rescue
+Also, this is a bit of a subjective preference, but I find interactive figures which change gradually more visually pleasing and easier to read than figures in which objects fluctuate rapidly. I haven't found much research to support this claim more broadly. There is the article by @hullman2013, who found that, when presenting sequences of static graphics, people prefer the sequences where the plots change gradually rather than abruptly.    
 
-Let's tackle the problem from a different direction. Say that we want to stack our objects. As we have demonstrated, some types of statistics such as sums or counts can be stacked, whereas others such as means cannot. But what makes a statistic "stackable"?  
+### Sums preserve set union
 
-Turns out, we can encapsulate the concept of a "stackable thing" in a reducer. For our purposes, a reducer is a pair of functions: 
+So should we only ever do linked selection with sums and counts, so that we can use stacking to highlight the selected cases? That seems a bit limiting. But perhaps there's another way.
 
-- `initialfn`: An *initial* function which takes no arguments and produces some value
-- `reducefn`: A *reduce* function which combines two values to produce a new one
+In the quotes above, @wilke2019 and @wills2011 said that the quantity represented by the stacked bar should be "meaningful". What does that mean?
 
-Further, `initialfn` and `reducefn` must have the following two properties:
+Well, if I was to try to rephrase what Wilke and Wills were getting at, I would say that sums are a particularly nice kind of summary statistic because:
 
-```{r, eval = FALSE}
-reducefn(a, initialfn()) == reducefn(initialfn(), a) == a   # Unitality
-reducefn(reducefn(a, b), c) == reducefn(a, reducefn(b, c))  # Associativity
-```
+> *Sum* of grouped *sum*s is equal to the *sum* of everything.
 
-If you're familiar with how R's higher-order `Reduce` function, `reduce` / `fold` functions from other programming languages, or if you know something about [Monoids](https://en.wikipedia.org/wiki/Monoid), then this should be fairly familiar. If this all looks weird to you, don't worry, it looked weird to me the first time I saw it too. 
+In other words, we can take some sets of data, sum them up each individually, and then sum up the sums, and we'll get the same result as if we had first combined those sets into one big set and summed that up. In other words, sums preserve set union. This makes it possible to draw highlighted parts of bars or other objects, because we know that if we combine (sum) two sums, we'll get a valid summary of the union of the underlying cases of data. 
 
-The important thing to grasp is that some functions can be used as reducers and others cannot. For example, as we have shown above, summation can be used as a reducer:
+Are there other statistics that behave this way? What if we replace the word *"sum"* by a placeholder, for example *"foo"*:
+
+> *Foo* of grouped *foo*s is equal to the *foo* of everything.
+
+Then, it actually turns out there are other statistics that behave this way. For example, the product of products is also a valid product of all cases:
 
 ```{r}
-# Valid sum reducer
-initialfn <- function() 0
-reducefn <- function(x, y) x + y
-
-reducefn(initialfn(), 5)
-
-c(reducefn(1, reducefn(2, 3)),
-  reducefn(reducefn(1, 2), 3)
-)
+prod(2:4)
+prod(prod(2:3), 4)
 ```
 
-Multiplication is fine as well:
+And likewise, the maximum of maximum is also the valid maximum for all cases:
 
 ```{r}
-# Valid product reducer
-initialfn <- function() 1
-reducefn <- function(x, y) x * y
-
-reducefn(initialfn(), 5)
-
-c(reducefn(1, reducefn(2, 3)),
-  reducefn(reducefn(1, 2), 3)
-)
+max(c(1, 2, 999))
+max(max(1, 2), 999)
 ```
 
-Concatenation of strings works too:
+So how do we make this idea precise? Turns out there is a mathematical concept that encapsulates this.
 
-```{r}
-# Valid concatenation reducer
-initialfn <- function() ""
-reducefn <- function(x, y) paste0(x, y)
+### Monoids
 
-reducefn(initialfn(), "hello")
+["Monoid"]((https://en.wikipedia.org/wiki/Monoid)) sounds scary but it's really nothing complicated. It's just three things:
 
-c(reducefn("hello", reducefn(" ", "world")),
-  reducefn(reducefn("hello", " "), "world")
-)
-```
+- Some set $M$
+- A binary operation $\otimes: M \times M \to M$
+- A neutral element $e \in M$
 
-But, for example, exponentiation does not work:
+Subject to two rules:
 
-```{r}
-# Invalid exponentiation reducer
-initialfn <- function() "???" # No c such that x^c == c^x == x
-reducefn <- function(x, y) x^y
+- Unitality: $x \otimes e = e \otimes x = x$
+- Associativity: $x \otimes (y \otimes z) = (x \otimes y) \otimes z$
 
-c(reducefn(2, reducefn(3, 2)),
-  reducefn(reducefn(2, 3), 2)
-)
-```
+This means that, when we have a monoid, we have a bunch of things $M$ and a way of combining these things $\otimes$, such that, when we combine these things, the order in which we do it doesn't matter. We also have some neutral element $e$, that, combined with anything else, just yields the same thing back.
 
-Likewise, as we have shown previously, means don't work either:
+Typical examples of monoids include the above mentioned sums, products, and maximums (here, the set $M$ is real numbers and the neutral units are 0, 1, and $-\infty$ respectively). Counterexamples include the above-mentioned means, as well as, for example, exponentiation (which isn't associative: $(x^y)^z \neq x^{(y^z)}$. 
 
-```{r}
-# Invalid mean reducer
-initialfn <- function() "???" # For mean(c, x) == x, we would need c == x,
-                              # but we cannot depend on x or any parameter
-reducefn <- function(x, y) (x + y) / 2
+Monoids are a fundamental concept in abstract algebra and category theory [see e.g. @fong2019; @lawvere2009], and are also heavily used in functional programming [see e.g. @milewski2018]. For our purposes, they important because they have the exact property we were looking for - they preserve set union. Suppose we have two disjoint subsets of some data $A, B \subseteq D$, and we can summarize each with some monoidal summary F:
 
-c(reducefn(1, reducefn(2, 3)),
-  reducefn(reducefn(1, 2), 3)
-)
-```
+$$F(A) = a_1 \otimes a_2 \otimes \ldots \otimes a_n$$
+That is, we just take all elements in $A$ and *"sum"* them up together into one value (where *"sum"* could be something else). 
 
-At this point, maybe you're getting excited, or you still don't see what the point is. Either way, to get to the point, plots in `plotscaper` support custom reducers. The only difference from the code we've been writing above is that we need to write `initialfn` and `reducefn` in JavaScript (using `htmlwidgets::JS` function), and pass it to `reducer` (which is just a wrapper around `list`). 
+Now, if we summarize $A$ and $B$ and combine the summaries, we get the same result as summarizing the union:
+
+$$\begin{aligned} 
+F(A) \otimes F(B) &= (a_1 \otimes a_2 \otimes \ldots a_n) \otimes (b_1 \otimes b_2 \otimes \ldots b_n) \\
+&= a_1 \otimes a_2 \otimes \ldots a_n \otimes b_1 \otimes b_2 \otimes \ldots b_n \qquad \text{(associativity: brackets don't matter)} \\
+&= F(A \cup B)
+\end{aligned}$$
+
+This means that, when we have monoids, we can compare nested subsets of the data. Which is precisely what we want to do if we highlight some cases in a plot: we want to compare the summary on the selected cases ($F(A)$) vs. that on everything ($F(A \cup B)$).
+
+There are a few important caveats regarding comparison of multiple selected groups and monotonicity. TODO
 
 ### Barplot of maximums
 
-For example, here's how we can plot a barplot of maximums:   
+In `plotscaper`, if you know a little bit of JavaScript, you can use the available plots to display monoidal summary statistics, using something called reducers. To create a reducer, we need two things:
+
+- An *initial* function: a function that produces the neutral element $e$
+- A *reduce* function: a function that takes two values (in $M$) and combines them together, such that the operation is associative and unital
+
+These currently need to be JavaScript functions.
+
+For example, suppose we want to display the barplot of maximums for some positive numeric variable. Then we can use the following JavaScript arrow function as the initial function:
+
+```
+() => 0
+```
+
+The function takes in no arguments and just produces the value zero. In computer science lingo, this kind of "dumb" function is called a [*thunk*](https://en.wikipedia.org/wiki/Thunk). In this case, the function *could* technically just be a value, however, thunks are more general, with the way how pointers work in JavaScript. 
+
+The one other thing we need is a reduce function:
+
+```
+(x, y) => Math.max(x, y)
+```
+
+This is just a very simple function that takes two numbers and returns the bigger one, using the built in `Math.max` JavaScript function. That's it.
+
+You might be asking how do you know whether the operation that the function does is associative and unital. You have to figure that out yourself: try it out on a couple of candidate values & see if the properties hold. `plotscaper` doesn't know either - if you give it a function that doesn't have those properties it will still try to make an interactive plot. It can't know because it doesn't know which values to try; the properties could hold for a handful of numbers but not for others. The functions behind it can actually support values other than numbers, I haven't tried to implement a plot like that yet but we'll see in the future.         
+
+Anyway, here's how you can create a barplot of maximums in `plotscaper`:
 
 ```{r}
 
 library(htmlwidgets)
 
+# Make the reducer - it really is just an R list() underneath
 max_reducer <- reducer(
   name = "max",
-  initialfn = JS("() => -Infinity"),          # max(x, -Inf) = x
-  reducefn = JS("(x, y) => Math.max(x, y)")   # JavaScript's version of max
+  initialfn = "() => 0",
+  reducefn = "(x, y) => Math.max(x, y)"
 )
 
 set_scene(sacramento) |>
   add_scatterplot(c("sqft", "price")) |>
   add_barplot(c("city", "price"), 
-              options = list(reducer = max_reducer))
+              options = list(reducer = max_reducer)) # Specify the reducer in plot options
 
 ```
 
-Since maximum is also a valid reducer, stacking behaves as expected! One thing we have to be careful about is that, since maximums are only weakly not strictly ordered (i.e. we have $x \leq \max(x, y)$ not $x < \max(x, y)$), we might end up with overplotting if the maximums of two groups are the same (at some point, I'll try to add a way to cycle group order to mitigate this). However, the important point is that the overall statistics will still be correct, and the y-axis limits won't change with selection.  
-
-Currently, `plotscaper` only supports numeric operations as reducers, but theoretically there's no reason why reducers could not operate on other types of data, such as string, dates, objects, etc...
+Since maximum is a monoid, highlighting will work as expected! However, only for one selected group: when multiple groups are selected, we may not be able to see all of the bars; the reason for that is more math. TODO
 
 ## Performance
 
-While `plotscaper` wasn't designed specifically for performance, it can perform fairly well on moderately-sized datasets (thanks largely to the work of the super smart people who optimize the JavaScript engines like V8, rather than any real ability on my part). 
+While performance wasn't a number one concern for `plotscaper`, it can perform fairly well on moderately-sized data sets (thanks largely to the work of the smart people who have optimized JavaScript engines like V8). 
 
-For example, if you want to put it to a stress test, try creating a figure with the entire `diamonds` dataset from the `ggplot2` package:
+For example, if you want to put `plotscaper` to a stress test, try creating a figure with the entire `diamonds` dataset from the `ggplot2` package:
 
 ```{r}
 set_scene(ggplot2::diamonds) |>
@@ -407,9 +412,9 @@ set_scene(ggplot2::diamonds) |>
 
 ```
 
-With 50,000 cases, dragging to select points in the scatterplot becomes a bit sluggish on my machine, but still fast enough to give the figure an "interactive" rather than "slideshow" feel. Your mileage may vary. Note that most of the slowdown is due to rendering rather than computation - removing the scatterplot with its 50,000 points makes the interactions a lot snappier.
+With 50,000 cases, dragging to select points in the scatterplot becomes a bit sluggish on my machine, but still fast enough to make the figure feel "interactive" rather than a "slideshow". Your mileage may vary. Note that most of the slowdown is due to rendering rather than computation - removing the scatterplot with its 50,000 points makes the interactions a lot snappier.
 
-Also, frustratingly, there seems to be a small slowdown when interacting with the figure in the RStudio viewer panel rather than in the browser window. Interestingly, this does not seem to be related to the dataset size. I'm not very familiar with the RStudio internals and have no idea why this might be, but for now, if you want faster interactions I recommend just opening up a browser window, e.g. by clicking the icon in the top right of the viewer:
+Frustratingly, there seems to be a small slowdown when interacting with the figure in the RStudio Viewer rather than directly in the browser. Interestingly, this does not seem to be related to the dataset size. I'm not very familiar with the RStudio internals and have no idea why this might be, but for now, if you want faster interactions I recommend just opening up a browser window, e.g. by clicking the icon in the top right of the viewer:
 
 ```{r}
 #| out-height: 75%
@@ -418,13 +423,13 @@ Also, frustratingly, there seems to be a small slowdown when interacting with th
 knitr::include_graphics("man/figures/browser.png")
 ```
   
-(if you know the reason behind this slowdown, please email me at abar435@aucklanduni.ac.nz)
+(if you know the reason behind this slowdown and/or how to fix it, please email me at abar435@aucklanduni.ac.nz)
 
-Anyway, if you need fast figures with larger datasets, I recommend:
+Anyway, if you need fast figures with larger data sets, I recommend taking some of the following steps:
 
 - Run the figure in the browser rather than viewer
 - Use plots which summarize the data (e.g. barplots, 2D histograms), 
-rather than plots which show all of the datapoints
-- If everything else fails, subsample the data
+rather than plots which show all of the data points
+- Take a subsample the data
 
 # References

@@ -61,12 +61,19 @@ add_plot <- function(scene, type = NULL, encoding = NULL, options = NULL) {
                paste(plot_types, collapse = ', ')))
   }
 
-  if (is.null(encoding)) stop("Please provide variable encodings")
+  ignore_encodings <- ifelse(is.null(options$ignore_encodings), FALSE,
+                             options$ignore_encoding)
+
+  if (!ignore_encodings && is.null(encoding)) {
+    stop("Please provide variable encodings")
+  }
 
   keys <- names(encoding)
-  if (is.null(keys)) keys <- paste0("v", 1:length(encoding))
+  if (!ignore_encodings && is.null(keys)) {
+    keys <- paste0("v", 1:length(encoding))
+    encoding <- split(encoding, keys)
+  }
 
-  encoding <- split(encoding, keys)
   scene$x$plots[[length(scene$x$plots) + 1]] <- list(type = type,
                                                      encoding = encoding,
                                                      options = options)
@@ -196,7 +203,7 @@ add_histogram2d <- function(scene, encoding = NULL) {
 #' @import htmlwidgets
 #' @export
 add_notes <- function(scene) {
-  add_plot(scene, "note")
+  add_plot(scene, "note", NULL, list(ignore_encodings = TRUE))
 }
 
 
