@@ -1,12 +1,12 @@
 #' Set up an interactive scene
 #'
-#' This function constructs the underlying skeleton of an interactive
-#' `plotscaper` scene. Specifically, it parses the data, sends it to
+#' This function constructs a skeleton of an interactive
+#' `plotscaper` scene. Namely, it parses the data, sends it to
 #' to `plotscape` via `htmlwidgets`, and sets up the scene object which
 #' takes care of adding plots and between-plot interactions.
 #'
 #' @param data A dataframe that will be converted to JSON
-#' (missing values are not currently supported).
+#' (missing values are currently not supported).
 #' @param width Width of the scene
 #' @param height Height of the scene
 #'
@@ -54,9 +54,9 @@ set_scene <- function(data = NULL, options = NULL,
   )
 
   # create widget
-  htmlwidgets::createWidget(
-    name = 'plotscaper',
+  output <- htmlwidgets::createWidget(
     x,
+    name = 'plotscaper',
     width = width,
     height = height,
     package = 'plotscaper',
@@ -67,6 +67,8 @@ set_scene <- function(data = NULL, options = NULL,
       browser.fill = TRUE
     )
   )
+
+  output
 }
 
 #' Set interactive scene layout

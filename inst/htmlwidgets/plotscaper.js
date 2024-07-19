@@ -37,6 +37,7 @@ HTMLWidgets.widget({
         }
 
         if (layout) scene.setLayout(layout)
+        window.plotscape.currentScene = scene
       },
 
       resize: function(width, height) {
