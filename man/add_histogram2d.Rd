@@ -7,9 +7,12 @@
 add_histogram2d(scene, encoding = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{scene}{A \code{plotscaper} scene object}
 
-\item{encoding}{Encoding of the variables: \code{v1} and \code{v2} continuous.}
+\item{encoding}{Encoding of the variables: \code{v1} and \code{v2} continuous}
+}
+\value{
+The scene back
 }
 \description{
 This function adds a 2D histogram to an interactive scene

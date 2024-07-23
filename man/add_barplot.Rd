@@ -7,12 +7,15 @@
 add_barplot(scene, encoding = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{scene}{A \code{plotscaper} scene object}
 
 \item{encoding}{Encoding of the variables:
-\code{v1} a discrete variable, \code{v2} a continuous variable (optional).}
+\code{v1} a discrete variable, \code{v2} a continuous variable (optional)}
 
-\item{options}{A list of options.}
+\item{options}{A list of options}
+}
+\value{
+The scene back
 }
 \description{
 This function adds a barplot to an interactive scene.

@@ -12,6 +12,9 @@ add_parcoords(scene, encoding = NULL)
 \item{encoding}{Encoding of the variables:
 \code{v1}, \code{v2}, \code{v3}, ... (continuous or discrete variables).}
 }
+\value{
+The scene back
+}
 \description{
 This function adds a parallel coordinates plot to an interactive scene
 The variables can be put on common scale by pressing the normalize ("N")

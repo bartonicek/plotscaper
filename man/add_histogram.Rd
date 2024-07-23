@@ -14,6 +14,9 @@ add_histogram(scene, encoding = NULL, options = NULL)
 
 \item{options}{A list of options.}
 }
+\value{
+The scene back.
+}
 \description{
 This function adds a histogram to an interactive scene.
 Can be transformed into spinogram by pressing the normalize ("N") key.

@@ -7,18 +7,21 @@
 add_plot(scene, type = NULL, encoding = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{scene}{A \code{plotscaper} scene object}
 
-\item{type}{A string representing the plot type.}
+\item{type}{A string representing the plot type}
 
-\item{encoding}{A vector of variable encodings.}
+\item{encoding}{A vector of variable encodings}
 
-\item{options}{A list of options.}
+\item{options}{A list of options}
+}
+\value{
+The scene back (with the added specification for the plot)
 }
 \description{
-This function adds the specification for an additional plot to
-an existing \code{plotscaper} scene. The type of plot is
-specified via string. Variable encodings are specified via a vector
+This function adds the specification for a additional plot to
+an existing \code{plotscaper} scene (\code{htmlwidget}) object. The type of plot is
+specified via a string. Variable encodings are specified via a vector
 of character strings, corresponding to the names of the variables in
 the data.
 }
@@ -27,16 +30,17 @@ This function is used internally in specialized wrapper functions such as \link{
 or \link{add_barplot}, and I recommend to use these functions instead.
 
 Note that the variable encodings specified via the \code{encoding} argument
-\strong{aren't} the same as aesthetic encodings used in Grammar of Graphics
+are different from aesthetic encodings used in Grammar of Graphics
 (GoG)-based systems such as \code{ggplot2}.
-That is, using the function in a way such as:
+That is, code like the following:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{add_plot("scatter", c(x = "wt", y = "mpg")) # BZZZZZTT! Wrong!
+\if{html}{\out{<div class="sourceCode">}}\preformatted{add_plot("scatter", c(x = "wt", y = "mpg"))
 }\if{html}{\out{</div>}}
 
-would be incorrect. Instead, in \code{plotscaper}, data variables are mapped
-to intermediate "summary" variables which may be subject to some statistical
-transformations, and only after that happens can these summary variables
+will not work. This is because, in \code{plotscaper},
+data variables are mapped to intermediate "summary" variables which may
+be subject to some statistical transformations,
+and only after that happens can these summary variables
 be mapped to aesthetic variables. I.e. there is a three-step model:
 
 \deqn{\textbf{data}
@@ -46,11 +50,12 @@ be mapped to aesthetic variables. I.e. there is a three-step model:
 The reason for this departure from the GoG style of specifying aesthetics
 is that some interactive plots are difficult to express
 as a clean 1-to-1 mapping from data to aesthetics.
+
 For example, in a spinogram (a scaled version
-of histogram, that you can play around with in \code{plotscaper} by clicking
-on a histogram and pressing the "N" key), the y-axis variable is
-scaled count, and x-axis variable is cumulative (absolute) count -
-neither of these variables come directly from the data, and both
+of histogram - click on a histogram and press the "N" key),
+the y-axis variable is
+scaled count, and x-axis variable is cumulative (absolute) count.
+Neither of these variables come directly from the data, and both
 represent a transformation of the same underlying summary variable
 (count within bins). In fact, the underlying summary variable in a
 spinogram is exactly the same as the one histogram uses - it is

@@ -16,15 +16,26 @@ set_scene(
 \item{data}{A dataframe that will be converted to JSON
 (missing values are currently not supported).}
 
+\item{options}{A list of options}
+
 \item{width}{Width of the scene}
 
 \item{height}{Height of the scene}
+
+\item{elementId}{An id of the element to render the widget in}
+}
+\value{
+An object of class \code{htmlwidget}
 }
 \description{
 This function constructs a skeleton of an interactive
-\code{plotscaper} scene. Namely, it parses the data, sends it to
-to \code{plotscape} via \code{htmlwidgets}, and sets up the scene object which
-takes care of adding plots and between-plot interactions.
+\code{plotscaper} figure. Specifically, it parses the data to JSON,
+creates an object of class \code{htmlwidget} and sends it
+additional information that is necessary to set up the figure,
+such as the variable types,
+the URL of the websocket server (if interactive), etc..
+The figure gets rendered when the resulting \code{htmlwidget}
+object gets printed.
 }
 \examples{
 set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))

@@ -1,14 +1,21 @@
 #' Set up an interactive scene
 #'
 #' This function constructs a skeleton of an interactive
-#' `plotscaper` scene. Namely, it parses the data, sends it to
-#' to `plotscape` via `htmlwidgets`, and sets up the scene object which
-#' takes care of adding plots and between-plot interactions.
+#' `plotscaper` figure. Specifically, it parses the data to JSON,
+#' creates an object of class `htmlwidget` and sends it
+#' additional information that is necessary to set up the figure,
+#' such as the variable types,
+#' the URL of the websocket server (if interactive), etc..
+#' The figure gets rendered when the resulting `htmlwidget`
+#' object gets printed.
 #'
 #' @param data A dataframe that will be converted to JSON
 #' (missing values are currently not supported).
+#' @param options A list of options
 #' @param width Width of the scene
 #' @param height Height of the scene
+#' @param elementId An id of the element to render the widget in
+#' @returns An object of class `htmlwidget`
 #'
 #' @examples
 #' set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))
@@ -19,29 +26,27 @@ set_scene <- function(data = NULL, options = NULL,
 
   if (is.null(data)) stop("Please provide a valid dataset.")
 
-  typeMap <- list(
-    numeric = "continuous",
-    integer = "continuous",
-    character = "discrete",
-    factor = "discrete"
-  )
-
-  n_complete <- sum(complete.cases(data))
+  # check for missing data
+  n_complete <- sum(stats::complete.cases(data))
   n_missing <- nrow(data) - n_complete
 
   if (n_missing > 0) {
     warning(paste("Removed", n_missing, "rows with missing values from the data"))
-    data <- na.omit(data)
+    data <- stats::na.omit(data)
   }
 
-  types <- lapply(as.list(data), function(x) {
-    typeMap[[class(x)[which(class(x) %in% names(typeMap))]]]
-  })
+  # infer plotscape variable types
+  types <- lapply(as.list(data), infer_plotscape_type)
 
+  # rename scene options to snake case
   if (!is.null(options)) {
-    for (key in names(options)) {
-      options[[snake_to_camel(key)]] = options[[key]]
-    }
+    options <- stats::setNames(options, snake_to_camel(names(options)))
+  }
+
+  server <- plotscaper_global$server
+  if (!is.null(server)) {
+    url <- paste0("ws://", server$getHost(), ":", server$getPort(), "/")
+    options$websocketURL <- url
   }
 
   # forward options using x
@@ -73,10 +78,12 @@ set_scene <- function(data = NULL, options = NULL,
 
 #' Set interactive scene layout
 #'
-#' This function sets a layout for the interactive scene, similar to the
+#' This function sets a layout for a `plotscaper` scene, similar to the
 #' `graphics::layout` function.
 #'
-#' @param scene A `plotscaper` scene object.
+#' @param scene A `plotscaper` scene
+#' @param layout A numeric matrix of contiguous rectangle ids
+#' @returns The scene back
 #'
 set_layout <- function(scene = NULL, layout = NULL) {
   if (is.null(layout) || !is.matrix(layout) || !is.numeric(layout)) {

@@ -1,15 +1,23 @@
 Package: plotscaper
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Explore Your Data with Interactive Figures
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1)
+Imports: 
+    htmlwidgets (>= 1.6),
+    httpuv (>= 1.6),
+    jsonlite (>= 1.8),
+    stats
+Authors@R: 
+    person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre"))
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

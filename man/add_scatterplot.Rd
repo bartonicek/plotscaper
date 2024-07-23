@@ -7,10 +7,13 @@
 add_scatterplot(scene, encoding = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{scene}{A \code{plotscaper} scene object}
 
 \item{encoding}{A vector of variable encodings:
-\code{v1} and \code{v2} (discrete or continuous), \code{v3} continuous (optional).}
+\code{v1} and \code{v2} (discrete or continuous), \code{v3} continuous (optional)}
+}
+\value{
+The scene back
 }
 \description{
 This function adds a scatterplot to an interactive scene.

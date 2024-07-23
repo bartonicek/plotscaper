@@ -2,17 +2,39 @@
 % Please edit documentation in R/reducer.R
 \name{reducer}
 \alias{reducer}
-\title{Create a reducer}
+\title{Construct a Reducer}
 \usage{
 reducer(initialfn = NULL, reducefn = NULL, name = NULL)
 }
 \arguments{
-\item{reducefn}{A reducer function.}
+\item{initialfn}{An JavaScript initializing function}
 
-\item{name}{A name for the reducer}
+\item{reducefn}{A JavaScript reducer function specified}
 
-\item{init}{An initializing function.}
+\item{name}{A name for the reducer (a string)}
+}
+\value{
+A reducer (which is just a \code{list})
 }
 \description{
-Create a reducer
+Constructs a reducer that can be used to show different summaries
+in a \code{plotscaper} figure. Specifically, the function creates a list with
+three values: an \code{initialfn}, a \code{reducefn}, and a \code{name}.
+}
+\details{
+\code{reducefn} and \code{initialfn} should be interpretable as JavaScript functions
+(either strings or objects constructed with \code{htmlwidgets::JS}). Further:
+\itemize{
+\item \code{initialfn} should take no arguments and just return some value (i.e. a thunk).
+\item \code{reducefn} should take two arguments \code{previous} and \code{next} and return a result
+of the same type as \code{previous}.
+}
+}
+\examples{
+r <- reducer(initialfn = "() => -Infinity",
+             reducefn = "(a, b) => Math.max(a, b)",
+             name = "max")
+set_scene(mtcars) |>
+  add_barplot(c("cyl", "mpg"), options = list(reducer = r))
+
 }

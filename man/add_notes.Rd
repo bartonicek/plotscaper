@@ -7,7 +7,10 @@
 add_notes(scene)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{scene}{A \code{plotscaper} scene object}
+}
+\value{
+The scene back
 }
 \description{
 Function that adds a "noteplot" to an interactive scene. This is not

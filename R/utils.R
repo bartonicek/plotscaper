@@ -1,4 +1,20 @@
 
+`%unpack%` <- function(vars, list) {
+  for(v in vars) assign(v, list[[v]], parent.frame())
+}
+
+infer_plotscape_type <- function(x) {
+  typeMap <- list(
+    numeric = "continuous",
+    integer = "continuous",
+    character = "discrete",
+    factor = "discrete",
+    logical = "discrete"
+  )
+
+  typeMap[[class(x)[which(class(x) %in% names(typeMap))]]]
+}
+
 stop_if_any_null <- function(message = NULL, ...) {
   to_check <- list(...)
 

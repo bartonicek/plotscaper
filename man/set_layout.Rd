@@ -7,9 +7,14 @@
 set_layout(scene = NULL, layout = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{scene}{A \code{plotscaper} scene}
+
+\item{layout}{A numeric matrix of contiguous rectangle ids}
+}
+\value{
+The scene back
 }
 \description{
-This function sets a layout for the interactive scene, similar to the
+This function sets a layout for a \code{plotscaper} scene, similar to the
 \code{graphics::layout} function.
 }
