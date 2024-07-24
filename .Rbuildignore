@@ -3,6 +3,9 @@
 ^README\.Rmd$
 ^README*
 ^LICENSE\.md$
-^test.R
-^test*
+^localtests$
 ^references.bib
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
