@@ -31,7 +31,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/plotscaper.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/algebra.html">The algebra of interaction</a></li>
+    <li><a class="dropdown-item" href="articles/layout.html">Figure layout</a></li>
+    <li><a class="dropdown-item" href="articles/performance.html">Performance</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -55,7 +64,7 @@
 </h2>
 <p>To get started, install <code>plotscaper</code> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"bartonicek/plotscape/packages/plotscaper"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"bartonicek/plotscaper"</span><span class="op">)</span></span></code></pre></div>
 <p>Next, open up RStudio and run the following code:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bartonicek.github.io/plotscaper/">plotscaper</a></span><span class="op">)</span></span>
@@ -76,313 +85,9 @@
 <span>  <span class="fu"><a href="reference/add_parcoords.html">add_parcoords</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sacramento</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/set_layout.html">set_layout</a></span><span class="op">(</span><span class="va">layout</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-3-1.png" style="display: block; margin: auto;"></p>
-<p>In your viewer, you should now see something like the image above, however, your version should be fully interactive (Github doesn’t allow JavaScript in <code>README.md</code>, hence why the image above is static).</p>
-<p>Try moving your mouse somewhere over the scatterplot in the top left of the figure and clicking and dragging to select some points. You should see the corresponding cases get highlighted across all the other plots!</p>
-<p>There are many other ways interacting with <code>plotscaper</code> figures, including:</p>
-<ul>
-<li>Zooming and panning</li>
-<li>Changing the size of objects</li>
-<li>Increasing/decreasing the opacity (alpha)</li>
-<li>Assigning selected cases to persistent groups</li>
-<li>Manipulating parameters such as histogram binwidth and anchor</li>
-<li>Modifying continuous axis limits</li>
-<li>Sorting and reordering discrete axes</li>
-<li>Resizing individual plots</li>
-</ul>
-<p>Click on the question mark in the top right corner of the figure to see the list of the available options plus the corresponding key/mouse bindings.</p>
-</div>
-<div class="section level2">
-<h2 id="anatomy-of-a-plotscaper-figure">Anatomy of a <code>plotscaper</code> figure<a class="anchor" aria-label="anchor" href="#anatomy-of-a-plotscaper-figure"></a>
-</h2>
-<p>There are a bunch of things going on in the code that was used to create the figure above. Let’s walk through them step by step.</p>
-<p>First, whenever we want to create a <code>plotscaper</code> figure, we need to set up a scene, which is a kind of global context into which all of the plots get placed. To set up a scene, run:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sacramento</span><span class="op">)</span></span></code></pre></div>
-<p>where <code>data</code> is some <code>data.frame</code> object. Here we’re using the Sacramento housing data set from the <code>caret</code> package.</p>
-<p>If we run the code above, we will just get an empty rectangle. The reason for that is that, in order to do some things, we first need to fill the scene with plots. To populate the scene with plots, we can use the <code>add_*</code> functions:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span><span class="va">sacramento</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_scatterplot.html">add_scatterplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"longitude"</span>, <span class="st">"latitude"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_barplot.html">add_barplot</a></span><span class="op">(</span><span class="st">"city"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="75%" height="75%" style="display: block; margin: auto;"></p>
-<p>The code above creates interactive figure with a linked scatterplot and a barplot. We only need to specify which variables we want to show in each plot by simple character vectors of their names. Simple as.</p>
-<p>Under the hood, a <code>plotscaper</code> figure is just a <code>htmlwidgets</code> widget. This means that, to render the figure, we need to print the underlying object. More specifically, when we print a <code>plotscaper</code> scene, <code>htmlwidgets</code> generates the underlying HTML, JavaScript, and CSS, and sends it to the RStudio viewer (which is a kind of Web browser). This operation is lazy - if we don’t print the object, nothing happens:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span><span class="va">sacramento</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_scatterplot.html">add_scatterplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"longitude"</span>, <span class="st">"latitude"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_barplot.html">add_barplot</a></span><span class="op">(</span><span class="st">"city"</span><span class="op">)</span></span></code></pre></div>
-<p>However, printing <code>s</code> generates the figure:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">s</span> <span class="co"># This is the same as print(s)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="75%" height="75%" style="display: block; margin: auto;"></p>
-<p>We can use this laziness to generate figures programmatically with R. For example, here’s how we could create an interactive scatterplot matrix (SPLOM) of the <code>Iris</code> dataset:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">iris_smaller</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
-<span><span class="va">keys</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris_smaller</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span><span class="va">iris_smaller</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Loop through columns</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># Add a scatterplot if row &amp; column no.'s are different</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">i</span> <span class="op">!=</span> <span class="va">j</span><span class="op">)</span> <span class="va">s</span> <span class="op">&lt;-</span> <span class="va">s</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_scatterplot.html">add_scatterplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">keys</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">keys</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="co"># Add a histogram if row &amp; column no.'s are the same</span></span>
-<span>    <span class="kw">else</span> <span class="va">s</span> <span class="op">&lt;-</span> <span class="va">s</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_histogram.html">add_histogram</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">keys</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">s</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-8-1.png" style="display: block; margin: auto;"></p>
-<div class="section level3">
-<h3 id="layout">Layout<a class="anchor" aria-label="anchor" href="#layout"></a>
-</h3>
-<p>We can control the figure layout by using the <code>set_layout</code> function. This function works similarly to the <code>layout</code> function from the <code>graphics</code> package. We just give the function a matrix of numeric values representing the plot ids, and the figure automatically resizes the plots based on how many equal-sized rectangles in a grid each plot takes up.</p>
-<p>For example, here’s how we can create a figure with large scatterplot on the top-left, a tall histogram on the right-hand side, a short wide histogram on the bottom, and a small section for notes (not-(e)-plot, pardon the pun) on the bottom-right:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">layout</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
-<span>  <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>,</span>
-<span>  <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span></span>
-<span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span><span class="va">sacramento</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_scatterplot.html">add_scatterplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sqft"</span>, <span class="st">"price"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_histogram.html">add_histogram</a></span><span class="op">(</span><span class="st">"price"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_histogram.html">add_histogram</a></span><span class="op">(</span><span class="st">"sqft"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_notes.html">add_notes</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/set_layout.html">set_layout</a></span><span class="op">(</span><span class="va">layout</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;"></p>
-<p>You can still resize individual plots by pressing and holding the <code>S</code> key and then dragging a widget in the bottom right of the plot area. Note, however, that this feature is a bit finicky and may result in gaps.</p>
+<p>In your viewer, you should now see something like the image above, however, your version should be fully interactive (Github doesn’t allow JavaScript in <code>README.md</code>, hence why the image above is static). Try clicking and dragging on the plot!</p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="the-algebra-of-highlighting">The algebra of highlighting<a class="anchor" aria-label="anchor" href="#the-algebra-of-highlighting"></a>
-</h2>
-<blockquote>
-<p>This section delves into the deeper properties of <code>plotscaper</code>. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.</p>
-</blockquote>
-<p>When I started my PhD project, I wanted to create a framework for making interactive graphics that would support certain types of interaction out of the box. Specifically, I wanted every plot to support linked selection, i.e. being able to click or click and drag some objects in one plot and have all the corresponding cases get highlighted across all other plots. The reason why I wanted to support linked selection is because it allows you to quickly query different subsets of the data - you select a few objects in one plot and immediately see the summaries on that subset of the data - this makes it a really useful interactive feature and a lot of data visualization researchers swear by it (see e.g. Buja, Cook, and Swayne 1996; Heer and Shneiderman 2012; Ward, Grinstein, and Keim 2015; Ware 2019). Anyway, alongside linked selection, I also wanted to be able to support various kinds of plots and statistical summaries, such that, if we were draw to draw a barplot, we could make the bars display a different summary statistic (instead of the usual counts), such as e.g. sums or means of some other variable.</p>
-<p>This all sounds simple enough, right? However, I kept running into this one issue, over and over again. I wanted all plots to support linked selection and to be able to show different kinds of summaries. In doing so, I wanted to treat the interaction (linked selection) and statistics in the plots as two independent components. Unfortunately, this is not how things work, and I kept hitting my head against the wall. However, by doing so, I also eventually stumbled upon something that I think is really interesting. I am now convinced that graphics, statistics, and interaction are inextricably linked, in a deep, algebraic way, and, if we want to create interactive data visualizations that look and behave in sensible ways, we need to be aware of that. I hope I can convince you too - let me start by laying out the problem I kept running into, starting with some simple static plots.</p>
-<div class="section level3">
-<h3 id="the-problem">The problem<a class="anchor" aria-label="anchor" href="#the-problem"></a>
-</h3>
-<p>Try and see what’s wrong with the following plot:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_bw</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>            <span class="fu">theme</span><span class="op">(</span>panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                  panel.border <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                  panel.background <span class="op">=</span> <span class="fu">element_rect</span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"whitesmoke"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">mtcars</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">cyl</span>, y <span class="op">=</span> <span class="va">mpg</span>, fill <span class="op">=</span> <span class="va">am</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_bar</span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"summary"</span>, fun <span class="op">=</span> <span class="va">mean</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_fill_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#92c9f6"</span>, <span class="st">"#377eb8"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-11-1.png" style="display: block; margin: auto;"></p>
-<p>The plot above looks like something that might result from linked selection, and, visually, it looks like a perfectly fine <code>ggplot2</code> figure. However, take a close look at the following line:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">geom_bar</span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"summary"</span>, fun <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span></code></pre></div>
-<p>We’re telling <code>ggplot2</code> that we want to draw bars by summarizing the y-axis variable by its average, within the levels defined by the Cartesian product of the <code>x</code> and <code>fill</code> variables (i.e. a table with <code>x</code> as rows and <code>fill</code> as columns). However, there’s one important argument that is applied to the function call, which is a <code>ggplot2</code> default that we don’t see unless we specify it explicitly:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">geom_bar</span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"summary"</span>, fun <span class="op">=</span> <span class="va">mean</span>, position <span class="op">=</span> <span class="st">"stack"</span><span class="op">)</span></span></code></pre></div>
-<p>When using using the <code>fill</code> aesthetic with <code>geom_bar</code> (as well as other <code>geom</code>s), <code>ggplot2</code> applies the stack transformation by default. In the case of bars, this transformation stacks the bars vertically on top of each other, effectively summing up the heights of the coloured sub-bars.</p>
-<p>But herein lies the problem: what does the height of the stacked bars represent now? Since stacking bars is effectively summing the underlying statistic, each whole bar now represents the sum of the group averages. That is not a meaningful summary statistic - “sum of averages” is not a quantity that many people would care about or know how to interpret. This is the kind of problem that can easily trip up a data visualization rookie, and a good number of data visualization researchers have warned about this:</p>
-<blockquote>
-<p>“Stacking is useful when the sum of the amounts represented by the individual stacked bars is in itself a meaningful amount” (Wilke 2019, 52).</p>
-</blockquote>
-<blockquote>
-<p>“[…] It is very important that if the element’s size is used to display a statistic, then that statistic must be summable. Stacking bars that represent counts, sums, or percentages are fine, but a stacked bar chart where bars show average values is generally meaningless.” (Wills 2011, 112).</p>
-</blockquote>
-<p>Alright, you might say, I cannot sum averages, but since summing sums is fine, what about taking an average of the averages? Unfortunately, this is not correct either - the mean of group means is not the same as the grand mean:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.5</span></span></code></pre></div>
-<p>Some researchers have warned about this too:</p>
-<blockquote>
-<p>“[…] We do this to ensure that aggregate statistics are always computed over the input data, and so users do not inadvertantly compute e.g., averages of averages, which can easily lead to misinterpretation.” (Wu 2022)</p>
-</blockquote>
-<p>So what should we do? If you’re familiar with <code>ggplot2</code>, you may be thinking of one handy solution right now: instead of stacking the bars, let’s use dodging and plot them side by side:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">mtcars</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">cyl</span>, y <span class="op">=</span> <span class="va">mpg</span>, fill <span class="op">=</span> <span class="va">am</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_bar</span><span class="op">(</span>stat <span class="op">=</span> <span class="st">"summary"</span>, fun <span class="op">=</span> <span class="va">mean</span>, position <span class="op">=</span> <span class="st">"dodge"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_fill_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#92c9f6"</span>, <span class="st">"#377eb8"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-15-1.png" style="display: block; margin: auto;"></p>
-<p>This works well for static graphics.</p>
-<p>However, in interactive graphics, dodging has several issues. Take a look at the following two rows of plots:</p>
-<p><img src="reference/figures/README-unnamed-chunk-16-1.png" style="display: block; margin: auto;"></p>
-<p>In both rows, we represent the same data; in the top row we use stacking, in the bottom row we use dodging. We can imagine these barplots being produced by linked selection, with the dark-blue bars representing selected cases and more cases being selected as we move from left to right. Notice that in the top row, the overall contour of the plot remains constant even as the number of selected cases changes: we always have a tall left bar, tall right bar, and a short middle bar, and only the heights of the highlighted dark-blue sections fluctuate.</p>
-<p>The same is not true for dodging. With dodging, since we plot the selected and non-selected cases side-by-side, selection can affect the overall shape of the plot dramatically - bars may shrink or grow, or even pop and in out of existence (see left-most plot in the bottom row).</p>
-<p>This may impact other parts of the plot too - see how the top y-axis limits changes across the plots. Thus, if we want to implement selection on a linked barplot with dodging, we have a tough choice over whether we make the axes react in response to selection or not. If we make the axes reactive then the user will be always able to see all of the data, however, when selection happens, the axis limits reset and we lose the context that they provide. If we don’t make the axes reactive, we risk the bars growing outside of the plotting area. We don’t have to worry about this in the case of the stacked barplot since selection does not affect the height of the tallest bar.</p>
-<p>Also, this is a bit of a subjective preference, but I find interactive figures which change gradually more visually pleasing and easier to read than figures in which objects fluctuate rapidly. I haven’t found much research to support this claim more broadly. There is the article by Hullman et al. (2013), who found that, when presenting sequences of static graphics, people prefer the sequences where the plots change gradually rather than abruptly.</p>
-</div>
-<div class="section level3">
-<h3 id="sums-preserve-set-union">Sums preserve set union<a class="anchor" aria-label="anchor" href="#sums-preserve-set-union"></a>
-</h3>
-<p>So should we only ever do linked selection with sums and counts, so that we can use stacking to highlight the selected cases? That seems a bit limiting. But perhaps there’s another way.</p>
-<p>In the quotes above, Wilke (2019) and Wills (2011) said that the quantity represented by the stacked bar should be “meaningful”. What does that mean?</p>
-<p>Well, if I was to try to rephrase what Wilke and Wills were getting at, I would say that sums are a particularly nice kind of summary statistic because:</p>
-<blockquote>
-<p><em>Sum</em> of grouped <em>sum</em>s is equal to the <em>sum</em> of everything.</p>
-</blockquote>
-<p>In other words, we can take some sets of data, sum them up each individually, and then sum up the sums, and we’ll get the same result as if we had first combined those sets into one big set and summed that up. In other words, sums preserve set union. This makes it possible to draw highlighted parts of bars or other objects, because we know that if we combine (sum) two sums, we’ll get a valid summary of the union of the underlying cases of data.</p>
-<p>Are there other statistics that behave this way? What if we replace the word <em>“sum”</em> by a placeholder, for example <em>“foo”</em>:</p>
-<blockquote>
-<p><em>Foo</em> of grouped <em>foo</em>s is equal to the <em>foo</em> of everything.</p>
-</blockquote>
-<p>Then, it actually turns out there are other statistics that behave this way. For example, the product of products is also a valid product of all cases:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 24</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 24</span></span></code></pre></div>
-<p>And likewise, the maximum of maximum is also the valid maximum for all cases:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">999</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 999</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">999</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 999</span></span></code></pre></div>
-<p>So how do we make this idea precise? Turns out there is a mathematical concept that encapsulates this.</p>
-</div>
-<div class="section level3">
-<h3 id="monoids">Monoids<a class="anchor" aria-label="anchor" href="#monoids"></a>
-</h3>
-<p><a href="(https://en.wikipedia.org/wiki/Monoid)" class="external-link">“Monoid”</a> sounds scary but it’s really nothing complicated. It’s just three things:</p>
-<ul>
-<li>Some set <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
-</li>
-<li>A binary operation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⊗</mo><mo>:</mo><mi>M</mi><mo>×</mo><mi>M</mi><mo>→</mo><mi>M</mi></mrow><annotation encoding="application/x-tex">\otimes: M \times M \to M</annotation></semantics></math>
-</li>
-<li>A neutral element <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>∈</mo><mi>M</mi></mrow><annotation encoding="application/x-tex">e \in M</annotation></semantics></math>
-</li>
-</ul>
-<p>Subject to two rules:</p>
-<ul>
-<li>Unitality: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>⊗</mo><mi>e</mi><mo>=</mo><mi>e</mi><mo>⊗</mo><mi>x</mi><mo>=</mo><mi>x</mi></mrow><annotation encoding="application/x-tex">x \otimes e = e \otimes x = x</annotation></semantics></math>
-</li>
-<li>Associativity: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>⊗</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mo>⊗</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>⊗</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⊗</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">x \otimes (y \otimes z) = (x \otimes y) \otimes z</annotation></semantics></math>
-</li>
-</ul>
-<p>This means that, when we have a monoid, we have a bunch of things <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> and a way of combining these things <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⊗</mo><annotation encoding="application/x-tex">\otimes</annotation></semantics></math>, such that, when we combine these things, the order in which we do it doesn’t matter. We also have some neutral element <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>, that, combined with anything else, just yields the same thing back.</p>
-<p>Typical examples of monoids include the above mentioned sums, products, and maximums (here, the set <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> is real numbers and the neutral units are 0, 1, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">-\infty</annotation></semantics></math> respectively). Counterexamples include the above-mentioned means, as well as, for example, exponentiation (which isn’t associative: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>x</mi><mi>y</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mi>z</mi></msup><mo>≠</mo><msup><mi>x</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>y</mi><mi>z</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">(x^y)^z \neq x^{(y^z)}</annotation></semantics></math>.</p>
-<p>Monoids are a fundamental concept in abstract algebra and category theory (see e.g. Fong and Spivak 2019; Lawvere and Schanuel 2009), and are also heavily used in functional programming (see e.g. Milewski 2018). For our purposes, they important because they have the exact property we were looking for - they preserve set union. Suppose we have two disjoint subsets of some data <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>,</mo><mi>B</mi><mo>⊆</mo><mi>D</mi></mrow><annotation encoding="application/x-tex">A, B \subseteq D</annotation></semantics></math>, and we can summarize each with some monoidal summary F:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>a</mi><mn>1</mn></msub><mo>⊗</mo><msub><mi>a</mi><mn>2</mn></msub><mo>⊗</mo><mi>…</mi><mo>⊗</mo><msub><mi>a</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">F(A) = a_1 \otimes a_2 \otimes \ldots \otimes a_n</annotation></semantics></math> That is, we just take all elements in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> and <em>“sum”</em> them up together into one value (where <em>“sum”</em> could be something else).</p>
-<p>Now, if we summarize <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> and combine the summaries, we get the same result as summarizing the union:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⊗</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mn>1</mn></msub><mo>⊗</mo><msub><mi>a</mi><mn>2</mn></msub><mo>⊗</mo><mi>…</mi><msub><mi>a</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⊗</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>b</mi><mn>1</mn></msub><mo>⊗</mo><msub><mi>b</mi><mn>2</mn></msub><mo>⊗</mo><mi>…</mi><msub><mi>b</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>a</mi><mn>1</mn></msub><mo>⊗</mo><msub><mi>a</mi><mn>2</mn></msub><mo>⊗</mo><mi>…</mi><msub><mi>a</mi><mi>n</mi></msub><mo>⊗</mo><msub><mi>b</mi><mn>1</mn></msub><mo>⊗</mo><msub><mi>b</mi><mn>2</mn></msub><mo>⊗</mo><mi>…</mi><msub><mi>b</mi><mi>n</mi></msub><mspace width="2.0em"></mspace><mtext mathvariant="normal">(associativity: brackets don’t matter)</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo>∪</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
-F(A) \otimes F(B) &amp;= (a_1 \otimes a_2 \otimes \ldots a_n) \otimes (b_1 \otimes b_2 \otimes \ldots b_n) \\
-&amp;= a_1 \otimes a_2 \otimes \ldots a_n \otimes b_1 \otimes b_2 \otimes \ldots b_n \qquad \text{(associativity: brackets don't matter)} \\
-&amp;= F(A \cup B)
-\end{aligned}</annotation></semantics></math></p>
-<p>This means that, when we have monoids, we can compare nested subsets of the data. Which is precisely what we want to do if we highlight some cases in a plot: we want to compare the summary on the selected cases (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(A)</annotation></semantics></math>) vs. that on everything (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo>∪</mo><mi>B</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(A \cup B)</annotation></semantics></math>).</p>
-<p>There are a few important caveats regarding comparison of multiple selected groups and monotonicity. TODO</p>
-</div>
-<div class="section level3">
-<h3 id="barplot-of-maximums">Barplot of maximums<a class="anchor" aria-label="anchor" href="#barplot-of-maximums"></a>
-</h3>
-<p>In <code>plotscaper</code>, if you know a little bit of JavaScript, you can use the available plots to display monoidal summary statistics, using something called reducers. To create a reducer, we need two things:</p>
-<ul>
-<li>An <em>initial</em> function: a function that produces the neutral element <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
-</li>
-<li>A <em>reduce</em> function: a function that takes two values (in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>) and combines them together, such that the operation is associative and unital</li>
-</ul>
-<p>These currently need to be JavaScript functions.</p>
-<p>For example, suppose we want to display the barplot of maximums for some positive numeric variable. Then we can use the following JavaScript arrow function as the initial function:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>() <span class="sc">=&gt;</span> <span class="dv">0</span></span></code></pre></div>
-<p>The function takes in no arguments and just produces the value zero. In computer science lingo, this kind of “dumb” function is called a <a href="https://en.wikipedia.org/wiki/Thunk" class="external-link"><em>thunk</em></a>. In this case, the function <em>could</em> technically just be a value, however, thunks are more general, with the way how pointers work in JavaScript.</p>
-<p>The one other thing we need is a reduce function:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>(x, y) <span class="sc">=&gt;</span> <span class="fu">Math.max</span>(x, y)</span></code></pre></div>
-<p>This is just a very simple function that takes two numbers and returns the bigger one, using the built in <code>Math.max</code> JavaScript function. That’s it.</p>
-<p>You might be asking how do you know whether the operation that the function does is associative and unital. You have to figure that out yourself: try it out on a couple of candidate values &amp; see if the properties hold. <code>plotscaper</code> doesn’t know either - if you give it a function that doesn’t have those properties it will still try to make an interactive plot. It can’t know because it doesn’t know which values to try; the properties could hold for a handful of numbers but not for others. The functions behind it can actually support values other than numbers, I haven’t tried to implement a plot like that yet but we’ll see in the future.</p>
-<p>Anyway, here’s how you can create a barplot of maximums in <code>plotscaper</code>:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ramnathv/htmlwidgets" class="external-link">htmlwidgets</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Make the reducer - it really is just an R list() underneath</span></span>
-<span><span class="va">max_reducer</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/reducer.html">reducer</a></span><span class="op">(</span></span>
-<span>  name <span class="op">=</span> <span class="st">"max"</span>,</span>
-<span>  initialfn <span class="op">=</span> <span class="st">"() =&gt; 0"</span>,</span>
-<span>  reducefn <span class="op">=</span> <span class="st">"(x, y) =&gt; Math.max(x, y)"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span><span class="va">sacramento</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_scatterplot.html">add_scatterplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sqft"</span>, <span class="st">"price"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_barplot.html">add_barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"city"</span>, <span class="st">"price"</span><span class="op">)</span>, </span>
-<span>              options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>reducer <span class="op">=</span> <span class="va">max_reducer</span><span class="op">)</span><span class="op">)</span> <span class="co"># Specify the reducer in plot options</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-19-1.png" style="display: block; margin: auto;"></p>
-<p>Since maximum is a monoid, highlighting will work as expected! However, only for one selected group: when multiple groups are selected, we may not be able to see all of the bars; the reason for that is more math. TODO</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
-</h2>
-<p>While performance wasn’t a number one concern for <code>plotscaper</code>, it can perform fairly well on moderately-sized data sets (thanks largely to the work of the smart people who have optimized JavaScript engines like V8).</p>
-<p>For example, if you want to put <code>plotscaper</code> to a stress test, try creating a figure with the entire <code>diamonds</code> dataset from the <code>ggplot2</code> package:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/set_scene.html">set_scene</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="va"><a href="https://ggplot2.tidyverse.org/reference/diamonds.html" class="external-link">diamonds</a></span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_scatterplot.html">add_scatterplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carat"</span>, <span class="st">"price"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_fluctplot.html">add_fluctplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cut"</span>, <span class="st">"color"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_barplot.html">add_barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"color"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-20-1.png" style="display: block; margin: auto;"></p>
-<p>With 50,000 cases, dragging to select points in the scatterplot becomes a bit sluggish on my machine, but still fast enough to make the figure feel “interactive” rather than a “slideshow”. Your mileage may vary. Note that most of the slowdown is due to rendering rather than computation - removing the scatterplot with its 50,000 points makes the interactions a lot snappier.</p>
-<p>Frustratingly, there seems to be a small slowdown when interacting with the figure in the RStudio Viewer rather than directly in the browser. Interestingly, this does not seem to be related to the dataset size. I’m not very familiar with the RStudio internals and have no idea why this might be, but for now, if you want faster interactions I recommend just opening up a browser window, e.g. by clicking the icon in the top right of the viewer:</p>
-<p><img src="reference/figures/browser.png" width="75%" height="75%" style="display: block; margin: auto;"></p>
-<p>(if you know the reason behind this slowdown and/or how to fix it, please email me at <a href="mailto:abar435@aucklanduni.ac.nz" class="email">abar435@aucklanduni.ac.nz</a>)</p>
-<p>Anyway, if you need fast figures with larger data sets, I recommend taking some of the following steps:</p>
-<ul>
-<li>Run the figure in the browser rather than viewer</li>
-<li>Use plots which summarize the data (e.g. barplots, 2D histograms), rather than plots which show all of the data points</li>
-<li>Take a subsample the data</li>
-</ul>
-</div>
-</div>
-<div class="section level1">
-<h1 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-buja1996" class="csl-entry">
-Buja, Andreas, Dianne Cook, and Deborah F Swayne. 1996. “Interactive High-Dimensional Data Visualization.” <em>Journal of Computational and Graphical Statistics</em> 5 (1): 78–99.
-</div>
-<div id="ref-fong2019" class="csl-entry">
-Fong, Brendan, and David I Spivak. 2019. <em>An Invitation to Applied Category Theory: Seven Sketches in Compositionality</em>. Cambridge University Press.
-</div>
-<div id="ref-heer2012" class="csl-entry">
-Heer, Jeffrey, and Ben Shneiderman. 2012. “Interactive Dynamics for Visual Analysis: A Taxonomy of Tools That Support the Fluent and Flexible Use of Visualizations.” <em>Queue</em> 10 (2): 30–55.
-</div>
-<div id="ref-hullman2013" class="csl-entry">
-Hullman, Jessica, Steven Drucker, Nathalie Henry Riche, Bongshin Lee, Danyel Fisher, and Eytan Adar. 2013. “A Deeper Understanding of Sequence in Narrative Visualization.” <em>IEEE Transactions on Visualization and Computer Graphics</em> 19 (12): 2406–15.
-</div>
-<div id="ref-lawvere2009" class="csl-entry">
-Lawvere, F William, and Stephen H Schanuel. 2009. <em>Conceptual Mathematics: A First Introduction to Categories</em>. Cambridge University Press.
-</div>
-<div id="ref-milewski2018" class="csl-entry">
-Milewski, Bartosz. 2018. <em>Category Theory for Programmers</em>. Blurb.
-</div>
-<div id="ref-ward2015" class="csl-entry">
-Ward, Matthew O, Georges Grinstein, and Daniel Keim. 2015. <em>Interactive Data Visualization: Foundations, Techniques, and Applications</em>. CRC Press.
-</div>
-<div id="ref-ware2019" class="csl-entry">
-Ware, Colin. 2019. <em>Information Visualization: Perception for Design</em>. Morgan Kaufmann.
-</div>
-<div id="ref-wilke2019" class="csl-entry">
-Wilke, Claus O. 2019. <em>Fundamentals of Data Visualization: A Primer on Making Informative and Compelling Figures</em>. O’Reilly Media.
-</div>
-<div id="ref-wills2011" class="csl-entry">
-Wills, Graham. 2011. <em>Visualizing Time: Designing Graphical Representations for Statistical Data</em>. Springer Science &amp; Business Media.
-</div>
-<div id="ref-wu2022" class="csl-entry">
-Wu, Eugene. 2022. “View Composition Algebra for Ad Hoc Comparison.” <em>IEEE Transactions on Visualization and Computer Graphics</em> 28 (6): 2470–85.
-</div>
-</div>
-</div>
-
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">

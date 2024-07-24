@@ -1,8 +1,12 @@
 pandoc: 3.1.1
 pkgdown: 2.1.0
 pkgdown_sha: ~
-articles: {}
-last_built: 2024-07-24T08:13Z
+articles:
+  algebra: algebra.html
+  layout: layout.html
+  performance: performance.html
+  plotscaper: plotscaper.html
+last_built: 2024-07-24T11:12Z
 urls:
   reference: https://bartonicek.github.io/plotscaper/reference
   article: https://bartonicek.github.io/plotscaper/articles
