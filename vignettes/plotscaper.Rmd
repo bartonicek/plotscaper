@@ -3,8 +3,11 @@ title: "Introduction to plotscaper"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to plotscaper}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+bibliography: "references.bib"
 ---
 
 ```{r, include = FALSE}
@@ -92,19 +95,22 @@ However, printing `s` generates the figure:
 s # This is the same as print(s)
 ```
 
-We can use this laziness to generate `plotscaper` figures programmatically. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `Iris` dataset:
+We can use this laziness to generate `plotscaper` figures programmatically. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `penguins` dataset [@horst2020]:
 
 ```{r}
 #| fig-height: 7
 
-iris_smaller <- iris[, 1:3]
-keys <- names(iris_smaller)
+library(palmerpenguins)
 
-s <- set_scene(iris_smaller)
+penguins <- na.omit(penguins[, 4:6]) # Unfortunately missing data is not supported 
+keys <- c("bill depth", "flipper length", "body mass")
+names(penguins) <- keys
+
+s <- set_scene(penguins)
 
 # Loop through columns
-for (i in 1:3) {
-  for (j in 1:3) {
+for (i in seq_along(keys)) {
+  for (j in seq_along(keys)) {
     # Add a scatterplot if row & column no.'s are different
     if (i != j) s <- s |> add_scatterplot(c(keys[i], keys[j]))
     # Add a histogram if row & column no.'s are the same
@@ -114,3 +120,5 @@ for (i in 1:3) {
 
 s
 ```
+
+## References
