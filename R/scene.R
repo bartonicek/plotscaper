@@ -84,7 +84,7 @@ set_scene <- function(data = NULL, options = NULL,
 #' @param scene A `plotscaper` scene
 #' @param layout A numeric matrix of contiguous rectangle ids
 #' @returns The scene back
-#'
+#' @export
 set_layout <- function(scene = NULL, layout = NULL) {
   if (is.null(layout) || !is.matrix(layout) || !is.numeric(layout)) {
     stop("Please provide a valid layout in the form of a numeric matrix.")

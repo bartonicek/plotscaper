@@ -1,0 +1,271 @@
+---
+title: "The algebra of interaction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The algebra of interaction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: "references.bib"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.width = 7,
+  fig.height = 4,
+  comment = "#>")
+```
+
+> This section delves into the deeper properties of `plotscaper`. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.
+
+When I started my PhD, I wanted to make a framework for creating interactive graphics that would support certain types of interaction out of the box. Specifically, I wanted every plot to support linked selection, i.e. the user would be able to click or click and drag some objects in one plot and have all the corresponding cases get highlighted across all other plots. 
+
+Why did I want linked selection? Because it allows you to quickly query different subsets of the data - you select a few objects in one plot and immediately see the summaries of those cases. This is really useful for exploring data and a lot of data visualization researchers swear by the technique [see e.g. @buja1996; @heer2012; @ward2015; @ware2019]. 
+
+Anyway, alongside linked selection, I also wanted the user to be able to draw different kinds of statistical summaries, such that, for example, instead of every barplot displaying counts we could have it display sums or means.
+
+This all sounds simple enough, right? However, I kept running into this one issue, over and over again. I wanted all plots to support linked selection and to be able to show different kinds of summaries. In doing so, I wanted to treat the interaction (linked selection) and the statistics in the plots as two independent components. 
+
+Unfortunately, that is not how things work. I kept hitting my head against the wall, until I eventually stumbled upon something that I think is quite interesting. I now believe that graphics, statistics, and interaction are all linked, in a deep way. If we want to create interactive data visualizations that look and behave in sensible ways, we need to be mindful of that. I hope I can convince you of this too. 
+
+Let me begin by laying out the problem I kept running into, starting with some simple static plots.     
+
+## The problem
+
+Try and see what's wrong with the following plot:
+
+```{r}
+#| echo: false
+
+library(ggplot2)
+
+mtcars$am <- factor(mtcars$am)
+mtcars$cyl <- factor(mtcars$cyl)
+```
+
+```{r}
+theme_set(theme_bw() + 
+            theme(panel.grid = element_blank(),
+                  panel.border = element_blank(),
+                  panel.background = element_rect(fill = "whitesmoke")))
+
+ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
+  geom_bar(stat = "summary", fun = mean) +
+  scale_fill_manual(values = c("#92c9f6", "#377eb8")) +
+  guides(fill = "none")
+```
+
+The plot above looks like something that might result from linked selection, and, visually, it looks like a perfectly fine `ggplot2` figure. 
+
+However, take a close look at the following line:
+
+```{r}
+#| eval: false
+geom_bar(stat = "summary", fun = mean)
+```
+
+We're telling `ggplot2` that we want to draw bars by summarizing the y-axis variable by its average, within the levels defined by the Cartesian product of the `x` and `fill` variables (i.e. a table with `x` as rows and `fill` as columns). 
+
+That's all fine and dandy. However, there's one important default argument that gets applied to the function call, that we don't see unless we specify it explicitly: 
+
+```{r}
+#| eval: false
+geom_bar(stat = "summary", fun = mean, position = "stack")
+```
+
+When using using the `fill` aesthetic with `geom_bar` (as well as other `geom`s), `ggplot2` applies the stack transformation by default. In the case of bars, this transformation stacks the bars vertically on top of each other, effectively summing up the heights of the coloured sub-bars.
+
+But what does the height of the stacked bars represent? Since stacking bars is effectively summing the underlying statistic, each whole bar now represents the sum of the group averages. That is not a meaningful summary statistic - "sum of averages" is not a quantity that many people would care about or know how to interpret. 
+
+This is the kind of problem that can easily trip up a data visualization rookie, and a good number of data visualization researchers have warned about this:   
+
+>"Stacking is useful when the sum of the amounts represented by the individual stacked bars is in itself a meaningful amount" [@wilke2019, p. 52].
+
+>"[...] It is very important that if the element’s size is used to display a statistic, then that statistic must be summable. Stacking bars that represent counts, sums, or percentages are fine, but a stacked bar chart where bars show average values is generally meaningless." [@wills2011, p. 112].
+
+Alright, you might say, I cannot sum averages, but since summing sums is fine, what about taking an average of the averages? Unfortunately, this is not correct either - the mean of group means is not the same as the grand mean: 
+
+```{r}
+mean(1:3)
+mean(mean(1:2), 3)
+```
+
+Some researchers have warned about this too:
+
+>"[...] We do this to ensure that aggregate statistics are always computed over the input data, and so users do not inadvertantly compute e.g., averages of averages, which can easily lead to misinterpretation." [@wu2022]
+
+So what should we do? If you're familiar with `ggplot2`, you may be thinking of one handy solution right now: instead of stacking the bars, let's use dodging and plot them side by side:
+
+```{r}
+ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
+  geom_bar(stat = "summary", fun = mean, position = "dodge") +
+  scale_fill_manual(values = c("#92c9f6", "#377eb8")) +
+  guides(fill = "none")
+```
+
+And indeed, this works rather well for static graphics. 
+
+However, in interactive graphics, dodging has several issues. Take a look at the following figure:    
+
+```{r}
+#| echo: false
+#| fig-height: 6
+
+library(patchwork)
+set.seed(59450)
+
+mtcars$am1 <- factor(sample(rep(0:1, c(28, 4))))
+mtcars$am2 <- factor(sample(rep(0:1, c(16, 16))))
+mtcars$am3 <- factor(sample(rep(0:1, c(4, 28))))
+
+p0 <- ggplot(mtcars, aes(cyl)) + 
+  scale_y_continuous(breaks = seq(0, 24, by = 2), expand = c(0, 1)) +
+  scale_fill_manual(values = c("#92c9f6", "#377eb8")) +
+  labs(x = NULL, y = NULL) +
+  guides(fill = "none")
+
+p <- list()
+
+for (i in 1:3) {
+  p[[i]] <- p0 + geom_bar(aes(fill = .data[[paste0("am", i)]]), width = 0.75)
+  p[[3 + i]] <- plot_spacer()
+  p[[6 + i]] <- p0 + geom_bar(aes(fill = .data[[paste0("am", i)]]), 
+                              position = "dodge")
+}
+
+wrap_plots(p, nrow = 3, heights = c(1, 0.2, 1))
+```
+
+In the top row of plots, we use stacking, and in the bottom row we use dodging (and the same data is used across all plots, except the `fill` variable). We can imagine these barplots being produced by linked selection, with the dark-blue bars representing selected cases and more cases being selected as we move from left to right. 
+
+Notice that in the top row, the overall contour of the plots remains constant even as the number of selected cases changes: we always have a tall left bar, tall right bar, and a short middle bar, and only the heights of the highlighted dark-blue sections change.
+
+The same is not true for dodging. With dodging, since we plot the selected and non-selected cases side-by-side, selection can affect the overall shape of the plot dramatically - bars may shrink or grow, or even pop and in out of existence (see left-most plot in the bottom row - the light blue bar has expanded to fill the space of the missing dark blue bar).
+
+This lack of "consistency" impacts other parts of the plot too. Notice how in the bottom row, the top y-axis limits changes across the plots. This means that we either might have to make the axes reactive (losing context the axis limits provide each time selection happens) or risk the bars growing outside of the plotting area.
+
+Finally, this is a bit of a subjective preference, but I find interactive figures which change gradually more visually pleasing and easier to read than figures in which objects fluctuate rapidly. I haven't found much research to support this claim more broadly. There is the article by @hullman2013, who found that, when presenting sequences of static graphics, people prefer the sequences where the plots change gradually rather than abruptly.    
+
+## Sums preserve set union
+
+So should we only ever do linked selection with sums and counts, so that we can use stacking to highlight the selected cases? That seems a bit limiting. But perhaps there's another way.
+
+In the quotes above, @wilke2019 and @wills2011 said that the quantity represented by the stacked bar should be "meaningful". What does that mean?
+
+If I was to try to rephrase what Wilke and Wills were getting at, I would say that sums are a particularly nice kind of summary statistic because:
+
+> *Sum* of grouped *sum*s is equal to the *sum* of everything.
+
+In other words, we can take some sets of data, sum them up each individually, and then sum up the sums, and we'll get the same result as if we had first combined those sets into one big set and summed that up. In other words, sums preserve set union. This makes it possible to draw highlighted parts of bars or other objects, because we know that if we combine (sum) any two sums, we'll get a valid summary of the union of the underlying sets of data. 
+
+Are there other statistics that behave this way? What if we replace the word *"sum"* by a placeholder, for example *"foo"*:
+
+> *Foo* of grouped *foo*s is equal to the *foo* of everything.
+
+Then, it turns out there are other statistics that behave this way. For example, the product of products is also a valid product of all cases:
+
+```{r}
+prod(2:4)
+prod(prod(2:3), 4)
+```
+
+And likewise, the maximum of maximum is also the valid maximum for all cases:
+
+```{r}
+max(c(1, 2, 999))
+max(max(1, 2), 999)
+```
+
+But, it is important to keep in mind that not all statistics work this way. One example we dicussed above is the mean or average. Another is exponentiation:
+
+```{r}
+(2^3)^4
+2^(3^4)
+```
+
+So, there are some "nice" statistics that have this property of preserving set unions, and others which don't. How do we make this idea of "niceness" precise? Turns out there is a mathematical concept that describes exactly what we want.
+
+## Monoids
+
+The word ["monoid"]((https://en.wikipedia.org/wiki/Monoid)) sounds scary but it's really nothing complicated. A monoid just three things:
+
+- Some set $M$
+- A binary operation $\otimes: M \times M \to M$
+- A neutral element $e \in M$
+
+Subject to two rules:
+
+- Unitality: $x \otimes e = e \otimes x = x$
+- Associativity: $x \otimes (y \otimes z) = (x \otimes y) \otimes z$
+
+This means that, when we have a monoid, we have a bunch of things $M$ and a way of combining these things $\otimes$, such that, when we combine these things, the order in which we do it doesn't matter. We also have some neutral element $e$, that, combined with anything else, just yields the same thing back.
+
+Typical examples of monoids include the above mentioned sums, products, and maximums (here, the set $M$ is real numbers and the neutral units are 0, 1, and $-\infty$ respectively). Counterexamples include the above-mentioned means, as well as, for example, exponentiation (which isn't associative: $(x^y)^z \neq x^{(y^z)}$. 
+
+Monoids actually come from abstract algebra and category theory [see e.g. @fong2019; @lawvere2009], and are also heavily used in functional programming [see e.g. @milewski2018]. For our purposes, they important because they have the exact property we were looking for - they preserve set union. Suppose we have two disjoint subsets of some data $A, B \subseteq D$, and we can summarize each with some monoidal summary F:
+
+$$F(A) = a_1 \otimes a_2 \otimes \ldots \otimes a_n$$
+That is, we just take all elements in $A$ and *"sum"* them up together into one value (where *"sum"* could be something else). 
+
+Now, if we summarize $A$ and $B$ and combine the summaries, we get the same result as summarizing the union:
+
+$$\begin{aligned} 
+F(A) \otimes F(B) &= (a_1 \otimes a_2 \otimes \ldots a_n) \otimes (b_1 \otimes b_2 \otimes \ldots b_n) \\
+&= a_1 \otimes a_2 \otimes \ldots a_n \otimes b_1 \otimes b_2 \otimes \ldots b_n \qquad \text{(associativity: brackets don't matter)} \\
+&= F(A \cup B)
+\end{aligned}$$
+
+This means that, when we have monoids, we can compare nested subsets of the data. Which is precisely what we want to do if we highlight some cases in a plot: we want to compare the summary on the selected cases $F(\text{Selected})$ vs. that on everything $F(\text{Selected} \cup \text{Not selected})$.
+
+There are a few important caveats regarding comparison of multiple selected groups and monotonicity. TODO
+
+## Barplot of maximums
+
+In `plotscaper`, if you know a little bit of JavaScript, you can use the available plots to display a new monoidal summary statistic, using something called a reducer. To create a reducer, we need two things:
+
+- An *initial* function: a function that produces the neutral element $e$
+- A *reduce* function: a function that takes two values and combines them together, such that the operation is associative and unital
+
+These currently need to be JavaScript functions.
+
+For example, suppose we want to display the barplot of maximums for some positive numeric variable. Then we can use the following JavaScript arrow function as the initial function:
+
+```
+() => 0
+```
+
+The function takes in no arguments and just produces the value zero. In computer science lingo, this kind of "dumb" function is called a [*thunk*](https://en.wikipedia.org/wiki/Thunk). In this case, the function *could* technically just be a value, however, thunks are more general, with the way how pointers work in JavaScript. 
+
+The one other thing we need is a reduce function:
+
+```
+(x, y) => Math.max(x, y)
+```
+
+This is just a very simple function that takes two numbers and returns the bigger one, using the built in `Math.max` JavaScript function. That's it.
+
+You might be asking how do you know whether the operation that the function does is associative and unital. You have to figure that out yourself: try it out on a couple of candidate values & see if the properties hold. `plotscaper` doesn't know either - if you give it a function that doesn't have those properties it will still try to make an interactive plot. It can't know because it doesn't know which values to try; the properties could hold for a handful of numbers but not for others. The functions behind it can actually support values other than numbers, I haven't tried to implement a plot like that yet but we'll see in the future.         
+
+Anyway, here's how you can create a barplot of maximums in `plotscaper`:
+
+```{r}
+
+library(plotscaper)
+
+# Make the reducer - it really is just an R list() underneath
+max_reducer <- reducer(
+  name = "max",
+  initialfn = "() => 0",
+  reducefn = "(x, y) => Math.max(x, y)"
+)
+
+set_scene(sacramento) |>
+  add_scatterplot(c("sqft", "price")) |>
+  add_barplot(c("city", "price"), 
+              options = list(reducer = max_reducer)) # Specify the reducer in plot options
+
+```
+
+Since maximum is a monoid, highlighting will work as expected! However, only for one selected group: when multiple groups are selected, we may not be able to see all of the bars; the reason for that is more math. TODO
+
+## References

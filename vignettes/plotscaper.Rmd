@@ -1,0 +1,116 @@
+---
+title: "Introduction to plotscaper"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to plotscaper}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.width = 7,
+  fig.height = 4,
+  comment = "#>")
+```
+
+To get started, install `plotscaper` with:
+
+```{r}
+#| eval: false
+devtools::install_github("bartonicek/plotscaper")
+```
+
+Next, open up RStudio and run the following code:
+
+```{r}
+library(plotscaper)
+
+set_scene(mtcars) |>
+  add_scatterplot(c("wt", "mpg")) |>
+  add_barplot("cyl")
+```
+
+Try moving your mouse somewhere over the scatterplot in the top left of the figure and clicking and dragging to select some points. You should see the corresponding cases get highlighted within the barplot! 
+
+There are many other ways interacting with `plotscaper` figures, including:
+
+- Zooming and panning
+- Changing the size of objects
+- Increasing/decreasing the opacity (alpha)
+- Assigning selected cases to persistent groups
+- Manipulating parameters such as histogram binwidth and anchor
+- Modifying continuous axis limits
+- Sorting and reordering discrete axes
+- Resizing individual plots
+
+Click on the question mark in the top right corner of the figure to see the list of the available interactions, with the corresponding key/mouse bindings.
+
+There are also some additional interactions available when running the figure in an interactive R session (e.g. in RStudio but not in rendered RMarkdown). That should be the case for you right now. Try running these functions:
+
+```{r}
+#| eval: false
+mark_cases(1:10)
+selected_cases()
+```
+
+## Anatomy of a `plotscaper` figure
+
+There are a bunch of things going on in the code that was used to create the figure above. Let's walk through them step by step.
+
+First, whenever we want to create a `plotscaper` figure, we need to set up a scene, which is a kind of global context into which all of the plots get placed. To set up a scene, run:
+
+```{r}
+#| eval: false
+set_scene(data = sacramento)
+```
+
+where `data` is some `data.frame` object. Here we're using the Sacramento housing data set from the `caret` package.
+
+If we run the code above, we will just get an empty rectangle. The reason for that is that, in order to do some things, we first need to fill the scene with plots. To populate the scene with plots, we can use the `add_*` functions:
+
+```{r}
+set_scene(sacramento) |>
+  add_scatterplot(c("longitude", "latitude")) |>
+  add_barplot("city")
+```
+
+The code above creates interactive figure with a linked scatterplot and a barplot. We only need to specify which variables we want to show in each plot by simple character vectors of their names. Simple as.
+
+Under the hood, a `plotscaper` figure is just a `htmlwidgets` widget. This means that, to render the figure, we need to print the underlying object. More specifically, when we print a `plotscaper` scene, `htmlwidgets` bundles up the underlying HTML, JavaScript, and CSS, and sends it to the RStudio viewer (which is a kind of Web browser). This operation is lazy - if we don't print the object, nothing happens:
+
+```{r}
+s <- set_scene(sacramento) |>
+  add_scatterplot(c("longitude", "latitude")) |>
+  add_barplot("city")
+```
+
+However, printing `s` generates the figure:
+
+```{r}
+s # This is the same as print(s)
+```
+
+We can use this laziness to generate `plotscaper` figures programmatically. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `Iris` dataset:
+
+```{r}
+#| fig-height: 7
+
+iris_smaller <- iris[, 1:3]
+keys <- names(iris_smaller)
+
+s <- set_scene(iris_smaller)
+
+# Loop through columns
+for (i in 1:3) {
+  for (j in 1:3) {
+    # Add a scatterplot if row & column no.'s are different
+    if (i != j) s <- s |> add_scatterplot(c(keys[i], keys[j]))
+    # Add a histogram if row & column no.'s are the same
+    else s <- s |> add_histogram(c(keys[i])) 
+  }
+}
+
+s
+```

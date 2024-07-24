@@ -19,6 +19,9 @@ Imports:
 Authors@R: 
     person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre"))
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://bartonicek.github.io/plotscaper/
+VignetteBuilder: knitr
