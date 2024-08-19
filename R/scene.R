@@ -52,14 +52,12 @@ set_scene <- function(data = NULL, options = NULL,
   # forward options using x
   x = list(
     data = data,
-    types = types,
-    plots = list(),
-    layout = NULL,
+    queue = list(),
     options = options
   )
 
   # create widget
-  output <- htmlwidgets::createWidget(
+  widget <- htmlwidgets::createWidget(
     x,
     name = 'plotscaper',
     width = width,
@@ -68,12 +66,48 @@ set_scene <- function(data = NULL, options = NULL,
     elementId = elementId,
     sizingPolicy = htmlwidgets::sizingPolicy(
       viewer.padding = 0,
-      viewer.paneHeight = 500,
       browser.fill = TRUE
     )
   )
 
-  output
+  scene <- list(widget = widget)
+  class(scene) <- "scene"
+
+  scene$add_plot <- function(type = NULL, variables = NULL, options = NULL) {
+    mutate_scene(scene, add_plot, type, variables, options)
+  }
+
+  scene$pop_plot <- function() mutate_scene(scene, pop_plot)
+  scene$remove_plot <- function(id) mutate_scene(scene, remove_plot, id)
+  scene$select_cases <- function(cases) mutate_scene(scene, select_cases, cases)
+  scene$assign_cases <- function(cases, group = 1) {
+    mutate_scene(scene, assign_cases, cases, group)
+  }
+
+  scene$selected_cases <- function() query_scene(scene, selected_cases)
+  scene$assigned_cases <- function(group = 1) {
+    query_scene(scene, assigned_cases, group)
+  }
+
+  scene
+}
+
+#' @export
+print.scene <- function(x) {
+  print(x$widget)
+}
+
+mutate_scene <- function(scene, fn, ...) {
+  s <- fn(scene, ...)
+  message <- last(s$widget$x$queue)
+  server_send(message)
+  invisible(scene)
+}
+
+query_scene <- function(scene, fn, ...) {
+  s <- fn(scene, ...)
+  message <- last(s$widget$x$queue)
+  server_await(message)
 }
 
 #' Set interactive scene layout

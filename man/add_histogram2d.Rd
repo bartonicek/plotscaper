@@ -4,12 +4,13 @@
 \alias{add_histogram2d}
 \title{Add a 2D histogram to an interactive scene}
 \usage{
-add_histogram2d(scene, encoding = NULL)
+add_histogram2d(scene, encoding = NULL, options = NULL)
 }
 \arguments{
 \item{scene}{A \code{plotscaper} scene object}
 
-\item{encoding}{Encoding of the variables: \code{v1} and \code{v2} continuous}
+\item{encoding}{A vector of variable names:
+two continuous (required) and another continuous (optional)}
 }
 \value{
 The scene back

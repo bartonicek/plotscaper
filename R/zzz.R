@@ -9,12 +9,13 @@ globals <- list(
   host = "127.0.0.1",
   port = 3000,
   server = NULL,
-  connections = list(),
-  show_message = TRUE,
+  scene = NULL,
+  show_messages = TRUE,
   async = list(
     resolve = NULL,
     reject = NULL
-  )
+  ),
+  result = NULL
 )
 
 list2env(globals, plotscaper_global)
@@ -24,8 +25,8 @@ list2env(globals, plotscaper_global)
 }
 
 .onUnattach <- function(...) {
-  if (!is.null( server)) {
-     server$stop()
+  if (!is.null(plotscaper_global$server)) {
+    plotscaper_global$server$stop()
   }
 }
 

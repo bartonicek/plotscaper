@@ -10,34 +10,16 @@ HTMLWidgets.widget({
     return {
 
       renderValue: function(x) {
+        const { data, queue, options } = x;
 
-        const spec = {};
-        const { data, types, plots, layout, options } = x
+        const scene = plotscape.Scene.of(data, options);
+        plotscape.Scene.append(el, scene);
 
-        for (const [k, v] of Object.entries(types)) {
-          spec[k] = plotscape.col(v);
-        }
+        for (const msg of queue) {
+          plotscape.Scene.handleMessage(scene, msg);
+        };
 
-        const parsedData = plotscape.parseColumns(data, spec);
-        const scene = plotscape.newScene(el, parsedData, options)
-        x.scene = scene
-
-        for (const v of Object.values(plots)) {
-          const { type, encoding, options } = v
-
-          const selectfn = (object) => {
-            const result = {}
-            for (const [k, v] of Object.entries(encoding)) {
-              result[k] = object[v]
-            }
-            return result
-          }
-
-          scene.addPlotByKey(type, selectfn, options)
-        }
-
-        if (layout) scene.setLayout(layout)
-        window.plotscape.currentScene = scene
+        window.plotscape.currentScene = scene;
       },
 
       resize: function(width, height) {

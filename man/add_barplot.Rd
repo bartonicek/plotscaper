@@ -9,8 +9,8 @@ add_barplot(scene, encoding = NULL, options = NULL)
 \arguments{
 \item{scene}{A \code{plotscaper} scene object}
 
-\item{encoding}{Encoding of the variables:
-\code{v1} a discrete variable, \code{v2} a continuous variable (optional)}
+\item{encoding}{A vector of variable names:
+one discrete (required) and one continuous (optional)}
 
 \item{options}{A list of options}
 }

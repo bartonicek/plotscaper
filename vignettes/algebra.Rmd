@@ -18,7 +18,15 @@ knitr::opts_chunk$set(
 
 > This section delves into the deeper properties of `plotscaper`. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.
 
-When I started my PhD, I wanted to make a framework for creating interactive graphics that would support certain types of interaction out of the box. Specifically, I wanted every plot to support linked selection, i.e. the user would be able to click or click and drag some objects in one plot and have all the corresponding cases get highlighted across all other plots. 
+When I started my PhD, I wanted to make a framework for creating interactive graphics that would support certain types of interaction out of the box. Specifically, I wanted every plot to support linked selection, i.e. the user would be able to click or click and drag some objects in one plot and have all the corresponding cases get highlighted across all other plots. That is, I wanted figures like this: 
+
+```{r}
+library(plotscaper)
+
+set_scene(mtcars) |>
+  add_scatterplot(c("wt", "mpg")) |>
+  add_barplot("cyl")
+```
 
 Why did I want linked selection? Because it allows you to quickly query different subsets of the data - you select a few objects in one plot and immediately see the summaries of those cases. This is really useful for exploring data and a lot of data visualization researchers swear by the technique [see e.g. @buja1996; @heer2012; @ward2015; @ware2019]. 
 

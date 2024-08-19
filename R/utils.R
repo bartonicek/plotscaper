@@ -1,6 +1,11 @@
 
-`%unpack%` <- function(vars, list) {
-  for(v in vars) assign(v, list[[v]], parent.frame())
+last <- function(list) {
+  list[[length(list)]]
+}
+
+push <- function(list, x) {
+  list[[length(list) + 1]] <- x
+  list
 }
 
 infer_plotscape_type <- function(x) {
@@ -34,3 +39,5 @@ check_missing <- function(scene, encoding) {
 snake_to_camel <- function(x) {
   gsub("_(\\w?)", "\\U\\1", x, perl = TRUE)
 }
+
+

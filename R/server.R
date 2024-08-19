@@ -1,6 +1,6 @@
 #' Start a server for interactive figure use
 #'
-#' Starts an httpuv server for an interactive communication with the plotscaper figure.
+#' Starts an httpuv server for an interactive communication with the plotscaper scene.
 #' Relies on `plotscaper_global` options.
 #' @param random_port Whether to use a random port number. Useful if default port is already taken.
 #' @returns Nothing (a pure side-effect)
@@ -30,47 +30,72 @@ handler <- list(
       type <- msg$type
       sender <- msg$sender
 
-      result <- NULL
-      if (type == "connected") msg$ws <- ws
-      if (sender == "figure") result <- message_handlers[[type]](msg)
+      if (is.null(sender)) {
+        stop("Message has no sender id.")
+      }
 
-      if (is.null(plotscaper_global$async$resolve)) return()
-      plotscaper_global$async$resolve(result)
-      plotscaper_global$async$resolve <- NULL
+      result <- NULL
+
+      if (sender == "scene" && type == "connected") {
+        plotscaper_global$scene <- ws
+        if (plotscaper_global$show_messages) message(connected_message)
+        return()
+      }
+
+      if (sender == "scene") {
+        if (!(type %in% names(message_handlers))) {
+          stop(paste0("Unrecognized message type: '", type, "'."))
+        }
+        result <- message_handlers[[type]](msg)
+        print(result)
+      }
+
+    })
+
+    ws$onClose(function() {
+      plotscaper_global$scene <- NULL
+      if (plotscaper_global$show_messages) message("Figure disconnected from server.")
     })
   }
 )
 
-figure_message <- "Figure connected to server! Try calling `mark_cases(1:10)`.
-To suppress this message, set `plotscaper_global$show_message <- FALSE`."
-
-message_handlers <- list(
-  connected = function(msg) {
-    plotscaper_global$connections[[msg$sender]] <- msg$ws
-    if (plotscaper_global$show_message) message(figure_message)
-  },
-  selected = function(msg) {
-    case_list <- msg$data
-    result <- list()
-
-    for (k in names(case_list)) {
-      cases <- case_list[[k]] + 1 # Correct for 0-based indexing
-      label <- group_label(group_index(as.numeric(k)))
-      result[[label]] <- cases
-    }
-
-    rev(result)
-  }
-)
+connected_message <- "Figure connected to server! Try calling `select_cases(1:10)`.
+To suppress these messages, set `plotscaper_global$show_messages <- FALSE`."
 
 server_send <- function(msg, res = NULL) {
+  if (is.null(plotscaper_global$scene)) {
+    stop("No figure connected to server. Did you forget to `print()`?")
+  }
+
   if (!is.null(res)) plotscaper_global$async$resolve <- res
-  plotscaper_global$connections$figure$send(msg)
+  plotscaper_global$scene$send(msg)
 }
 
-server_message <- function(type, data) {
+server_await <- function(msg) {
+  if (is.null(plotscaper_global$scene)) {
+    stop("No figure connected to server. Did you forget to `print()`?")
+  }
+
+  plotscaper_global$result <- NULL
+  start <- Sys.time()
+
+  plotscaper_global$scene$send(msg)
+
+  while (TRUE) {
+    if (plotscaper_global$result) break
+    if (Sys.time() - start > 3) {
+      stop("Server request timed out after three seconds.")
+    }
+  }
+
+  on.exit({ plotscaper_global$result <- NULL })
+  return(plotscaper_global$result)
+}
+
+format_message <- function(type, data = list()) {
   jsonlite::toJSON(list(
     sender = jsonlite::unbox("server"),
+    target = jsonlite::unbox("scene"),
     type = jsonlite::unbox(type),
     data = data
   ))
@@ -80,59 +105,8 @@ check_connections <- function() {
   if (is.null(plotscaper_global$server)) {
     stop("No running server. Start it with plotscaper::start_server().")
   }
-  if (is.null(plotscaper_global$connections$figure)) {
+  if (is.null(plotscaper_global$scene)) {
     stop("The server is not connected to a figure.")
   }
-}
-
-#' Mark rows of the data
-#'
-#' Assign specific rows of the data to a given group
-#' within the current plotscaper figure.
-#'
-#' @param row_ids The ids (row numbers) of the cases
-#' @param group Which group to assign the cases to
-#' @returns Nothing (a pure side-effect)
-#'
-#' @export
-mark_cases <- function(row_ids = NULL, group = 2) {
-  check_connections()
-
-  group <- jsonlite::unbox(group_index(group))
-  indices <- row_ids - 1 # Correct for 0-based indexing
-
-  data <- list(indices = indices, group = group)
-  msg <- server_message("mark", data)
-
-  server_send(msg)
-}
-
-#' Check selected rows of the data
-#'
-#' Check which cases of the data are selected
-#' within the current plotscaper figure.
-#'
-#' @param group Which group to assign the cases to
-#' @param resolvefn Function to call after the server receives a response from
-#' the figure. Defaults to `print`
-#' @returns Nothing (use `resolvefn` to save output)
-#' @examples
-#' # Assign selected cases from group 2 to the `cases` variable
-#' # selected_cases(2, resolvefn = function(x) cases <<- x)
-#' @export
-selected_cases <- function(group = 1:8, resolvefn = print) {
-  group <- group_index(group)
-  msg <- server_message("selected", list(group = group))
-  server_send(msg, resolvefn)
-}
-
-group_index <- function(group) {
-  pmax(0, pmin(8 - group, 8)) # plotscape uses reverse group ordering
-}
-
-group_label <- function(group) {
-  transient <- ifelse(group > 4, " Transient", "")
-  group <- (group - 1) %% 4 + 1
-  paste0("Group ", group, transient)
 }
 

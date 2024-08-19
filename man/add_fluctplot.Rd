@@ -9,8 +9,8 @@ add_fluctplot(scene, encoding = NULL, options = NULL)
 \arguments{
 \item{scene}{A \code{plotscaper} scene object}
 
-\item{encoding}{Encoding of the variables:
-\code{v1} and \code{v2} discrete variables}
+\item{encoding}{A vector of variable names:
+two discrete (required) and one continuous (optional)}
 
 \item{options}{A list of options}
 }

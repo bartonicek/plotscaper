@@ -1,14 +1,13 @@
 
 plot_types <- c("scatter", "bar", "histo", "histo2d",
-                "fluct", "pcoords", "note")
+                "fluct", "line", "note")
 
 #' Add plot to an interactive scene
 #'
-#' This function adds the specification for a additional plot to
-#' an existing `plotscaper` scene (`htmlwidget`) object. The type of plot is
-#' specified via a string. Variable encodings are specified via a vector
-#' of character strings, corresponding to the names of the variables in
-#' the data.
+#' This function adds a plot to an existing `plotscaper` scene.
+#' The type of plot is specified via a character, variable encodings are
+#' specified via a vector characters, corresponding to the names of
+#' the variables in the data.
 #'
 #' @details
 #' This function is used internally in specialized wrapper functions such as [add_scatterplot]
@@ -57,7 +56,7 @@ plot_types <- c("scatter", "bar", "histo", "histo2d",
 #'
 #' @import htmlwidgets
 #' @export
-add_plot <- function(scene, type = NULL, encoding = NULL, options = NULL) {
+add_plot_dep <- function(scene, type = NULL, encodings = NULL, options = NULL) {
 
   if (is.null(type) || !(type %in% plot_types)) {
     stop(paste("Please provide a valid plot type:",
@@ -67,19 +66,21 @@ add_plot <- function(scene, type = NULL, encoding = NULL, options = NULL) {
   ignore_encodings <- ifelse(is.null(options$ignore_encodings), FALSE,
                              options$ignore_encoding)
 
-  if (!ignore_encodings && is.null(encoding)) {
+  if (!ignore_encodings && is.null(encodings)) {
     stop("Please provide variable encodings")
   }
 
-  keys <- names(encoding)
-  if (!ignore_encodings && is.null(keys)) {
-    keys <- paste0("v", 1:length(encoding))
-    encoding <- split(encoding, keys)
+  for (key in names(options)) {
+    options[[key]] = jsonlite::unbox(options[[key]])
   }
 
-  scene$x$plots[[length(scene$x$plots) + 1]] <- list(type = type,
-                                                     encoding = encoding,
-                                                     options = options)
+  plot <- jsonlite::toJSON(list(
+    type = jsonlite::unbox(type),
+    encodings = encodings,
+    options = options
+  ))
+
+  scene$x$plots[[length(scene$x$plots) + 1]] <- plot
   scene
 }
 
@@ -88,17 +89,17 @@ add_plot <- function(scene, type = NULL, encoding = NULL, options = NULL) {
 #' This function adds a scatterplot to an interactive scene.
 #'
 #' @param scene A `plotscaper` scene object
-#' @param encoding A vector of variable encodings:
-#' `v1` and `v2` (discrete or continuous), `v3` continuous (optional)
+#' @param encoding A vector of variable names:
+#' two continuous or discrete (required), one continuous (optional)
 #' @returns The scene back
 #'
 #' @seealso [add_plot()]
 #'
 #' @import htmlwidgets
 #' @export
-add_scatterplot <- function(scene, encoding = NULL) {
+add_scatterplot <- function(scene, encoding = NULL, options = NULL) {
   if (is.null(encoding)) stop("Please provide a valid encoding: 'v1' and 'v2', 'v3' optional")
-  add_plot(scene, "scatter", encoding)
+  add_plot(scene, "scatter", encoding, options)
 }
 
 #' Add a barplot to an interactive scene
@@ -107,8 +108,8 @@ add_scatterplot <- function(scene, encoding = NULL) {
 #' Can be transformed into spineplot by pressing the normalize ("N") key.
 #'
 #' @param scene A `plotscaper` scene object
-#' @param encoding Encoding of the variables:
-#' `v1` a discrete variable, `v2` a continuous variable (optional)
+#' @param encoding A vector of variable names:
+#' one discrete (required) and one continuous (optional)
 #' @param options A list of options
 #' @returns The scene back
 #'
@@ -127,8 +128,8 @@ add_barplot <- function(scene, encoding = NULL, options = NULL) {
 #' Can be transformed into spinogram by pressing the normalize ("N") key.
 #'
 #' @param scene A `plotscaper` scene object.
-#' @param encoding Encoding of the variables:
-#' `v1` a continuous variable, `v2` a continuous variable (optional).
+#' @param encoding A vector of variable names:
+#' one continuous (required) and one continuous (optional)
 #' @param options A list of options.
 #' @returns The scene back.
 #'
@@ -149,8 +150,8 @@ add_histogram <- function(scene, encoding = NULL, options = NULL) {
 #' The squares' areas can be normalized by pressing the normalize ("N") key.
 #'
 #' @param scene A `plotscaper` scene object
-#' @param encoding Encoding of the variables:
-#' `v1` and `v2` discrete variables
+#' @param encoding A vector of variable names:
+#' two discrete (required) and one continuous (optional)
 #' @param options A list of options
 #' @returns The scene back
 #'
@@ -163,24 +164,24 @@ add_fluctplot <- function(scene, encoding = NULL, options = NULL) {
   add_plot(scene, "fluct", encoding)
 }
 
-#' Add a parallel coordinates plot to an interactive scene
+#' Add a lineplot to an interactive scene
 #'
 #' This function adds a parallel coordinates plot to an interactive scene
 #' The variables can be put on common scale by pressing the normalize ("N")
 #' key (only works if all continuous).
 #'
 #' @param scene A `plotscaper` scene object.
-#' @param encoding Encoding of the variables:
-#' `v1`, `v2`, `v3`, ... (continuous or discrete variables).
+#' @param encoding A vector of variable names:
+#' any number of continuous or discrete
 #' @returns The scene back
 #'
 #' @seealso [add_plot()]
 #'
 #' @import htmlwidgets
 #' @export
-add_parcoords <- function(scene, encoding = NULL) {
-  if (is.null(encoding)) stop("Please provide valid encodings: 'v1', 'v2', 'v3', ...")
-  add_plot(scene, "pcoords", encoding)
+add_lineplot <- function(scene, encoding = NULL, options = NULL) {
+  if (is.null(encoding)) stop("Please provide valid encodings")
+  add_plot(scene, "line", encoding, options)
 }
 
 #' Add a 2D histogram to an interactive scene
@@ -189,16 +190,17 @@ add_parcoords <- function(scene, encoding = NULL) {
 #' The squares' areas can be normalized by pressing the normalize ("N") key.
 #'
 #' @param scene A `plotscaper` scene object
-#' @param encoding Encoding of the variables: `v1` and `v2` continuous
+#' @param encoding A vector of variable names:
+#' two continuous (required) and another continuous (optional)
 #' @returns The scene back
 #'
 #' @seealso [add_plot()]
 #'
 #' @import htmlwidgets
 #' @export
-add_histogram2d <- function(scene, encoding = NULL) {
-  if (is.null(encoding)) stop("Please provide valid encodings: 'v1' and 'v2' continuos, 'v3' optional")
-  add_plot(scene, "histo2d", encoding)
+add_histogram2d <- function(scene, encoding = NULL, options = NULL) {
+  if (is.null(encoding)) stop("Please provide valid encodings")
+  add_plot(scene, "histo2d", encoding, options)
 }
 
 #' Add a not(e)plot to an interactive scene

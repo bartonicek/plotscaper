@@ -4,13 +4,13 @@
 \alias{add_scatterplot}
 \title{Add a scatterplot to an interactive scene}
 \usage{
-add_scatterplot(scene, encoding = NULL)
+add_scatterplot(scene, encoding = NULL, options = NULL)
 }
 \arguments{
 \item{scene}{A \code{plotscaper} scene object}
 
-\item{encoding}{A vector of variable encodings:
-\code{v1} and \code{v2} (discrete or continuous), \code{v3} continuous (optional)}
+\item{encoding}{A vector of variable names:
+two continuous or discrete (required), one continuous (optional)}
 }
 \value{
 The scene back

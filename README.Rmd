@@ -53,7 +53,7 @@ layout <- matrix(c(
 
 set_scene(sacramento) |>
   add_scatterplot(c("longitude", "latitude")) |>
-  add_barplot("city") |>
+  add_barplot(c("city")) |>
   add_histogram(c("sqft")) |>
   add_fluctplot(c("beds", "baths")) |>
   add_histogram2d(c("sqft", "price")) |>

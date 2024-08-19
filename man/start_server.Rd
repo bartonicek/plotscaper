@@ -13,6 +13,6 @@ start_server(random_port = FALSE)
 Nothing (a pure side-effect)
 }
 \description{
-Starts an httpuv server for an interactive communication with the plotscaper figure.
+Starts an httpuv server for an interactive communication with the plotscaper scene.
 Relies on \code{plotscaper_global} options.
 }
