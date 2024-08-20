@@ -21,12 +21,11 @@
 #' set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))
 #' @import htmlwidgets
 #' @export
-set_scene <- function(data = NULL, options = NULL,
-                      width = NULL, height = NULL, elementId = NULL) {
+set_scene <- function(data = NULL, options = NULL) {
 
-  if (is.null(data)) stop("Please provide a valid dataset.")
+  if (is.null(data)) stop("Please provide a data set.")
 
-  # check for missing data
+  # Check for missing data
   n_complete <- sum(stats::complete.cases(data))
   n_missing <- nrow(data) - n_complete
 
@@ -35,10 +34,23 @@ set_scene <- function(data = NULL, options = NULL,
     data <- stats::na.omit(data)
   }
 
-  # infer plotscape variable types
-  types <- lapply(as.list(data), infer_plotscape_type)
+  schema <- list(data = data, queue = list(), options = options)
+  schema <- structure(schema, class = "plotscaper_schema")
+  schema
+}
 
-  # rename scene options to snake case
+#' @export
+print.plotscaper_schema <- function(schema) {
+  cat(paste0("plotscaper schema:\n",
+             paste(" ", schema$queue, collapse = "\n")))
+}
+
+#' @export
+render <- function(schema, width = NULL, height = NULL, elementId = NULL) {
+  scene <- list(rendered = FALSE)
+  options <- scene$options
+
+  # Rename options keys to camel case
   if (!is.null(options)) {
     options <- stats::setNames(options, snake_to_camel(names(options)))
   }
@@ -47,18 +59,19 @@ set_scene <- function(data = NULL, options = NULL,
   if (!is.null(server)) {
     url <- paste0("ws://", server$getHost(), ":", server$getPort(), "/")
     options$websocketURL <- url
+    scene$server <- server
   }
 
-  # forward options using x
-  x = list(
-    data = data,
-    queue = list(),
-    options = options
-  )
+  queue <- list()
+  for (message in schema$queue) {
+    queue <- push(queue, format_message(message))
+  }
 
-  # create widget
-  widget <- htmlwidgets::createWidget(
-    x,
+  data <- schema$data
+
+  # Create htmlwidgets widget
+  scene$widget <- htmlwidgets::createWidget(
+    x = list(data = data, queue = queue, options = options),
     name = 'plotscaper',
     width = width,
     height = height,
@@ -70,44 +83,16 @@ set_scene <- function(data = NULL, options = NULL,
     )
   )
 
-  scene <- list(widget = widget)
-  class(scene) <- "scene"
-
-  scene$add_plot <- function(type = NULL, variables = NULL, options = NULL) {
-    mutate_scene(scene, add_plot, type, variables, options)
-  }
-
-  scene$pop_plot <- function() mutate_scene(scene, pop_plot)
-  scene$remove_plot <- function(id) mutate_scene(scene, remove_plot, id)
-  scene$select_cases <- function(cases) mutate_scene(scene, select_cases, cases)
-  scene$assign_cases <- function(cases, group = 1) {
-    mutate_scene(scene, assign_cases, cases, group)
-  }
-
-  scene$selected_cases <- function() query_scene(scene, selected_cases)
-  scene$assigned_cases <- function(group = 1) {
-    query_scene(scene, assigned_cases, group)
-  }
+  scene$uuid <- uuid::UUIDgenerate()
+  class(scene) <- "plotscaper_scene"
 
   scene
 }
 
 #' @export
-print.scene <- function(x) {
-  print(x$widget)
-}
-
-mutate_scene <- function(scene, fn, ...) {
-  s <- fn(scene, ...)
-  message <- last(s$widget$x$queue)
-  server_send(message)
-  invisible(scene)
-}
-
-query_scene <- function(scene, fn, ...) {
-  s <- fn(scene, ...)
-  message <- last(s$widget$x$queue)
-  server_await(message)
+print.plotscaper_scene <- function(scene) {
+  scene$rendered <- TRUE
+  print(scene$widget)
 }
 
 #' Set interactive scene layout

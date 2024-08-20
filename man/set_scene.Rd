@@ -4,13 +4,7 @@
 \alias{set_scene}
 \title{Set up an interactive scene}
 \usage{
-set_scene(
-  data = NULL,
-  options = NULL,
-  width = NULL,
-  height = NULL,
-  elementId = NULL
-)
+set_scene(data = NULL, options = NULL)
 }
 \arguments{
 \item{data}{A dataframe that will be converted to JSON

@@ -47,7 +47,7 @@ handler <- list(
           stop(paste0("Unrecognized message type: '", type, "'."))
         }
         result <- message_handlers[[type]](msg)
-        print(result)
+        plotscaper_global$result <- result
       }
 
     })
@@ -77,27 +77,18 @@ server_await <- function(msg) {
   }
 
   plotscaper_global$result <- NULL
-  start <- Sys.time()
-
   plotscaper_global$scene$send(msg)
+  httpuv::service()
 
-  while (TRUE) {
-    if (plotscaper_global$result) break
-    if (Sys.time() - start > 3) {
-      stop("Server request timed out after three seconds.")
-    }
-  }
-
-  on.exit({ plotscaper_global$result <- NULL })
   return(plotscaper_global$result)
 }
 
-format_message <- function(type, data = list()) {
+format_message <- function(list) {
   jsonlite::toJSON(list(
     sender = jsonlite::unbox("server"),
     target = jsonlite::unbox("scene"),
-    type = jsonlite::unbox(type),
-    data = data
+    type = jsonlite::unbox(list$type),
+    data = list$data
   ))
 }
 

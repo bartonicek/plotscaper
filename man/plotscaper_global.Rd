@@ -5,7 +5,7 @@
 \alias{plotscaper_global}
 \title{A Plotscaper Global Configuration Object}
 \format{
-An object of class \code{environment} of length 6.
+An object of class \code{environment} of length 7.
 }
 \usage{
 plotscaper_global
