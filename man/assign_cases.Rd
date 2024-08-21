@@ -2,21 +2,19 @@
 % Please edit documentation in R/message_senders.R
 \name{assign_cases}
 \alias{assign_cases}
-\title{Assigns cases to a specific group}
+\title{Assign cases to a group}
 \usage{
-assign_cases(scene, cases = NULL, group = 1)
+assign_cases(x, cases = NULL, group = 1)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene}
+\item{x}{A \code{plotscaper} scene or schema}
 
 \item{cases}{The cases (rows) to select}
 
-\item{group}{The group to assign the cases to (can be: \code{1}, \code{2}, or \code{3})}
-}
-\value{
-Nothing (a pure side-effect)
+\item{group}{The group to assign the cases to (can be 1, 2, or 3)}
 }
 \description{
-Assigns specific cases (rows of the data) to a permanent group.
+This function assigns specific cases (rows of the data)
+to a permanent group within a \code{plotscaper} scene or schema.
 Permanent group assignments are only removed by double-clicking.
 }

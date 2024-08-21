@@ -2,7 +2,7 @@
 % Please edit documentation in R/reducer.R
 \name{reducer}
 \alias{reducer}
-\title{Construct a Reducer}
+\title{Create a reducer}
 \usage{
 reducer(initialfn = NULL, reducefn = NULL, name = NULL)
 }
@@ -17,15 +17,14 @@ reducer(initialfn = NULL, reducefn = NULL, name = NULL)
 A reducer (which is just a \code{list})
 }
 \description{
-Constructs a reducer that can be used to show different summaries
-in a \code{plotscaper} figure. Specifically, the function creates a list with
-three values: an \code{initialfn}, a \code{reducefn}, and a \code{name}.
+Constructs a reducer that can be used to show alternative summaries
+in a \code{plotscaper} plot. Is just a wrapper around \code{list()}.
 }
 \details{
 \code{reducefn} and \code{initialfn} should be interpretable as JavaScript functions
 (either strings or objects constructed with \code{htmlwidgets::JS}). Further:
 \itemize{
-\item \code{initialfn} should take no arguments and just return some value (i.e. a thunk).
+\item \code{initialfn} should take 0 arguments and just return some value (i.e. a thunk).
 \item \code{reducefn} should take two arguments \code{previous} and \code{next} and return a result
 of the same type as \code{previous}.
 }
@@ -34,7 +33,7 @@ of the same type as \code{previous}.
 r <- reducer(initialfn = "() => -Infinity",
              reducefn = "(a, b) => Math.max(a, b)",
              name = "max")
-set_scene(mtcars) |>
+create_schema(mtcars) |>
   add_barplot(c("cyl", "mpg"), options = list(reducer = r))
 
 }

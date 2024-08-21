@@ -2,26 +2,17 @@
 % Please edit documentation in R/message_senders.R
 \name{assigned_cases}
 \alias{assigned_cases}
-\title{Check which cases are assigned to a specific group}
+\title{Check assigned cases}
 \usage{
-assigned_cases(scene, group = 1, resolvefn = print)
+assigned_cases(x, group = 1)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene}
+\item{x}{A \code{plotscaper} scene}
 
-\item{group}{The group to retrieve the cases of (can be: \code{1}, \code{2}, or \code{3})}
-
-\item{resolvefn}{Function to call after the server receives a response from
-the scene. Defaults to \code{print}.}
-}
-\value{
-Nothing (use \code{resolvefn} to save output)
+\item{group}{The group to retrieve the cases of (can be: 1, 2, or 3)}
 }
 \description{
-Check which cases of the data are assigned to a permanent group.
-Note that permanent group assignments are only removed by double-clicking.
-}
-\examples{
-# Assign selected cases to the `cases` variable
-# selected_cases(resolvefn = function(x) cases <<- x)
+This function returns the cases of the data which
+are assigned to a specific permanent group within
+a \code{plotscaper} scene.
 }

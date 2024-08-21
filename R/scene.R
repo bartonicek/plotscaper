@@ -1,27 +1,16 @@
-#' Set up an interactive scene
+#' Create a `plotscaper` schema
 #'
-#' This function constructs a skeleton of an interactive
-#' `plotscaper` figure. Specifically, it parses the data to JSON,
-#' creates an object of class `htmlwidget` and sends it
-#' additional information that is necessary to set up the figure,
-#' such as the variable types,
-#' the URL of the websocket server (if interactive), etc..
-#' The figure gets rendered when the resulting `htmlwidget`
-#' object gets printed.
+#' This function constructs a schema of an interactive
+#' `plotscaper` figure.
 #'
-#' @param data A dataframe that will be converted to JSON
-#' (missing values are currently not supported).
+#' @param data A dataframe
 #' @param options A list of options
-#' @param width Width of the scene
-#' @param height Height of the scene
-#' @param elementId An id of the element to render the widget in
-#' @returns An object of class `htmlwidget`
+#' @returns An object of class `plotscaper_schema`
 #'
 #' @examples
-#' set_scene(mtcars) |> add_scatterplot(c("wt", "mpg"))
-#' @import htmlwidgets
+#' create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
 #' @export
-set_scene <- function(data = NULL, options = NULL) {
+create_schema <- function(data = NULL, options = NULL) {
 
   if (is.null(data)) stop("Please provide a data set.")
 
@@ -45,9 +34,19 @@ print.plotscaper_schema <- function(schema) {
              paste(" ", schema$queue, collapse = "\n")))
 }
 
+#' Render a `plotscaper` schema
+#'
+#' This function takes a `plotscaper` schema and renders it as a
+#' concrete `htmlwidgets` widget.
+#'
+#' @param schema A `plotscaper` schema object
+#' @param width Width
+#' @param height Height
+#' @param elementId Id of the HTML element
+#'
 #' @export
 render <- function(schema, width = NULL, height = NULL, elementId = NULL) {
-  scene <- list(rendered = FALSE)
+  scene <- new.env()
   options <- scene$options
 
   # Rename options keys to camel case
@@ -56,6 +55,11 @@ render <- function(schema, width = NULL, height = NULL, elementId = NULL) {
   }
 
   server <- plotscaper_global$server
+  if (is.null(server) && interactive()) {
+    start_server()
+    server <- plotscaper_global$server
+  }
+
   if (!is.null(server)) {
     url <- paste0("ws://", server$getHost(), ":", server$getPort(), "/")
     options$websocketURL <- url
@@ -83,6 +87,8 @@ render <- function(schema, width = NULL, height = NULL, elementId = NULL) {
     )
   )
 
+  scene$rendered <- FALSE
+  scene$data <- data
   scene$uuid <- uuid::UUIDgenerate()
   class(scene) <- "plotscaper_scene"
 

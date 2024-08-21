@@ -2,20 +2,18 @@
 % Please edit documentation in R/message_senders.R
 \name{select_cases}
 \alias{select_cases}
-\title{Select cases}
+\title{Select cases of the data}
 \usage{
-select_cases(scene, cases = NULL)
+select_cases(x, cases = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene}
+\item{x}{A \code{plotscaper} scene or schema}
 
 \item{cases}{The cases (rows) to select}
 }
-\value{
-Nothing (a pure side-effect)
-}
 \description{
-Select specific cases (rows of the data) by assigning them
-to transient selection. Note that transient selection is removed when
-any plot is clicked. To make the selection more permanent, use \code{assign_cases()}.
+This function selects specific cases (rows of the data)
+within a \code{plotscaper} scene or schema by assigning
+them to transient selection.
+Transient group assignment is removed by clicking.
 }

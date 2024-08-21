@@ -2,24 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{add_barplot}
 \alias{add_barplot}
-\title{Add a barplot to an interactive scene}
+\title{Add a barplot to a scene or schema}
 \usage{
-add_barplot(scene, encoding = NULL, options = NULL)
+add_barplot(x, variables = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object}
+\item{x}{A \code{plotscaper} scene or schema object}
 
-\item{encoding}{A vector of variable names:
-one discrete (required) and one continuous (optional)}
+\item{variables}{A vector of variable names:
+one discrete (required), one continuous (optional)}
 
 \item{options}{A list of options}
 }
-\value{
-The scene back
-}
 \description{
-This function adds a barplot to an interactive scene.
-Can be transformed into spineplot by pressing the normalize ("N") key.
+This function adds a barplot to a \code{plotscaper} scene or schema.
 }
 \seealso{
 \code{\link[=add_plot]{add_plot()}}

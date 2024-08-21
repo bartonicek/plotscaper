@@ -1,13 +1,13 @@
-#' Construct a Reducer
+#' Create a reducer
 #'
-#' Constructs a reducer that can be used to show different summaries
-#' in a `plotscaper` figure. Specifically, the function creates a list with
-#' three values: an `initialfn`, a `reducefn`, and a `name`.
+#' Constructs a reducer that can be used to show alternative summaries
+#' in a `plotscaper` plot. Is just a wrapper around `list()`.
+#'
 #' @details
 #' `reducefn` and `initialfn` should be interpretable as JavaScript functions
 #' (either strings or objects constructed with `htmlwidgets::JS`). Further:
 #'
-#' - `initialfn` should take no arguments and just return some value (i.e. a thunk).
+#' - `initialfn` should take 0 arguments and just return some value (i.e. a thunk).
 #' - `reducefn` should take two arguments `previous` and `next` and return a result
 #' of the same type as `previous`.
 #'
@@ -20,7 +20,7 @@
 #' r <- reducer(initialfn = "() => -Infinity",
 #'              reducefn = "(a, b) => Math.max(a, b)",
 #'              name = "max")
-#' set_scene(mtcars) |>
+#' create_schema(mtcars) |>
 #'   add_barplot(c("cyl", "mpg"), options = list(reducer = r))
 #'
 #' @export

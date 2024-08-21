@@ -2,24 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{add_histogram}
 \alias{add_histogram}
-\title{Add a histogram to an interactive scene}
+\title{Add a histogram to a scene or schema}
 \usage{
-add_histogram(scene, encoding = NULL, options = NULL)
+add_histogram(x, variables = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object.}
+\item{x}{A \code{plotscaper} scene or schema object}
 
-\item{encoding}{A vector of variable names:
-one continuous (required) and one continuous (optional)}
+\item{variables}{A vector of variable names:
+one continuous (required), one continuous (optional)}
 
-\item{options}{A list of options.}
-}
-\value{
-The scene back.
+\item{options}{A list of options}
 }
 \description{
-This function adds a histogram to an interactive scene.
-Can be transformed into spinogram by pressing the normalize ("N") key.
+This function adds a histogram to a \code{plotscaper} scene or schema.
 }
 \seealso{
 \code{\link[=add_plot]{add_plot()}}

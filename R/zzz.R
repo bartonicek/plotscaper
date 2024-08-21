@@ -11,22 +11,19 @@ globals <- list(
   server = NULL,
   scene = NULL,
   show_messages = TRUE,
-  async = list(
-    resolve = NULL,
-    reject = NULL
-  ),
+  connections = list(),
   result = NULL
 )
 
 list2env(globals, plotscaper_global)
 
-.onAttach <- function(...) {
-  if (interactive()) start_server()
-}
-
-.onUnattach <- function(...) {
-  if (!is.null(plotscaper_global$server)) {
-    plotscaper_global$server$stop()
-  }
-}
+# .onAttach <- function(...) {
+#   if (interactive()) start_server()
+# }
+#
+# .onUnattach <- function(...) {
+#   if (!is.null(plotscaper_global$server)) {
+#     plotscaper_global$server$stop()
+#   }
+# }
 

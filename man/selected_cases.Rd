@@ -2,24 +2,14 @@
 % Please edit documentation in R/message_senders.R
 \name{selected_cases}
 \alias{selected_cases}
-\title{Check which cases are selected}
+\title{Check selected cases}
 \usage{
-selected_cases(scene, resolvefn = print)
+selected_cases(x)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene}
-
-\item{resolvefn}{Function to call after the server receives a response from
-the scene. Defaults to \code{print}.}
-}
-\value{
-Nothing (use \code{resolvefn} to save output)
+\item{x}{A \code{plotscaper} scene}
 }
 \description{
-Check which cases of the data are transiently selected
-within the current plotscaper scene.
-}
-\examples{
-# Assign selected cases to the `cases` variable
-# selected_cases(resolvefn = function(x) cases <<- x)
+This function returns the cases of the data which are selected
+within a \code{plotscaper} scene.
 }

@@ -2,17 +2,16 @@
 % Please edit documentation in R/server.R
 \name{start_server}
 \alias{start_server}
-\title{Start a server for interactive figure use}
+\title{Start a server for communication between the R session and \code{plostcaper} scenes}
 \usage{
 start_server(random_port = FALSE)
 }
 \arguments{
-\item{random_port}{Whether to use a random port number. Useful if default port is already taken.}
-}
-\value{
-Nothing (a pure side-effect)
+\item{random_port}{Whether to use a random port number.
+Useful if the default port is already taken.}
 }
 \description{
-Starts an httpuv server for an interactive communication with the plotscaper scene.
-Relies on \code{plotscaper_global} options.
+This function starts an \code{httpuv} server for an interactive communication
+between the R session and \code{plotscaper} scenes.
+Uses \code{plotscaper_global} options.
 }

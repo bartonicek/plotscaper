@@ -2,21 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{add_scatterplot}
 \alias{add_scatterplot}
-\title{Add a scatterplot to an interactive scene}
+\title{Add a scatterplot to a scene or schema}
 \usage{
-add_scatterplot(scene, encoding = NULL, options = NULL)
+add_scatterplot(x, variables = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object}
+\item{x}{A \code{plotscaper} scene or schema object}
 
-\item{encoding}{A vector of variable names:
+\item{variables}{A vector of variable names:
 two continuous or discrete (required), one continuous (optional)}
-}
-\value{
-The scene back
+
+\item{options}{A list of options}
 }
 \description{
-This function adds a scatterplot to an interactive scene.
+This function adds a scatterplot to a \code{plotscaper} scene or schema.
 }
 \seealso{
 \code{\link[=add_plot]{add_plot()}}

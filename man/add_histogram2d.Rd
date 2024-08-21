@@ -2,22 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{add_histogram2d}
 \alias{add_histogram2d}
-\title{Add a 2D histogram to an interactive scene}
+\title{Add a 2D histogram to a scene or schema}
 \usage{
-add_histogram2d(scene, encoding = NULL, options = NULL)
+add_histogram2d(x, variables = NULL, options = NULL)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene object}
+\item{x}{A \code{plotscaper} scene or schema object}
 
-\item{encoding}{A vector of variable names:
-two continuous (required) and another continuous (optional)}
-}
-\value{
-The scene back
+\item{variables}{A vector of variable names:
+two continuous (required), one continuous (optional)}
+
+\item{options}{A list of options}
 }
 \description{
-This function adds a 2D histogram to an interactive scene
-The squares' areas can be normalized by pressing the normalize ("N") key.
+This function adds a 2D histogram to a \code{plotscaper} scene or schema.
 }
 \seealso{
 \code{\link[=add_plot]{add_plot()}}

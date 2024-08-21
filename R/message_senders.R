@@ -2,45 +2,44 @@
 dispatch_message <- function(x, ...) UseMethod("dispatch_message")
 
 #' @export
-dispatch_message.plotscaper_schema <- function(schema, fn, ...) {
-  message <- fn(schema, ...)
+dispatch_message.plotscaper_schema <- function(schema, message) {
   schema$queue <- push(schema$queue, message)
   schema
 }
 
 #' @export
-dispatch_message.plotscaper_scene <- function(scene, fn, ...) {
-  message <- fn(scene, ...)
-  server_send(format_message(message))
+dispatch_message.plotscaper_scene <- function(scene, message) {
+  await <- message$await
+  message <- format_message(message)
+
+  if (!scene$rendered) {
+    scene$widget$x$queue <- push(scene$widget$x$queue, message)
+    print(scene)
+    return(invisible())
+  }
+
+  if (!is.null(await) && await) {
+    return(server_await(scene, message))
+  }
+
+  server_send(scene, message)
 }
 
+#' Add a plot to a scene or schema
+#'
+#' This function adds a plot to an existing `plotscaper`
+#' scene or schema. Not meant to be called directly
+#' but instead with a wrapper function such as
+#' [add_scatterplot()].
+#'
+#' @param x A plotscaper scene or schema
+#' @param spec A list with the plot specification
 #' @export
-add_plot <- function(x, ...) UseMethod("add_plot")
-pop_plot <- function(x) UseMethod("pop_plot")
-remove_plot <- function(x, ...) UseMethod("remove_plot")
-select_cases <- function(x) UseMethod("select_cases")
-assign_cases <- function(x, ...) UseMethod("assign_cases")
-selected_cases <- function(x) UseMethod("selected_cases")
-assigned_cases <- function(x, ...) UseMethod("assigned_cases")
+add_plot <- function(x, spec) {
 
-plot_types <- c("scatter", "bar", "histo", "histo2d", "fluct", "line", "note")
-
-#' Add a plot to a plotscaper scene
-#' @export
-add_plot.plotscaper_schema <- function(schema, options = NULL) {
-  dispatch_message(schema, add_plot_message, options)
-}
-
-#' @export
-add_plot.plotscaper_scene <- function(scene, options = NULL) {
-  dispatch_message(scene, add_plot_message, options)
-}
-
-add_plot_message <- function(x, options) {
-
-  type <- options$type
-  variables <- options$variables
-  options <- options$options
+  type <- spec$type
+  variables <- spec$variables
+  spec <- spec$options
 
   if (is.null(type) || !(type %in% plot_types)) {
     stop(paste("Please provide a valid plot type:",
@@ -48,114 +47,201 @@ add_plot_message <- function(x, options) {
   }
 
   if (is.null(variables)) stop("Please provide encoding variables")
-  for (key in names(options)) {
-    options[[key]] <- jsonlite::unbox(options[[key]])
+  for (key in names(spec)) {
+    spec[[key]] <- jsonlite::unbox(spec[[key]])
   }
 
-  data <- c(list(type = jsonlite::unbox(type), variables = variables), options)
+  data <- c(list(type = jsonlite::unbox(type), variables = variables), spec)
   message <- list(type = "add-plot", data = data)
-  message
+
+  dispatch_message(x, message)
 }
 
+plot_types <- c("scatter", "bar", "histo", "histo2d",
+                "fluct", "pcoords")
+
+#' Remove the last plot from a scene or schema
+#'
+#' This function removes the last plot from a `plotscaper`
+#' scene or schema.
+#'
+#' @param x A plotscaper scene or schema
 #' @export
-pop_plot.plotscaper_schema <- function(schema) {
-  dispatch_message(schema, pop_plot_message)
+pop_plot <- function(x) {
+  dispatch_message(x, list(type = "pop-plot"))
 }
 
+#' Remove specific plot from a scene or schema
+#'
+#' This function removes a specific plot from a `plotscaper`
+#' scene or schema.
+#'
+#' @param x A plotscaper scene or schema
+#' @param id A string id of the plot. See [id]
+#'
 #' @export
-pop_plot.plotscaper_scene <- function(scene) {
-  dispatch_message(scene, pop_plot_message)
-}
-
-pop_plot_message <- function(x) list(type = "pop-plot")
-
-#' @export
-remove_plot.plotscaper_schema <- function(schema, id = NULL) {
-  dispatch_message(schema, remove_plot_message, id)
-}
-
-#' @export
-remove_plot.plotscaper_scene <- function(scene, id = NULL) {
-  dispatch_message(scene, remove_plot_message, id)
-}
-
-remove_plot_message <- function(x, id = NULL) {
-  if (is.null(id)) stop("Please provide a plot id (e.g. 'plot1' or 'scatter3')")
+remove_plot <- function(x, id = NULL) {
+  if (is.null(id) || !is.character(id)) {
+    stop("Please provide a plot id (e.g. 'plot1' or 'scatter3')")
+  }
   data <- list(id = jsonlite::unbox(id))
-  list(type = "remove-plot", data = data)
+  message <- list(type = "remove-plot", data = data)
+  dispatch_message(x, message)
 }
 
-#' Select cases
+#' Select cases of the data
 #'
-#' Select specific cases (rows of the data) by assigning them
-#' to transient selection. Note that transient selection is removed when
-#' any plot is clicked. To make the selection more permanent, use `assign_cases()`.
+#' This function selects specific cases (rows of the data)
+#' within a `plotscaper` scene or schema by assigning
+#' them to transient selection.
+#' Transient group assignment is removed by clicking.
 #'
-#' @param scene A `plotscaper` scene
+#' @param x A `plotscaper` scene or schema
 #' @param cases The cases (rows) to select
-#' @returns Nothing (a pure side-effect)
-#'
 #' @export
-select_cases <- function(scene, cases = NULL) {
+select_cases <- function(x, cases = NULL) {
+  if (is.null(cases) || !is.numeric(cases)) {
+    stop("Please provide a list of cases you want to select")
+  }
   cases <- cases - 1 # Correct for 0-based indexing on the JavaScript side
-  list(type = "set-selected", cases = cases)
+  data <- list(cases = cases)
+  message <- list(type = "set-selected", data = list(cases = cases))
+  dispatch_message(x, message)
 }
 
-#' Assigns cases to a specific group
+#' Assign cases to a group
 #'
-#' Assigns specific cases (rows of the data) to a permanent group.
+#' This function assigns specific cases (rows of the data)
+#' to a permanent group within a `plotscaper` scene or schema.
 #' Permanent group assignments are only removed by double-clicking.
 #'
-#' @param scene A `plotscaper` scene
+#' @param x A `plotscaper` scene or schema
 #' @param cases The cases (rows) to select
-#' @param group The group to assign the cases to (can be: `1`, `2`, or `3`)
-#' @returns Nothing (a pure side-effect)
+#' @param group The group to assign the cases to (can be 1, 2, or 3)
+#' @export
+assign_cases <- function(x, cases = NULL, group = 1) {
+  if (is.null(cases) || !is.numeric(cases)) {
+    stop("Please provide a list of cases you want to assign to a group")
+  }
+  if (!is.numeric(group)) stop("Please provide a numeric group id (1-3)")
+  cases <- cases - 1 # Correct for 0-based indexing on the JavaScript side
+  data <- list(cases = cases, group = jsonlite::unbox(group))
+  message <- list(type = "set-assigned", data = data)
+  dispatch_message(x, message)
+}
+
+#' Check selected cases
+#'
+#' This function returns the cases of the data which are selected
+#' within a `plotscaper` scene.
+#'
+#' @param x A `plotscaper` scene
+selected_cases <- function(x) {
+  message <- list(type = "get-selected", await = TRUE)
+  dispatch_message(x, message)
+}
+
+#' Check assigned cases
+#'
+#' This function returns the cases of the data which
+#' are assigned to a specific permanent group within
+#' a `plotscaper` scene.
+#'
+#' @param x A `plotscaper` scene
+#' @param group The group to retrieve the cases of (can be: 1, 2, or 3)
+assigned_cases <- function(x, group = 1) {
+  data <- list(group = group)
+  message <- list(type = "get-assigned", await = TRUE, data = data)
+  dispatch_message(x, message)
+}
+
+#' Reset a scene or schema
+#'
+#' This function resets a `plotscaper` scene or schema.
+#' All selection/group assignment will be removed, and
+#' axis limits/levels of zoom will be restored to default.
+#'
+#' @param x A `plotscaper` scene or schema
+#' @export
+reset <- function(x) {
+  dispatch_message(x, list(type = "reset"))
+}
+
+#' Set values of a scale
+#'
+#' This function sets the values of a scale within one plot
+#' inside a `plotscaper` scene or schema.
+#'
+#' @param x A `plotscaper` scene or schema
+#' @param id A string id of the plot. See [id]
+#' @param scale A string identifying scale. Can be: "x", "y", "area", or "size".
+#' @param min Scale minimum. Only works for continuous scales
+#' @param max Scale maximum. Only works for continuous scales
+#' @param breaks A vector of scale breaks. Only works for discrete scales.
+#' The values should be the same as in the original scale, just different order.
+#' @param direction Scale direction. Can be `1` or `-1`
+#' @param mult Scale multiplier
 #'
 #' @export
-assign_cases <- function(scene, cases = NULL, group = 1) {
-  cases <- cases - 1 # Correct for 0-based indexing on the JavaScript side
-  data <- list(group = group, cases = cases)
-  msg <- format_message("set-assigned", data)
+set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
+                      breaks = NULL, direction = NULL, mult = NULL,
+                      default = NULL) {
 
-  scene$widget$x$queue <- push(scene$widget$x$queue, msg)
-  scene
+  if (is.null(id)) stop("Please specify a plot id")
+  if (is.null(scale)) stop("Please specify a valid scale: x, y, area, or size")
+
+  data <- list(id = id, scale = scale, min = min,
+               max = max, mult = mult, default = default)
+  for (key in names(data)) data[[key]] <- jsonlite::unbox(data[[key]])
+  data$labels <- breaks
+
+  message <- list(type = "set-scale", data = data)
+  dispatch_message(x, message)
 }
 
-#' Check which cases are selected
+#' Zoom into an area of a plot
 #'
-#' Check which cases of the data are transiently selected
-#' within the current plotscaper scene.
+#' This function zooms into a rectangular area of the specified
+#' plot. The coordinates of the rectangular area can be specified
+#' with either percentages of the plotting region, absolute
+#' coordinates (pixels), or data coordinates.
 #'
-#' @param scene A `plotscaper` scene
-#' @param resolvefn Function to call after the server receives a response from
-#' the scene. Defaults to `print`.
-#' @returns Nothing (use `resolvefn` to save output)
-#' @examples
-#' # Assign selected cases to the `cases` variable
-#' # selected_cases(resolvefn = function(x) cases <<- x)
-selected_cases <- function(scene, resolvefn = print) {
-  msg <- format_message("get-selected")
-  scene$widget$x$queue <- push(scene$widget$x$queue, msg)
-  scene
+#' @param x A plotscaper scene or schema
+#' @param id A string id of the plot. See [id]
+#' @param coords The coordinates of a rectangle to
+#' zoom into, in the following order: `x0, y0, x1, y1`
+#' @param units The units with which to interpret the coordinates.
+#' Can be "pct" (percentages of the plotting region), "abs" (absolute
+#' screen coordinates, in pixels), or "data" (data coordinates;
+#' only works if both scales are continuous).
+#'
+#' @export
+zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
+  data <- list(id = jsonlite::unbox(id), coords = coords,
+               units = jsonlite::unbox(units))
+  message <- list(type = "zoom", data = data)
+  dispatch_message(x, message)
 }
 
-#' Check which cases are assigned to a specific group
+#' Plot id
 #'
-#' Check which cases of the data are assigned to a permanent group.
-#' Note that permanent group assignments are only removed by double-clicking.
+#' A string which uniquely identifies a plot `plotscaper` scene or schema.
 #'
-#' @param scene A `plotscaper` scene
-#' @param group The group to retrieve the cases of (can be: `1`, `2`, or `3`)
-#' @param resolvefn Function to call after the server receives a response from
-#' the scene. Defaults to `print`.
-#' @returns Nothing (use `resolvefn` to save output)
-#' @examples
-#' # Assign selected cases to the `cases` variable
-#' # selected_cases(resolvefn = function(x) cases <<- x)
-assigned_cases <- function(scene, group = 1, resolvefn = print) {
-  data <- list(group = group)
-  msg <- format_message("get-assigned", data)
-  scene$widget$x$queue <- push(scene$widget$x$queue, msg)
-  scene
-}
+#' @details
+#' `id` is a string that uniquely identifies a plot  within a
+#' `plotscaper` scene or schema. It can match a plot
+#' based on its position (e.g. "plot1", "plot2", ...),
+#' in the order the plots were added, left-to-right top-to-bottom,
+#' or it can match plot based on type (e.g. "scatter1" or "barplot3"),
+#' again, in order of addition.
+#'
+#' If the plot is matched based on type, the morphemes "plot" and
+#' "gram" are ignored, such that e.g. "scatterplot1" is the same as
+#' "scatter1" and "histogram2d4" is the same as "histo2d4".
+#'
+#' The string can also be shortened, e.g. "p1" for "plot1",
+#' "s2" for "scatter2",  or "hh3" for "histo2d3".
+#' @export
+id <- NULL
+
 
