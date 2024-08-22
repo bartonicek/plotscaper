@@ -13,7 +13,7 @@ bibliography: "references.bib"
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  fig.width = 7,
+  fig.width = 6.5,
   fig.height = 4,
   comment = "#>")
 ```
@@ -30,95 +30,140 @@ Next, open up RStudio and run the following code:
 ```{r}
 library(plotscaper)
 
-set_scene(mtcars) |>
+create_schema(mtcars) |>
   add_scatterplot(c("wt", "mpg")) |>
-  add_barplot("cyl")
+  add_barplot("cyl") |>
+  render()
+
 ```
 
-Try moving your mouse somewhere over the scatterplot in the top left of the figure and clicking and dragging to select some points. You should see the corresponding cases get highlighted within the barplot! 
+Try clicking and dragging to select some points in the scatterplot. You should see the corresponding cases get highlighted within the barplot! 
 
 There are many other ways interacting with `plotscaper` figures, including:
 
 - Zooming and panning
 - Changing the size of objects
 - Increasing/decreasing the opacity (alpha)
-- Assigning selected cases to persistent groups
 - Manipulating parameters such as histogram binwidth and anchor
-- Modifying continuous axis limits
-- Sorting and reordering discrete axes
-- Resizing individual plots
+- Modifying axis limits and ordering discrete axes
 
-Click on the question mark in the top right corner of the figure to see the list of the available interactions, with the corresponding key/mouse bindings.
+Importantly, many of these interactions can either be done manually, by interacting with the figure (client-side), or programmatically, by calling functions from inside a running R session ("server-side"). 
 
-There are also some additional interactions available when running the figure in an interactive R session (e.g. in RStudio but not in rendered RMarkdown). That should be the case for you right now. Try running these functions:
+## The scene and the schema
+
+To take full advantage of `plotscaper`, you need to understand two core functions: `create_schema` and `render`. 
+
+The `create_schema` function initializes a *schema* - a sort of a recipe which we can use to define the figure. Like in other data visualization packages, we build up the schema step-by-step, by calling functions that append additional information to it: 
+
+```{r}
+schema <- create_schema(mtcars) |> 
+  add_scatterplot(c("wt", "mpg")) |> 
+  add_barplot("cyl")
+
+schema
+```
+
+Typically, you'll use the schema to add plots. However, you can also do other things such as select cases or set axis limits:
+
+```{r}
+schema |>
+  select_cases(1:10) |>
+  set_scale("plot1", "x", max = 12)
+```
+
+When it finally comes a time to turn the recipe into an actual interactive *scene*, we can do so by calling the `render` function:
+
+```{r}
+scene <- schema |> render()
+scene
+```
+
+The `render` function takes the schema and turns it into a `htmlwidgets` widget that we can play around with in RStudio viewer or print in RMarkdown documents.
+
+## The difference between scene and schema
+
+However, `render` can also do more than just turn a schema into a widget. Specifically, when inside a running R session, it also launches an `httpuv` server and returns a handle to the scene.
+
+*If you're following along in RStudio*, try this:
 
 ```{r}
 #| eval: false
-mark_cases(1:10)
-selected_cases()
+scene <- schema |> render()
+scene
+scene |> select_cases(20:30)
 ```
 
-## Anatomy of a `plotscaper` figure
+You should see that different cases get selected. However, the important thing to notice is that this happens without re-rendering the figure in the viewer!
 
-There are a bunch of things going on in the code that was used to create the figure above. Let's walk through them step by step.
-
-First, whenever we want to create a `plotscaper` figure, we need to set up a scene, which is a kind of global context into which all of the plots get placed. To set up a scene, run:
+That is, while the following code:
 
 ```{r}
 #| eval: false
-set_scene(data = sacramento)
+# NOT RUN
+scene <- schema |> select_cases(20:30) |> render()
+scene
+scene
 ```
 
-where `data` is some `data.frame` object. Here we're using the Sacramento housing data set from the `caret` package.
-
-If we run the code above, we will just get an empty rectangle. The reason for that is that, in order to do some things, we first need to fill the scene with plots. To populate the scene with plots, we can use the `add_*` functions:
+causes two full re-renders, the following code:
 
 ```{r}
-set_scene(sacramento) |>
-  add_scatterplot(c("longitude", "latitude")) |>
-  add_barplot("city")
+#| eval: false
+# NOT RUN
+scene <- schema |> render()
+scene |> select_cases(20:30)
+scene |> select_cases(20:30)
 ```
 
-The code above creates interactive figure with a linked scatterplot and a barplot. We only need to specify which variables we want to show in each plot by simple character vectors of their names. Simple as.
+causes only one render.
 
-Under the hood, a `plotscaper` figure is just a `htmlwidgets` widget. This means that, to render the figure, we need to print the underlying object. More specifically, when we print a `plotscaper` scene, `htmlwidgets` bundles up the underlying HTML, JavaScript, and CSS, and sends it to the RStudio viewer (which is a kind of Web browser). This operation is lazy - if we don't print the object, nothing happens:
+So the idea is that, while you can call (mostly) the same functions to interact with the scene and the schema, the way how those functions are executed is different:
+
+- *Schema*: calling a function lazily appends to an (immutable) list of messages that will get executed in the future, when the schema is rendered
+- *Scene*: calling a function immediately sends a message to the scene and mutates its state
+
+The second method only works if we are in an interactive R session because we need a server to communicate with the figure. 
+
+This is why, for example, running the following code (while the document you're reading is being knitted) throws an error:
 
 ```{r}
-s <- set_scene(sacramento) |>
-  add_scatterplot(c("longitude", "latitude")) |>
-  add_barplot("city")
+#| error: true
+scene |> select_cases(1:10)
 ```
 
-However, printing `s` generates the figure:
+When we knit an RMarkdown document, we generate a static HTML file. We cannot call functions from R or any other language to communicate with this file, since it's just a big bundle of HTML, CSS, and JavaScript. To only way to change this file is to rewrite it. 
 
-```{r}
-s # This is the same as print(s)
-```
+In contrast, inside an interactive R session, we can launch a server that will listen and respond to messages from the R session and send them to the figure (and also send messages from the figure back to the R session - this is done via WebSockets).
 
-We can use this laziness to generate `plotscaper` figures programmatically. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `penguins` dataset [@horst2020]:
+## Bonus: Scatterplot matrix
+
+We can use the laziness of the schema to generate figures programmatically. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the `penguins` dataset [@horst2020]:
 
 ```{r}
 #| fig-height: 7
 
 library(palmerpenguins)
 
-penguins <- na.omit(penguins[, 4:6]) # Unfortunately missing data is not supported 
+penguins <- na.omit(penguins[, 4:6]) # Missing data is not yet supported 
 keys <- c("bill depth", "flipper length", "body mass")
 names(penguins) <- keys
 
-s <- set_scene(penguins)
+schema <- create_schema(penguins)
 
-# Loop through columns
+# Loop through combinations of columns
 for (i in seq_along(keys)) {
   for (j in seq_along(keys)) {
     # Add a scatterplot if row & column no.'s are different
-    if (i != j) s <- s |> add_scatterplot(c(keys[i], keys[j]))
-    # Add a histogram if row & column no.'s are the same
-    else s <- s |> add_histogram(c(keys[i])) 
+    if (i != j) schema <- schema |> add_scatterplot(c(keys[i], keys[j]))
+    # Add a histogram if row & column no.'s match
+    else schema <- schema |> add_histogram(c(keys[i])) 
   }
 }
 
-s
+# Options to make the plots fit better within the available space
+opts <- list(size = 5, axis_title_size = 0.75, axis_label_size = 0.5)
+
+schema |> render(options = opts)
 ```
 
 ## References

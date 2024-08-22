@@ -12,33 +12,31 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  fig.width = 7,
+  fig.width = 6.5,
   fig.height = 4,
   comment = "#>")
 ```
 
-## Performance
-
-While performance wasn't a number one concern for `plotscaper`, I found it can actually perform fairly well on moderately-sized data sets (thanks to the work of the very smart people who have optimized JavaScript engines like V8). 
+While performance wasn't a number one concern for me when writing `plotscaper`, I found it can actually perform fairly well on moderately-sized data sets (thanks to the work of the very smart people who have optimized JavaScript engines like V8). 
 
 If you want to put `plotscaper` under a stress test, try creating a figure with the entire `diamonds` dataset from the `ggplot2` package:
 
-(the figure below might take a bit to load, be patient)
+(the figure below might take a bit to load, please be patient)
 
 ```{r}
 library(plotscaper)
 
-set_scene(ggplot2::diamonds) |>
+create_schema(ggplot2::diamonds) |>
   add_scatterplot(c("carat", "price")) |>
-  add_fluctplot(c("cut", "color")) |>
-  add_barplot(c("color"))
+  add_barplot(c("color")) |>
+  render()
 ```
 
-On my machine, I found that the figure with its 50,000 cases becomes a bit sluggish, but still fast enough to feel "interactive" rather than a "slideshow". Your mileage may vary, and that goes double for Github pages (where you might be viewing the figure right now). 
+On my machine, I found that the figure with 50,000 cases is a bit sluggish, but still fast enough to feel "interactive" rather than a "slideshow". Your mileage may vary.
 
-Note that most of the slowdown is due to rendering rather than computation. In the scatterplot, we have to draw each of the 50,000 points each time linked selection happens, hence why it takes long. Same goes for parallel coordinates plots. If instead you only use plots which are aggregate summaries of the data, (e.g. barplot, histogram, fluctuation diagram, etc...) then the figure should be a lot faster.
+Note that most of the slowdown is due to rendering rather than computation. In the scatterplot, we have to draw each of the 50,000 points each time selection happens, hence why it is not as snappy as with more modestly sized data sets. Same goes for parallel coordinates plots. If instead you only use plots which show aggregate summaries of the data, (e.g. barplot, histogram, fluctuation diagram, etc...) then the interactions like selection should happen a lot faster.
 
-Finally, one thing that's frustrating is that there seems to be a small slowdown when interacting with the figure in the RStudio Viewer rather than directly in the browser (Chrome). This does not seem to be related to the dataset size. I'm not very familiar with the RStudio internals and have no idea why this might be, but for now, if you want snappier interactions I recommend just opening up a browser window, e.g. by clicking the icon in the top right of the viewer:
+Finally, one thing that's frustrating is that there seems to be a small slowdown when interacting with the figure in the RStudio Viewer rather than directly in the browser (Chrome). This does not seem to be related to the data set size. I'm not super familiar with the RStudio internals and have no idea why this might be (if you do, please email me/post on Github), but for now, if you want snappier interactions I recommend just opening up a browser window, e.g. by clicking the icon in the top right of the viewer:
 
 ```{r}
 #| echo: false
@@ -47,17 +45,16 @@ library(screenshot)
 library(magick)
 
 # Code to take the screenshot of the current page
-set_scene(ggplot2::diamonds) |>
+create_schema(ggplot2::diamonds) |>
   add_scatterplot(c("carat", "price")) |>
-  add_fluctplot(c("cut", "color")) |>
-  add_barplot(c("color"))
+  add_barplot(c("color")) |>
+  render()
 
-# sc <- screenshot()
+sc <- screenshot()
 image <- image_read(sc)
-image2 <- image_crop(image, geometry_area(800, 600, 1390, 390))
-
+image2 <- image_crop(image, geometry_area(800, 600, 1420, 50))
 image3 <- image_draw(image2)
-points(290, 45, cex = 10, col = "red", lwd = 5)
+points(290, 140, cex = 10, col = "red", lwd = 5)
 dev.off()
 
 image_write(image3, "./man/figures/browser.png")
@@ -65,16 +62,11 @@ image_write(image3, "./man/figures/browser.png")
 
 ```{r}
 #| echo: false
-
 knitr::include_graphics("../man/figures/browser.png")
-
 ```
 
-(if you know the reason behind this slowdown and/or how to fix it, please email me at abar435@aucklanduni.ac.nz)
-
-Anyway, if you need fast figures with larger data sets, I recommend taking some of the following steps:
+Anyway, if you're visualizing big data sets and find your figures are getting slow, I recommend taking some of the following steps:
 
 - Run the figure in the browser rather than the RStudio viewer
-- Use plots which summarize the data (e.g. barplots, 2D histograms), 
-rather than plots which show all of the data points
-- Take a subsample the data
+- Use plots which show aggregate summaries of the data (e.g. barplots, 2D histograms)
+- Take a random sample of the data and visualize that

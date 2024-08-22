@@ -9,6 +9,12 @@ dispatch_message.plotscaper_schema <- function(schema, message) {
 
 #' @export
 dispatch_message.plotscaper_scene <- function(scene, message) {
+
+  if (!interactive()) {
+    stop("You can only send messages to scene from within an interactive R session",
+         call. = FALSE)
+  }
+
   await <- message$await
   message <- format_message(message)
 
@@ -43,10 +49,13 @@ add_plot <- function(x, spec) {
 
   if (is.null(type) || !(type %in% plot_types)) {
     stop(paste("Please provide a valid plot type:",
-               paste(plot_types, collapse = ', ')))
+               paste(plot_types, collapse = ', ')), .call = FALSE)
   }
 
-  if (is.null(variables)) stop("Please provide encoding variables")
+  if (is.null(variables)) {
+    stop("Please provide encoding variables", .call = FALSE)
+  }
+
   for (key in names(spec)) {
     spec[[key]] <- jsonlite::unbox(spec[[key]])
   }
@@ -82,7 +91,7 @@ pop_plot <- function(x) {
 #' @export
 remove_plot <- function(x, id = NULL) {
   if (is.null(id) || !is.character(id)) {
-    stop("Please provide a plot id (e.g. 'plot1' or 'scatter3')")
+    stop("Please provide a plot id (e.g. 'plot1' or 'scatter3')", .call = TRUE)
   }
   data <- list(id = jsonlite::unbox(id))
   message <- list(type = "remove-plot", data = data)

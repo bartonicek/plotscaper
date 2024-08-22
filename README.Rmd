@@ -45,13 +45,13 @@ Next, open up RStudio and run the following code:
 ```{r}
 library(plotscaper)
 
-set_scene(sacramento) |>
+create_schema(sacramento) |>
   add_scatterplot(c("longitude", "latitude")) |>
   add_barplot(c("city")) |>
   add_histogram(c("sqft")) |>
   add_fluctplot(c("beds", "baths")) |>
   add_histogram2d(c("sqft", "price")) |>
-  add_lineplot(names(sacramento)) |> 
+  add_pcoords(names(sacramento)) |> 
   render()
 
 ```

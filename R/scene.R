@@ -10,7 +10,7 @@
 #' @examples
 #' create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
 #' @export
-create_schema <- function(data = NULL, options = NULL) {
+create_schema <- function(data = NULL) {
 
   if (is.null(data)) stop("Please provide a data set.")
 
@@ -23,7 +23,7 @@ create_schema <- function(data = NULL, options = NULL) {
     data <- stats::na.omit(data)
   }
 
-  schema <- list(data = data, queue = list(), options = options)
+  schema <- list(data = data, queue = list())
   schema <- structure(schema, class = "plotscaper_schema")
   schema
 }
@@ -45,9 +45,10 @@ print.plotscaper_schema <- function(schema) {
 #' @param elementId Id of the HTML element
 #'
 #' @export
-render <- function(schema, width = NULL, height = NULL, elementId = NULL) {
+render <- function(schema, width = NULL, height = NULL,
+                   elementId = NULL, options = NULL) {
+
   scene <- new.env()
-  options <- scene$options
 
   # Rename options keys to camel case
   if (!is.null(options)) {
