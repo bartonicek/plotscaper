@@ -15,7 +15,8 @@ Imports:
     htmlwidgets (>= 1.6),
     httpuv (>= 1.6),
     jsonlite (>= 1.8),
-    stats
+    stats,
+    uuid
 Suggests: 
     knitr,
     rmarkdown,
