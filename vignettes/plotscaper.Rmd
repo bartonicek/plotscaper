@@ -14,7 +14,7 @@ bibliography: "references.bib"
 knitr::opts_chunk$set(
   collapse = TRUE,
   fig.width = 6.5,
-  fig.height = 4,
+  fig.height = 6.5,
   comment = "#>")
 ```
 
@@ -30,9 +30,14 @@ Next, open up RStudio and run the following code:
 ```{r}
 library(plotscaper)
 
-create_schema(mtcars) |>
-  add_scatterplot(c("wt", "mpg")) |>
-  add_barplot(c("cyl")) |>
+names(airquality) <- c("ozone", "solar radiation", "wind", 
+                       "temperature", "month", "day")
+
+create_schema(airquality) |>
+  add_scatterplot(c("solar radiation", "ozone")) |>
+  add_barplot(c("day", "ozone"), list(reducer = "max")) |>
+  add_histogram(c("wind")) |>
+  add_pcoords(names(airquality)[1:4]) |>
   render()
 ```
 
@@ -91,7 +96,6 @@ schema
 When it finally comes a time to turn the recipe into an actual interactive figure or *scene*, we can do so by calling the `render` function:
 
 ```{r}
-#| fig-height: 6.5
 scene <- schema |> render()
 scene
 ```
@@ -171,7 +175,6 @@ Likewise, there are functions such as `pop_plot` and `remove_plot` which can be 
 Since the schema is lazy, we can use it to generate figures programmatically. For example, here's how we could create an interactive scatterplot matrix (SPLOM) of the penguins data set:
 
 ```{r}
-#| fig-height: 7
 
 schema <- create_schema(penguins)
 keys <- names(penguins)[4:6]
