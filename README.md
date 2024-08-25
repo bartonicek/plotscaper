@@ -24,19 +24,25 @@ Next, open up RStudio and run the following code:
 ``` r
 library(plotscaper)
 
-create_schema(sacramento) |>
-  add_scatterplot(c("longitude", "latitude")) |>
-  add_barplot(c("city")) |>
-  add_histogram(c("sqft")) |>
-  add_fluctplot(c("beds", "baths")) |>
-  add_histogram2d(c("sqft", "price")) |>
-  add_pcoords(names(sacramento)) |> 
+names(airquality) <- c("ozone", "solar radiation", "wind", 
+                       "temperature", "month", "day")
+
+create_schema(airquality) |>
+  add_scatterplot(c("solar radiation", "ozone")) |>
+  add_barplot(c("day", "ozone"), list(reducer = "max")) |>
+  add_histogram(c("wind")) |>
+  add_pcoords(names(airquality)[1:4]) |>
   render()
+#> Warning in create_schema(airquality): Removed 42 rows with missing values from
+#> the data
 ```
 
-In your viewer, you should now see something like the image above,
-however, your version should be fully interactive (Github doesn’t allow
-JavaScript in `README.md`, hence why the image above is static, however,
-the other vignettes should work okay).
+<img src="man/figures/readme1.pngunnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
-Try clicking and dragging to select a few points on the scatterplot!
+In your viewer, you should now see something like the image above,
+however, your version should be fully interactive. Try clicking and
+dragging to select a few points on the scatterplot!
+
+(Github doesn’t allow JavaScript in `README.md`, hence why the image
+above is just a static snapshot, however, other vignettes should have
+fully interactive figures)

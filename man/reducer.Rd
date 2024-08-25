@@ -18,11 +18,11 @@ A reducer (which is just a \code{list})
 }
 \description{
 Constructs a reducer that can be used to show alternative summaries
-in a \code{plotscaper} plot. Is just a wrapper around \code{list()}.
+in a \code{plotscaper} plot.
 }
 \details{
-\code{reducefn} and \code{initialfn} should be interpretable as JavaScript functions
-(either strings or objects constructed with \code{htmlwidgets::JS}). Further:
+\code{reducefn} and \code{initialfn} should be strings interpretable
+as JavaScript functions. Further:
 \itemize{
 \item \code{initialfn} should take 0 arguments and just return some value (i.e. a thunk).
 \item \code{reducefn} should take two arguments \code{previous} and \code{next} and return a result
@@ -30,8 +30,8 @@ of the same type as \code{previous}.
 }
 }
 \examples{
-r <- reducer(initialfn = "() => -Infinity",
-             reducefn = "(a, b) => Math.max(a, b)",
+r <- reducer(initialfn = "() => 0",
+             reducefn = "(x, y) => Math.max(x, y)",
              name = "max")
 create_schema(mtcars) |>
   add_barplot(c("cyl", "mpg"), options = list(reducer = r))

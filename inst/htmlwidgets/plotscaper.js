@@ -12,8 +12,6 @@ HTMLWidgets.widget({
       renderValue: function(x) {
         const { data, queue, options } = x;
 
-        console.log(x);
-
         const scene = plotscape.Scene.of(data, options);
         plotscape.Scene.append(el, scene);
 

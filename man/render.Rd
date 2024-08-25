@@ -4,7 +4,7 @@
 \alias{render}
 \title{Render a \code{plotscaper} schema}
 \usage{
-render(schema, width = NULL, height = NULL, elementId = NULL)
+render(schema, width = NULL, height = NULL, elementId = NULL, options = NULL)
 }
 \arguments{
 \item{schema}{A \code{plotscaper} schema object}

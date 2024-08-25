@@ -37,7 +37,7 @@ add_barplot <- function(x, variables = NULL, options = NULL) {
   }
   check_variables(x, variables)
 
-  spec <- list(type = "bar", variables = variables, options = options)
+  spec <- c(list(type = "bar", variables = variables), options)
   add_plot(x, spec)
 }
 
@@ -58,7 +58,7 @@ add_histogram <- function(x, variables = NULL, options = NULL) {
   }
   check_variables(x, variables)
 
-  spec <- list(type = "histo", variables = variables, options = options)
+  spec <- c(list(type = "histo", variables = variables), options)
   add_plot(x, spec)
 }
 
@@ -79,7 +79,7 @@ add_fluctplot <- function(x, variables = NULL, options = NULL) {
   }
   check_variables(x, variables)
 
-  spec <- list(type = "fluct", variables = variables, options = options)
+  spec <- c(list(type = "fluct", variables = variables), options)
   add_plot(x, spec)
 }
 
@@ -102,7 +102,7 @@ add_pcoords <- function(x, variables = NULL, options = NULL) {
   }
   check_variables(x, variables)
 
-  spec <- list(type = "pcoords", variables = variables, options = options)
+  spec <- c(list(type = "pcoords", variables = variables), options)
   add_plot(x, spec)
 }
 
@@ -123,7 +123,7 @@ add_histogram2d <- function(x, variables = NULL, options = NULL) {
   }
   check_variables(x, variables)
 
-  spec <- list(type = "histo2d", variables = variables, options = options)
+  spec <- c(list(type = "histo2d", variables = variables), options)
   add_plot(x, spec)
 }
 

@@ -20,7 +20,6 @@ dispatch_message.plotscaper_scene <- function(scene, message) {
 
   if (!scene$rendered) {
     scene$widget$x$queue <- push(scene$widget$x$queue, message)
-    print(scene)
     return(invisible())
   }
 
@@ -45,7 +44,6 @@ add_plot <- function(x, spec) {
 
   type <- spec$type
   variables <- spec$variables
-  spec <- spec$options
 
   if (is.null(type) || !(type %in% plot_types)) {
     stop(paste("Please provide a valid plot type:",
@@ -56,13 +54,11 @@ add_plot <- function(x, spec) {
     stop("Please provide encoding variables", .call = FALSE)
   }
 
-  for (key in names(spec)) {
-    spec[[key]] <- jsonlite::unbox(spec[[key]])
-  }
+  data <- deep_unbox(spec)
+  # Undo jsonlite::unbox if length(variables) == 1
+  data$variables <- variables
 
-  data <- c(list(type = jsonlite::unbox(type), variables = variables), spec)
   message <- list(type = "add-plot", data = data)
-
   dispatch_message(x, message)
 }
 
@@ -145,6 +141,7 @@ assign_cases <- function(x, cases = NULL, group = 1) {
 #' within a `plotscaper` scene.
 #'
 #' @param x A `plotscaper` scene
+#' @export
 selected_cases <- function(x) {
   message <- list(type = "get-selected", await = TRUE)
   dispatch_message(x, message)
@@ -158,6 +155,7 @@ selected_cases <- function(x) {
 #'
 #' @param x A `plotscaper` scene
 #' @param group The group to retrieve the cases of (can be: 1, 2, or 3)
+#' @export
 assigned_cases <- function(x, group = 1) {
   data <- list(group = group)
   message <- list(type = "get-assigned", await = TRUE, data = data)

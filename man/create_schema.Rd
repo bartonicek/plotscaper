@@ -4,7 +4,7 @@
 \alias{create_schema}
 \title{Create a \code{plotscaper} schema}
 \usage{
-create_schema(data = NULL, options = NULL)
+create_schema(data = NULL)
 }
 \arguments{
 \item{data}{A dataframe}

@@ -1,9 +1,9 @@
 Package: plotscaper
-Type: Package
 Title: Explore Your Data with Interactive Figures
 Version: 0.1.0
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R: 
+    person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -16,14 +16,12 @@ Imports:
     httpuv (>= 1.6),
     jsonlite (>= 1.8),
     stats
-Authors@R: 
-    person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre"))
 Suggests: 
-    ggplot2,
-    palmerpenguins,
-    patchwork,
     knitr,
     rmarkdown,
+    ggplot2,
+    patchwork,
+    palmerpenguins,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://bartonicek.github.io/plotscaper/

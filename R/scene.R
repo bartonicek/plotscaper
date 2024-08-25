@@ -73,10 +73,11 @@ render <- function(schema, width = NULL, height = NULL,
   }
 
   data <- schema$data
+  params <- list(data = data, queue = queue, options = options)
 
   # Create htmlwidgets widget
   scene$widget <- htmlwidgets::createWidget(
-    x = list(data = data, queue = queue, options = options),
+    x = params,
     name = 'plotscaper',
     width = width,
     height = height,

@@ -16,31 +16,48 @@ knitr::opts_chunk$set(
   comment = "#>")
 ```
 
-> This section delves into the deeper properties of `plotscaper`. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.
+> This section delves into deeper properties of `plotscaper`. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.
 
-When I started my PhD, I wanted to make a framework for creating interactive graphics that would support certain types of interaction out of the box. Specifically, I wanted every plot to support linked selection, i.e. the user would be able to click or click and drag some objects in one plot and have all the corresponding cases get highlighted across all other plots. That is, I wanted figures like this: 
+I started my PhD with the goal to make an interactive data visualization package that would be geared towards data exploration. I had done some work in applied research in the past, and had dabbled with using interactive graphics made in other frameworks and packages, however, in the end I always ended up going back to good old static plots. 
+
+The reason was that while these available packages offered a great deal of customizability, they also came with a lot of programming overhead. I could spend a lot of time to make really cool interactive figures, however, if I was the only audience for the figures, that seemed like a waste of time. Things would be different if I was presenting my data on a website or making dashboards for some larger organization, however, that wasn't my case: I just wanted to look at my data. 
+
+Also, while some interactive features were easy to implement in these frameworks, others were less so. Specifically, [linked selection](https://en.wikipedia.org/wiki/Brushing_and_linking) (aka "linked brushing" or "highlighting"), which is the ability to click some objects in one plot and have the corresponding cases highlighted across all other plots, was often surprisingly tricky to implement in a lot of plots beyond simple scatterplots. For example, see the following quote from [Crosstalk](https://rstudio.github.io/crosstalk/) website:
+
+> "Crosstalk currently only works for linked brushing and filtering of views that show individual data points, not aggregate or summary views (where “observations” is defined as a single row in a data frame). For example, histograms are not supported since each bar represents multiple data points; but scatter plot points each represent a single data point, so they are supported."
+
+> [@crosstalk2023]
+
+This seemed like a real shame, since a lot of data visualization researchers agree that linked selection is one of the most useful interactive features [see e.g. @buja1996; @heer2012; @ward2015; @ware2019]. It also used to be bread and butter of many of the earlier interactive data visualization packages available for R, such as GGobi [@swayne2003], Mondrian [@theus2002], or iplots [@urbanek2003]. 
+
+However, as time went on, linked selection became less widely available. My hypothesis for this is that, as highly modular, grammar-based data visualization libraries (such as `ggplot2`) in which one builds up plots by combining independent components (e.g. `stats` and `geoms`) became popular, authors of interactive data visualization libraries wanted to do move in this direction as well; however, certain types of interaction such as linked selection can be surprisingly tricky to implement in this modular, grammar based way (as will be explored in this article).
+
+Anyway, I wanted to do a throwback to the earlier interactive data visualization packages and create a package where you could do "quick and dirty" interactive graphics where some features such as linked selection would just work out of the box. That is, I wanted figures like this:
 
 ```{r}
 library(plotscaper)
 
-set_scene(mtcars) |>
-  add_scatterplot(c("wt", "mpg")) |>
-  add_barplot("cyl")
+names(airquality) <- c("ozone", "solar radiation", "wind", 
+                       "temperature", "month", "day")
+
+create_schema(airquality) |>
+  add_scatterplot(c("solar radiation", "ozone")) |>
+  add_barplot(c("month")) |>
+  render()
+
 ```
 
-Why did I want linked selection? Because it allows you to quickly query different subsets of the data - you select a few objects in one plot and immediately see the summaries of those cases. This is really useful for exploring data and a lot of data visualization researchers swear by the technique [see e.g. @buja1996; @heer2012; @ward2015; @ware2019]. 
+However, I also wanted to retain some of the flexibility and customizability of the grammar-based data visualization libraries. Specifically, alongside linked selection, I also wanted the user to be able to use the plots to display different kinds of statistical summaries. For example, instead of every barplot just displaying counts, I wanted the user to have the option to also display sums or means.
 
-Anyway, alongside linked selection, I also wanted the user to be able to draw different kinds of statistical summaries, such that, for example, instead of every barplot displaying counts we could have it display sums or means.
+This turned out to be way trickier than I had thought. Over and over again, I kept running into this one issue. I wanted all plots to support linked selection and to be able to show different kinds of summaries. In doing so, I wanted to treat the interaction (linked selection) and the statistics in the plots as two independent components. 
 
-This all sounds simple enough, right? However, I kept running into this one issue, over and over again. I wanted all plots to support linked selection and to be able to show different kinds of summaries. In doing so, I wanted to treat the interaction (linked selection) and the statistics in the plots as two independent components. 
+However, that turned out to just not work, and I think I now at least partly understand why. While the idea of being mix-and-match graphics and interaction is fundamentally appealing, I now believe that graphics, statistics, and interaction are linked in a rather deep way, and if we want to create figures which behave sensibly, we need to be mindful of that.
 
-Unfortunately, that is not how things work. I kept hitting my head against the wall, until I eventually stumbled upon something that I think is quite interesting. I now believe that graphics, statistics, and interaction are all linked, in a deep way. If we want to create interactive data visualizations that look and behave in sensible ways, we need to be mindful of that. I hope I can convince you of this too. 
-
-Let me begin by laying out the problem I kept running into, starting with some simple static plots.     
+Let me start by laying out the problem, starting with some simple static plots.
 
 ## The problem
 
-Try and see what's wrong with the following plot:
+Try and see if you can spot what's wrong with the following plot:
 
 ```{r}
 #| echo: false
@@ -63,7 +80,7 @@ ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
   guides(fill = "none")
 ```
 
-The plot above looks like something that might result from linked selection, and, visually, it looks like a perfectly fine `ggplot2` figure. 
+The plot above looks kind of like something that might result from linked selection, and, visually, it looks like a perfectly fine `ggplot2` figure. 
 
 However, take a close look at the following line:
 
@@ -74,16 +91,16 @@ geom_bar(stat = "summary", fun = mean)
 
 We're telling `ggplot2` that we want to draw bars by summarizing the y-axis variable by its average, within the levels defined by the Cartesian product of the `x` and `fill` variables (i.e. a table with `x` as rows and `fill` as columns). 
 
-That's all fine and dandy. However, there's one important default argument that gets applied to the function call, that we don't see unless we specify it explicitly: 
+That's all okay. However, there's one important default argument that gets applied to the function call, that we don't see unless we specify it explicitly: 
 
 ```{r}
 #| eval: false
 geom_bar(stat = "summary", fun = mean, position = "stack")
 ```
 
-When using using the `fill` aesthetic with `geom_bar` (as well as other `geom`s), `ggplot2` applies the stack transformation by default. In the case of bars, this transformation stacks the bars vertically on top of each other, effectively summing up the heights of the coloured sub-bars.
+When using using the `fill` aesthetic with `geom_bar` (as well as other `geom`s), `ggplot2` applies the stack transformation by default. In the case of bars, this transformation stacks the bars vertically on top of each other.
 
-But what does the height of the stacked bars represent? Since stacking bars is effectively summing the underlying statistic, each whole bar now represents the sum of the group averages. That is not a meaningful summary statistic - "sum of averages" is not a quantity that many people would care about or know how to interpret. 
+But what does the height of the stacked bars represent? Visually, stacking bars is effectively summing the underlying statistic. Now, since each stacked little bar represents a group mean, each whole bar represents the sum of the group averages. That is not a meaningful summary statistic: "sum of averages" is not a quantity that many people would care about or know how to interpret. 
 
 This is the kind of problem that can easily trip up a data visualization rookie, and a good number of data visualization researchers have warned about this:   
 
@@ -91,18 +108,20 @@ This is the kind of problem that can easily trip up a data visualization rookie,
 
 >"[...] It is very important that if the element’s size is used to display a statistic, then that statistic must be summable. Stacking bars that represent counts, sums, or percentages are fine, but a stacked bar chart where bars show average values is generally meaningless." [@wills2011, p. 112].
 
-Alright, you might say, I cannot sum averages, but since summing sums is fine, what about taking an average of the averages? Unfortunately, this is not correct either - the mean of group means is not the same as the grand mean: 
+Since we cannot sum averages, what about taking an average of the averages? Unfortunately, this is not correct either - the mean of group means is not guaranteed to be the same as the grand mean: 
 
 ```{r}
 mean(1:3)
 mean(mean(1:2), 3)
 ```
 
-Some researchers have warned about this too:
+and some researchers have warned about this too:
 
 >"[...] We do this to ensure that aggregate statistics are always computed over the input data, and so users do not inadvertantly compute e.g., averages of averages, which can easily lead to misinterpretation." [@wu2022]
 
-So what should we do? If you're familiar with `ggplot2`, you may be thinking of one handy solution right now: instead of stacking the bars, let's use dodging and plot them side by side:
+## Stacking vs. dodging
+
+So what should we do? If you're familiar with `ggplot2`, you may be thinking of one solution right now: instead of stacking, let's use dodging and plot the bars side by side:
 
 ```{r}
 ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
@@ -113,7 +132,7 @@ ggplot(mtcars, aes(x = cyl, y = mpg, fill = am)) +
 
 And indeed, this works rather well for static graphics. 
 
-However, in interactive graphics, dodging has several issues. Take a look at the following figure:    
+However, for interactive graphics, dodging presents several issues. Take a look at the following figure:    
 
 ```{r}
 #| echo: false
@@ -148,15 +167,15 @@ In the top row of plots, we use stacking, and in the bottom row we use dodging (
 
 Notice that in the top row, the overall contour of the plots remains constant even as the number of selected cases changes: we always have a tall left bar, tall right bar, and a short middle bar, and only the heights of the highlighted dark-blue sections change.
 
-The same is not true for dodging. With dodging, since we plot the selected and non-selected cases side-by-side, selection can affect the overall shape of the plot dramatically - bars may shrink or grow, or even pop and in out of existence (see left-most plot in the bottom row - the light blue bar has expanded to fill the space of the missing dark blue bar).
+The same is not true for dodging. With dodging, since we plot the selected and non-selected cases side-by-side, selection can affect the overall shape of the plot. Bars may shrink or grow, or even pop and in out of existence (see left-most plot in the bottom row - the light blue bar has expanded to fill the space of the missing dark blue bar).
 
 This lack of "consistency" impacts other parts of the plot too. Notice how in the bottom row, the top y-axis limits changes across the plots. This means that we either might have to make the axes reactive (losing context the axis limits provide each time selection happens) or risk the bars growing outside of the plotting area.
 
-Finally, this is a bit of a subjective preference, but I find interactive figures which change gradually more visually pleasing and easier to read than figures in which objects fluctuate rapidly. I haven't found much research to support this claim more broadly. There is the article by @hullman2013, who found that, when presenting sequences of static graphics, people prefer the sequences where the plots change gradually rather than abruptly.    
+Finally, this is a bit of a subjective preference, but I find interactive figures which change gradually more visually pleasing and easier to read than figures which fluctuate rapidly. I haven't found much research to support this claim more broadly, but it seems fairly common sense. @hullman2013 found that, when presenting sequences of static graphics, people prefer the sequences where the plots change gradually rather than abruptly - maybe it works this way for interactive graphics too?    
 
 ## Sums preserve set union
 
-So should we only ever do linked selection with sums and counts, so that we can use stacking to highlight the selected cases? That seems a bit limiting. But perhaps there's another way.
+So should we only ever do linked selection with sums and counts, so that we can use stacking to highlight the selected cases? That seems a bit limiting. But perhaps there's another way to think about this.
 
 In the quotes above, @wilke2019 and @wills2011 said that the quantity represented by the stacked bar should be "meaningful". What does that mean?
 
@@ -164,34 +183,34 @@ If I was to try to rephrase what Wilke and Wills were getting at, I would say th
 
 > *Sum* of grouped *sum*s is equal to the *sum* of everything.
 
-In other words, we can take some sets of data, sum them up each individually, and then sum up the sums, and we'll get the same result as if we had first combined those sets into one big set and summed that up. In other words, sums preserve set union. This makes it possible to draw highlighted parts of bars or other objects, because we know that if we combine (sum) any two sums, we'll get a valid summary of the union of the underlying sets of data. 
+In other words, we can take subsets of the data, sum each up individually, and then sum up the sums, and we'll get the same result as if we had summed up the original data. In other words, sums preserve set union. This makes it possible to draw highlighted parts of bars or other objects - we know that if we combine any two sums, we'll get a valid summary of the union of the underlying data sets. 
 
-Are there other statistics that behave this way? What if we replace the word *"sum"* by a placeholder, for example *"foo"*:
+Are there other statistics that behave this way? What if we were to replace the word *"sum"* by a placeholder, for example *"foo"*:
 
 > *Foo* of grouped *foo*s is equal to the *foo* of everything.
 
-Then, it turns out there are other statistics that behave this way. For example, the product of products is also a valid product of all cases:
+It turns out there are other statistics that behave this way too. For example, the product of products is also a valid product of all values:
 
 ```{r}
 prod(2:4)
 prod(prod(2:3), 4)
 ```
 
-And likewise, the maximum of maximum is also the valid maximum for all cases:
+And likewise, the maximum of maximum is also the valid maximum for all values:
 
 ```{r}
 max(c(1, 2, 999))
 max(max(1, 2), 999)
 ```
 
-But, it is important to keep in mind that not all statistics work this way. One example we dicussed above is the mean or average. Another is exponentiation:
+But, it is important to keep in mind that not all statistics work this way. One example we discussed above is the mean or average. Another is exponentiation:
 
 ```{r}
 (2^3)^4
 2^(3^4)
 ```
 
-So, there are some "nice" statistics that have this property of preserving set unions, and others which don't. How do we make this idea of "niceness" precise? Turns out there is a mathematical concept that describes exactly what we want.
+So, there are some "nice" statistics that have this property of preserving set unions, and others which don't. How do we make this idea of being "nice" precise? It turns out there is a mathematical concept that describes exactly this.
 
 ## Monoids
 
@@ -206,7 +225,7 @@ Subject to two rules:
 - Unitality: $x \otimes e = e \otimes x = x$
 - Associativity: $x \otimes (y \otimes z) = (x \otimes y) \otimes z$
 
-This means that, when we have a monoid, we have a bunch of things $M$ and a way of combining these things $\otimes$, such that, when we combine these things, the order in which we do it doesn't matter. We also have some neutral element $e$, that, combined with anything else, just yields the same thing back.
+This means that, when we have a monoid, we have a "bunch" of things $M$ and a way of combining these things $\otimes$, such that, when we combine these things, the order in which we do it doesn't matter. We also have some neutral element $e$, that, when combined with anything else, just yields the other thing back.
 
 Typical examples of monoids include the above mentioned sums, products, and maximums (here, the set $M$ is real numbers and the neutral units are 0, 1, and $-\infty$ respectively). Counterexamples include the above-mentioned means, as well as, for example, exponentiation (which isn't associative: $(x^y)^z \neq x^{(y^z)}$. 
 
@@ -225,7 +244,7 @@ F(A) \otimes F(B) &= (a_1 \otimes a_2 \otimes \ldots a_n) \otimes (b_1 \otimes b
 
 This means that, when we have monoids, we can compare nested subsets of the data. Which is precisely what we want to do if we highlight some cases in a plot: we want to compare the summary on the selected cases $F(\text{Selected})$ vs. that on everything $F(\text{Selected} \cup \text{Not selected})$.
 
-There are a few important caveats regarding comparison of multiple selected groups and monotonicity. TODO
+There are a few caveats regarding comparison of multiple selected groups and monotonicity. TODO
 
 ## Barplot of maximums
 
@@ -257,23 +276,20 @@ You might be asking how do you know whether the operation that the function does
 Anyway, here's how you can create a barplot of maximums in `plotscaper`:
 
 ```{r}
-
-library(plotscaper)
-
-# Make the reducer - it really is just an R list() underneath
+# Make the reducer - really just an R list() with some serialization metadata
 max_reducer <- reducer(
   name = "max",
   initialfn = "() => 0",
   reducefn = "(x, y) => Math.max(x, y)"
 )
 
-set_scene(sacramento) |>
-  add_scatterplot(c("sqft", "price")) |>
-  add_barplot(c("city", "price"), 
-              options = list(reducer = max_reducer)) # Specify the reducer in plot options
+create_schema(airquality) |>
+  add_scatterplot(c("solar radiation", "ozone")) |>
+  add_barplot(c("day", "ozone"), options = list(reducer = max_reducer)) |>
+  render()
 
 ```
 
-Since maximum is a monoid, highlighting will work as expected! However, only for one selected group: when multiple groups are selected, we may not be able to see all of the bars; the reason for that is more math. TODO
+Since maximum is a monoid, highlighting will work as expected! However, only for one selected group: when multiple groups are selected, we may not be able to see all of the bars; the reason for that is a bit more math. TODO
 
 ## References

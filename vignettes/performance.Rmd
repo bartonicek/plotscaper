@@ -52,7 +52,7 @@ create_schema(ggplot2::diamonds) |>
 
 sc <- screenshot()
 image <- image_read(sc)
-image2 <- image_crop(image, geometry_area(800, 600, 1420, 50))
+image2 <- image_crop(image, geometry_area(600, 500, 1125, 50))
 image3 <- image_draw(image2)
 points(290, 140, cex = 10, col = "red", lwd = 5)
 dev.off()
