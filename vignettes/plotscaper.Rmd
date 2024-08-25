@@ -13,8 +13,6 @@ bibliography: "references.bib"
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  fig.width = 6.5,
-  fig.height = 6.5,
   comment = "#>")
 ```
 

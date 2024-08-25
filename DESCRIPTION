@@ -15,10 +15,10 @@ Imports:
     htmlwidgets (>= 1.6),
     httpuv (>= 1.6),
     jsonlite (>= 1.8),
+    knitr,
     stats,
     uuid
 Suggests: 
-    knitr,
     rmarkdown,
     ggplot2,
     patchwork,
