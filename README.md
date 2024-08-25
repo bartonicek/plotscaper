@@ -11,6 +11,11 @@ data exploration. All plots in `plotscaper` support linked selection by
 default, as well as wide variety of other interactions, including,
 zooming, panning, reordering, and parameter manipulation.
 
+The package powering `plotscaper` figures
+([plotscape](https://github.com/bartonicek/plotscape)) is written in
+(mostly) vanilla TypeScript/JavaScript and uses no external
+dependencies/framework for reactivity.
+
 ## Quick start
 
 To get started, install `plotscaper` with:
