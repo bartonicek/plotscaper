@@ -16,7 +16,7 @@ add_scatterplot <- function(x, variables = NULL, options = NULL) {
 
   check_variables(x, variables)
 
-  spec <- list(type = "scatter", variables = variables, options = options)
+  spec <- c(list(type = "scatter", variables = variables), options)
   add_plot(x, spec)
 }
 

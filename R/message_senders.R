@@ -44,6 +44,7 @@ add_plot <- function(x, spec) {
 
   type <- spec$type
   variables <- spec$variables
+  queries <- spec$queries
 
   if (is.null(type) || !(type %in% plot_types)) {
     stop(paste("Please provide a valid plot type:",
@@ -55,8 +56,9 @@ add_plot <- function(x, spec) {
   }
 
   data <- deep_unbox(spec)
-  # Undo jsonlite::unbox if length(variables) == 1
+  # Undo jsonlite::unbox
   data$variables <- variables
+  data$queries <- queries
 
   message <- list(type = "add-plot", data = data)
   dispatch_message(x, message)
