@@ -3,9 +3,10 @@ pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   algebra: algebra.html
+  example-imdb: example-imdb.html
   performance: performance.html
   plotscaper: plotscaper.html
-last_built: 2024-08-28T08:52Z
+last_built: 2024-08-28T09:55Z
 urls:
   reference: https://bartonicek.github.io/plotscaper/reference
   article: https://bartonicek.github.io/plotscaper/articles
