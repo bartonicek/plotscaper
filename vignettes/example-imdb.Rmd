@@ -1,0 +1,50 @@
+---
+title: "Example: Top 1,000 movies from the Internet Movie Database"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example: Top 1,000 movies from the Internet Movie Database}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+(this vignette was used as an example during my Compstat 2024 talk)
+
+
+```{r}
+#| eval: false
+devtools::install_github("bartonicek/plotscaper")
+```
+
+## Read in the data
+
+```{r}
+
+imdb <- read.csv("imdb1000.csv")
+dplyr::glimpse(imdb)
+
+```
+
+## Explore
+
+```{r}
+#| fig-width: 9.5
+#| fig-height: 9.5
+
+library(plotscaper)
+
+create_schema(imdb) |> 
+  add_scatterplot(c("runtime", "votes"), list(queries = c("title"))) |>
+  add_barplot(c("director")) |>
+  add_histogram(c("runtime")) |>
+  add_fluctplot(c("genre1", "genre2")) |>
+  render()
+
+
+```
