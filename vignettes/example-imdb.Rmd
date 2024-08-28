@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 (this vignette was used as an example during my Compstat 2024 talk)
 
+## Install package
 
 ```{r}
 #| eval: false
