@@ -233,6 +233,32 @@ zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
   dispatch_message(x, message)
 }
 
+#' Set interactive scene layout
+#'
+#' This function sets a layout for a `plotscaper` scene. Similar to the
+#' `graphics::layout` function.
+#'
+#' @param scene A `plotscaper` scene
+#' @param layout A numeric matrix of plot ids, arranged into contiguous rectangles
+#' @export
+set_layout <- function(x, layout = NULL) {
+  if (is.null(layout)) stop("Please provide layout as a numeric matrix.")
+  data <- list(layout = layout - 1) # Correct for 0-based indexing
+  message <- list(type = "set-layout", data = data)
+  dispatch_message(x, message)
+}
+
+#' Set interactive scene layout
+#'
+#' This function clears an existing layout. See [set_layout()].
+#'
+#' @param scene A `plotscaper` scene
+#' @export
+clear_layout <- function(x) {
+  message <- list(type = "clear-layout")
+  dispatch_message(x, message)
+}
+
 #' Plot id
 #'
 #' A string which uniquely identifies a plot `plotscaper` scene or schema.

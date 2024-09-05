@@ -103,24 +103,6 @@ print.plotscaper_scene <- function(scene) {
   print(scene$widget)
 }
 
-#' Set interactive scene layout
-#'
-#' This function sets a layout for a `plotscaper` scene, similar to the
-#' `graphics::layout` function.
-#'
-#' @param scene A `plotscaper` scene
-#' @param layout A numeric matrix of contiguous rectangle ids
-#' @returns The scene back
-#' @export
-set_layout <- function(scene = NULL, layout = NULL) {
-  if (is.null(layout) || !is.matrix(layout) || !is.numeric(layout)) {
-    stop("Please provide a valid layout in the form of a numeric matrix.")
-  }
-
-  scene$x$layout <- layout
-  scene
-}
-
 #' Shiny bindings for plotscaper
 #'
 #' Output and render functions for using plotscaper within Shiny
