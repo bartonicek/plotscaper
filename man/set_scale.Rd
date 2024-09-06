@@ -11,9 +11,12 @@ set_scale(
   min = NULL,
   max = NULL,
   breaks = NULL,
+  zero = NULL,
+  one = NULL,
   direction = NULL,
   mult = NULL,
-  default = NULL
+  default = NULL,
+  unfreeze = NULL
 )
 }
 \arguments{
@@ -23,16 +26,21 @@ set_scale(
 
 \item{scale}{A string identifying scale. Can be: "x", "y", "area", or "size".}
 
-\item{min}{Scale minimum. Only works for continuous scales}
+\item{min}{Scale minimum (continuous scales only)}
 
-\item{max}{Scale maximum. Only works for continuous scales}
+\item{max}{Scale maximum (continuous scales only)}
 
-\item{breaks}{A vector of scale breaks. Only works for discrete scales.
-The values should be the same as in the original scale, just different order.}
+\item{breaks}{A vector of discrete breaks (discrete scale only)}
+
+\item{zero}{The proportion of codomain to which the smallest/first value gets mapped to}
+
+\item{one}{The proportion of codomain to which largest/last value gets mapped to}
 
 \item{direction}{Scale direction. Can be \code{1} or \code{-1}}
 
 \item{mult}{Scale multiplier}
+
+\item{default}{Whether to set other arguments as scale defaults}
 }
 \description{
 This function sets the values of a scale within one plot

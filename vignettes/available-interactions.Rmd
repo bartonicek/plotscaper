@@ -1,0 +1,211 @@
+---
+title: "Available interactions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Available interactions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+There are many ways of interacting with `plotscaper` figures, both client-side with the figure directly, and from within a running R session. 
+
+This vignette isn't meant to provide an exhaustive overview - I'm terrible at book-keeping, so I may forget to add/remove descriptions of some features as time goes on (but I promise to try my best not to). Meanwhile, you may be better off approaching this vignette as a compendium of the most important/stable features. If you have any questions, please consult the package documentation or hit me up via email.
+
+## Linked selection: Bread and butter
+
+This is one of the main features of `plotscaper` (or indeed, most systems for interactive data visualization). All of the plots in a `plotscaper` figure are linked, so clicking or clicking-and-dragging can be used to select objects in one plot, and the corresponding cases are then highlighted across all the other plots.
+
+By default, selection is *transient*, meaning that if you make a selection and then click anywhere else in the figure, the selection disappears. You can make the selection *permanent* and assign cases to permanent groups by holding the key `1`, `2`, or `3` while doing the selection. Permanent selection is only removed by double-clicking. 
+
+This is all client-side interactions (clicking buttons and pressing keys). You can achieve the same effect from R by using the `select_cases` and `assign_cases` functions:
+
+```{r}
+library(plotscaper)
+
+schema <- create_schema(mtcars) |> 
+  add_scatterplot(c("wt", "mpg")) |> 
+  add_barplot(c("cyl"))
+
+schema |> select_cases(1:10) |> render()
+```
+
+```{r}
+schema |> 
+  assign_cases(1:10) |> # Use e.g. 'group = 2' to assign to a different group
+  render()
+```
+
+Additionally, if you're inside a running R session, you can also use the `selected_cases` and `assigned_cases` to query the current selection status. The document you're reading is a static HTML, therefore these functions will not work here.  
+
+Transient and permanent selection combine into a Cartesian product (just a fancy way of saying "all possible combinations"), so you can have up to 8 distinct selection groups present in a figure at a time: base, base + transient, group 1, group 1 + transient, etc... 
+
+Now, it might not be the best idea to have 8 different selection groups present in a plot at a single time - from static data visualization, we know that the number of distinct groups we can efficiently perceive based on color is limited, so once we go past, say, three we really start to strain our visual system. 
+
+However, combining transient selection with permanent selection can be useful for quickly answering queries about nested subsets of our data. For example, here's how we can figure out what proportion of 8-cylinder cars are automatic:  
+
+```{r}
+schema |> 
+  assign_cases(which(mtcars$cyl == 8)) |>
+  select_cases(which(mtcars$am == 1)) |>
+  render()
+```
+
+There are some additional considerations about linked selection, see the [algebra](algebra.html) vignette.
+
+## Zooming, panning, and scales
+
+### Zooming
+
+Once we've made a selection, we can zoom into the selected region by pressing the zoom key (`Z` by default). We can zoom into a plot multiple times. To revert the zoom, we can either do a full reset of the figure (`R` key; will get rid off other temporary state as well, including histogram binwidth/anchor changes, barplot reordering, etc...), or "pop" one level of zoom (`X` key).
+
+Server-side, we can use the `zoom` function to zoom into a specific region of a plot. For example, here's how we can zoom into the middle 1/4 of the scatterplot:
+
+```{r}
+schema |> zoom("plot1", c(0.25, 0.25, 0.75, 0.75)) |> render()
+```
+
+By default, the `zoom` function uses the `pct` units, meaning that the coordinates we provide (vector of rectangle corners: `x0, y0, x1, y1`) are interpreted as percentages. We can change the `units` argument to `abs` (absolute pixels) or `data` (data coordinates; continuous scales only):
+
+```{r}
+schema |> zoom("plot1", c(0, 0, 10, 50), units = "data") |> render()
+```
+
+### Panning
+
+Panning is also supported out of the box. To pan a plot, simply click and hold the right mouse button and move the mouse. 
+
+Server-side, I haven't provided a direct utility for panning. However, as I will show in the next section, we can achieve the same behavior either by using `zoom` or by manipulating scales. 
+
+### Scales
+
+To achieve the same result as manually panning, we can set the `zero` and `one` properties on the x- and y-scales. In simple terms, `zero` and `one` determine where the minimum and maximum of the data get mapped to on the codomain (screen position, in this case). For example, if `zero = 0` and `one = 1` and we're mapping to a plotting region 800 pixels wide, then the minimum data value will get mapped to 0px and the maximum will get mapped to 800px. If `zero = 0.1` and `one = 0.9` (the default), the minimum data values gets mapped to `0.1 * 800 = 80` pixels and the maximum will get mapped to `(800 * 0.9) = 720` pixels. Simple enough, right?
+
+We can emulate panning by incrementing zero and one the same amount for a given scale. For example, here's how we can "pan" both plots 50% of the viewport's width to the left:
+
+```{r}
+schema |> 
+  set_scale("plot1", "x", zero = 0.6, one = 1.4) |> # zero/one = default value + 0.5
+  set_scale("plot2", "x", zero = 0.6, one = 1.4) |> # ditto
+  render()
+```
+
+The reason why `zero` and `one` have the value `0.1` and `0.9` by default is to prevent objects from overlapping the plotting region borders by expanding the scale. Here's how it looks like when they're set to `0` and `1`: 
+
+```{r}
+schema |> 
+  set_scale("plot1", "x", zero = 0, one = 1) |> 
+  set_scale("plot1", "y", zero = 0, one = 1) |>
+  set_scale("plot2", "x", zero = 0, one = 1) |> 
+  # The 'width' and 'y' scales in a barplot are a bit more complicated:
+  # - for y, zero is frozen (i.e. panning bars only stretches them up and down) 
+  #   so we need to unfreeze this parameter is modify it
+  # - for width, there is one more parameter that needs to be modified
+  set_scale("plot2", "y", zero = 0, one = 1, unfreeze = TRUE) |>
+  set_scale("plot2", "width", zero = 0, one = 1, mult = 1) |> 
+  render()
+```
+
+These plots don't look the best, as I'm sure you'd agree.
+
+Any changes to scale parameters are temporary by default - if you press the reset key (`R`), they revert back to default. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
+
+We could also implement panning by specifying the minimum and maximum of the data scale explicitly. I generally don't recommend doing this, since, again, this only works for continuous scales and also goes against how zooming and panning are implemented in `plotscaper`: user interactions manipulate `zero` and `one` only and do not touch the data values on scales (event `zoom(..., units = "data")` does this). If you set the data limits explicitly, you may encounter some weird behavior. Maybe not, but consider this a fair warning.
+
+Anyway, I'd recommend using `zoom(..., units = "data")` but if you really want to mess with the data limits, you can:
+
+```{r}
+schema |> 
+  set_scale("plot1", "x", zero = 0, one = 1, min = 0, max = 10) |> 
+  set_scale("plot1", "y", zero = 0, one = 1, min = 0, max = 50) |>
+  render()
+```
+
+(notice also that the points are stay constant size whereas `zoom` shrinks/grows objects in response to zooming/unzooming)
+
+Finally, we can also flip the direction of a scale like so:
+
+```{r}
+schema |> set_scale("plot1", "y", direction = -1) |> render()
+```
+
+### Discrete scales
+
+We can also interactively reorder discrete scales. In a barplot, we can automatically sort bars by their value (`O` key).
+
+Server-side, we can do this by setting the `breaks` argument (and we have more fine-grained control - we can order the bars any side we want):
+
+```{r}
+schema |>
+  set_scale("plot2", "x", breaks = c("6", "4", "8")) |>
+  render()
+```
+
+Just make sure that `breaks` match your factor levels exactly - failing to do so will result in a client-side error, which you will not see unless you open up the developer console (right click viewer panel + "inspect element").
+
+## Size and opacity
+
+We can manipulate the size and opacity of objects in the figure by using the grow/shrink keys (`+`/`-`) and the fade/unfade keys (`[`/`]`), respectively. Manipulating the size of objects actually works a bit differently depending on the type of the object and plot: in scatterplots, it modifies point area, in barplots, it modifies the bar widths, in histograms, it changes the binwidth (see more on that further below).
+
+These interactions make the most sense to me on client-side, I may add some utilities to do them from the server-side too in the future.
+
+## Querying
+
+You can query any geometric object in `plotscaper` by pressing and holding the query key (`Q`) and hovering over it. 
+
+Like manipulating size and opacity, querying does not have a server-side analog. This is because all of the data summaries exist client-side only. This is also what `plotscaper` is relatively fast - everything is computed client-side, and communication with the server happens only when necessary. 
+
+I could theoretically implement a way to query objects from the server-side, but coming up with a sensible API for this seems like a fairly pointless and complicated exercise - how do you specify that you want to query the summaries from rectangle #23 instead of rectangle #24 in code? Maybe I'll change my mind about this in the future. 
+
+For now, if you want the object summaries in R, you can always just subset the relevant rows (using `selected_cases` or `assigned_cases` to get the cases corresponding to the specific object) and compute the summaries yourself.
+
+## Parametric interaction: normalization, histograms
+
+`plotscaper` also supports certain custom parametric interactions. For example, many of the aggregation plots such as barplot, histogram (1d or 2d), or fluctuation can be "normalized", meaning that, for example, we can turn a barplot into a spineplot, which sets the total height of all bars to one and maps the count/statistic to the bars' width. This is useful for accurately comparing proportions across bars of different heights. Client-side, we can do this by pressing the `N` key.
+
+Server-side, we can call the `normalize` function. Compare the following two figures:
+ 
+```{r}
+schema |> select_cases(5:15) |> render()
+schema |> select_cases(5:15) |> normalize("plot2") |> render()
+```
+
+In the second figure, it's much easier to see that the proportion of the selected cases for 6 and 8 cylinders is the same. 
+
+### Histogram binwidths and anchors
+
+Currently, the other parameters than can be set are histogram binwidth and anchors. This applies to both 1D and 2D histograms.
+
+On the client-side you can use the grow/shrink keys (`+`/`-`) to change the size of the bins, and the increment/decrement anchor keys (`'`/`;`) to change the anchor. For 2D histograms, you can only change the binwidth, for both axes simultaneously; it didn't seem to make sense to change anchor on both axes simultaneously, and I didn't want to complicate the user interface more than it already is. For more fine-grained control, use the server-side functions.   
+
+On that note, on the server-side, you can use the `set-parameters` function:
+
+```{r}
+create_schema(mtcars) |> 
+  add_scatterplot(c("wt", "mpg")) |>
+  add_histogram(c("wt")) |> 
+  set_parameters("plot1", width = 1, anchor = 0.5) |>
+  render()
+```
+
+(notice that the boundaries of the bins are aligned with the midpoints of the axis labels)
+
+For 2D histograms, we need to specify which axis we want to set the parameters to:
+
+```{r}
+names(airquality) <- c("ozone", "solar radiation", "wind", 
+                       "temperature", "month", "day")
+
+create_schema(airquality) |>
+  add_histogram2d(c("solar radiation", "ozone")) |>
+  add_pcoords(names(airquality)) |>
+  set_parameters("plot1", width_x = 20, width_y = 15, anchor_y = 0) |>
+  render()
+
+```

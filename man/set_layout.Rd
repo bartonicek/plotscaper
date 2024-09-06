@@ -7,9 +7,9 @@
 set_layout(x, layout = NULL)
 }
 \arguments{
-\item{layout}{A numeric matrix of plot ids, arranged into contiguous rectangles}
+\item{x}{A \code{plotscaper} scene}
 
-\item{scene}{A \code{plotscaper} scene}
+\item{layout}{A numeric matrix of plot ids, arranged into contiguous rectangles}
 }
 \description{
 This function sets a layout for a \code{plotscaper} scene. Similar to the

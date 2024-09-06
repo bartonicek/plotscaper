@@ -7,7 +7,7 @@
 clear_layout(x)
 }
 \arguments{
-\item{scene}{A \code{plotscaper} scene}
+\item{x}{A \code{plotscaper} scene}
 }
 \description{
 This function clears an existing layout. See \code{\link[=set_layout]{set_layout()}}.

@@ -185,25 +185,29 @@ reset <- function(x) {
 #' @param x A `plotscaper` scene or schema
 #' @param id A string id of the plot. See [id]
 #' @param scale A string identifying scale. Can be: "x", "y", "area", or "size".
-#' @param min Scale minimum. Only works for continuous scales
-#' @param max Scale maximum. Only works for continuous scales
-#' @param breaks A vector of scale breaks. Only works for discrete scales.
-#' The values should be the same as in the original scale, just different order.
+#' @param min Scale minimum (continuous scales only)
+#' @param max Scale maximum (continuous scales only)
+#' @param breaks A vector of discrete breaks (discrete scale only)
+#' @param zero The proportion of codomain to which the smallest/first value gets mapped to
+#' @param one The proportion of codomain to which largest/last value gets mapped to
 #' @param direction Scale direction. Can be `1` or `-1`
 #' @param mult Scale multiplier
+#' @param default Whether to set other arguments as scale defaults
 #'
 #' @export
 set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
-                      breaks = NULL, direction = NULL, mult = NULL,
-                      default = NULL) {
+                      breaks = NULL, zero = NULL, one = NULL, direction = NULL,
+                      mult = NULL, default = NULL, unfreeze = NULL) {
 
   if (is.null(id)) stop("Please specify a plot id")
   if (is.null(scale)) stop("Please specify a valid scale: x, y, area, or size")
 
-  data <- list(id = id, scale = scale, min = min,
-               max = max, mult = mult, default = default)
+  data <- list(id = id, scale = scale, zero = zero, one = one, min = min,
+               direction = direction, max = max, mult = mult,
+               default = default, unfreeze = unfreeze)
+
   for (key in names(data)) data[[key]] <- jsonlite::unbox(data[[key]])
-  data$labels <- breaks
+  if (!is.null(breaks)) data$labels <- as.character(breaks)
 
   message <- list(type = "set-scale", data = data)
   dispatch_message(x, message)
@@ -227,6 +231,7 @@ set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
 #'
 #' @export
 zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
+  if (is.null(id)) stop("Please specify a plot id")
   data <- list(id = jsonlite::unbox(id), coords = coords,
                units = jsonlite::unbox(units))
   message <- list(type = "zoom", data = data)
@@ -238,7 +243,7 @@ zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
 #' This function sets a layout for a `plotscaper` scene. Similar to the
 #' `graphics::layout` function.
 #'
-#' @param scene A `plotscaper` scene
+#' @param x A `plotscaper` scene
 #' @param layout A numeric matrix of plot ids, arranged into contiguous rectangles
 #' @export
 set_layout <- function(x, layout = NULL) {
@@ -252,10 +257,53 @@ set_layout <- function(x, layout = NULL) {
 #'
 #' This function clears an existing layout. See [set_layout()].
 #'
-#' @param scene A `plotscaper` scene
+#' @param x A `plotscaper` scene
 #' @export
 clear_layout <- function(x) {
   message <- list(type = "clear-layout")
+  dispatch_message(x, message)
+}
+
+#' Normalize a plot
+#'
+#' This function switches the representation of a plot to a normalized one,
+#' e.g. spineplot, spinogram, etc...
+#'
+#' @param x A `plotscaper` scene
+#' @param id A string id of the plot. See [id]
+#' @export
+normalize <- function(x, id = NULL) {
+  if (is.null(id)) stop("Please specify a plot id")
+  message <- list(type = "normalize", data = list(id = jsonlite::unbox(id)))
+  dispatch_message(x, message)
+}
+
+#' Set reactive parameters
+#'
+#' This functions sets reactive paramaters on a plot such as a histogram.
+#'
+#' @param x A `plotscaper` scene
+#' @param id A string id of the plot. See [id]
+#' @param width Histogram binwidth
+#' @param anchor Histogram anchor
+#' @param width_x 2D histogram binwidth (x-axis)
+#' @param anchor_x 2D histogram anchor (x-axis)
+#' @param width_y 2D histogram binwidth (y-axis)
+#' @param anchor_y 2D histogram anchor (y-axis)
+
+#' @export
+set_parameters <- function(x, id = NULL, width = NULL, anchor = NULL,
+                      width_x = NULL, anchor_x = NULL,
+                      width_y = NULL, anchor_y = NULL) {
+
+  if (is.null(id)) stop("Please specify a plot id")
+
+  data <- list(id = id, width = width, anchor = anchor, width1 = width_x,
+               anchor1 = anchor_x, width2 = width_y, anchor2 = anchor_y)
+
+  for (key in names(data)) data[[key]] <- jsonlite::unbox(data[[key]])
+
+  message <- list(type = "set-parameters", data = data)
   dispatch_message(x, message)
 }
 

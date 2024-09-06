@@ -65,6 +65,8 @@ image_write(image3, "./man/figures/browser.png")
 knitr::include_graphics("../man/figures/browser.png")
 ```
 
+(the one downside of this option is that you lose the ability to communicate with the R session, this also means all of your logic has to go before call to `render()`)
+
 Anyway, if you're visualizing big data sets and find your figures are getting slow, I recommend taking some of the following steps:
 
 - Run the figure in the browser rather than the RStudio viewer
