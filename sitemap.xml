@@ -3,8 +3,10 @@
 <url><loc>https://bartonicek.github.io/plotscaper/LICENSE-text.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/LICENSE.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/articles/algebra.html</loc></url>
+<url><loc>https://bartonicek.github.io/plotscaper/articles/available-interactions.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/articles/example-imdb.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/articles/index.html</loc></url>
+<url><loc>https://bartonicek.github.io/plotscaper/articles/layout.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/articles/performance.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/articles/plotscaper.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/authors.html</loc></url>
@@ -22,6 +24,7 @@
 <url><loc>https://bartonicek.github.io/plotscaper/reference/create_schema.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/id.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/index.html</loc></url>
+<url><loc>https://bartonicek.github.io/plotscaper/reference/normalize.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/plotscaper-shiny.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/plotscaper_global.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/pop_plot.html</loc></url>
@@ -32,6 +35,7 @@
 <url><loc>https://bartonicek.github.io/plotscaper/reference/select_cases.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/selected_cases.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/set_layout.html</loc></url>
+<url><loc>https://bartonicek.github.io/plotscaper/reference/set_parameters.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/set_scale.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/start_server.html</loc></url>
 <url><loc>https://bartonicek.github.io/plotscaper/reference/zoom.html</loc></url>

@@ -39,7 +39,13 @@ inside a plotscaper scene or schema."><!-- mathjax --><script src="https://cdnjs
       <a href="../articles/algebra.html">The algebra of interaction</a>
     </li>
     <li>
+      <a href="../articles/available-interactions.html">Available interactions</a>
+    </li>
+    <li>
       <a href="../articles/example-imdb.html">Example: Top 1,000 movies from the Internet Movie Database</a>
+    </li>
+    <li>
+      <a href="../articles/layout.html">Layout</a>
     </li>
     <li>
       <a href="../articles/performance.html">Performance</a>
@@ -72,9 +78,12 @@ inside a <code>plotscaper</code> scene or schema.</p>
 <span>  min <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  breaks <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  zero <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  one <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  direction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mult <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  default <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  default <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  unfreeze <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,16 +104,23 @@ inside a <code>plotscaper</code> scene or schema.</p>
 
 
 <dt id="arg-min">min<a class="anchor" aria-label="anchor" href="#arg-min"></a></dt>
-<dd><p>Scale minimum. Only works for continuous scales</p></dd>
+<dd><p>Scale minimum (continuous scales only)</p></dd>
 
 
 <dt id="arg-max">max<a class="anchor" aria-label="anchor" href="#arg-max"></a></dt>
-<dd><p>Scale maximum. Only works for continuous scales</p></dd>
+<dd><p>Scale maximum (continuous scales only)</p></dd>
 
 
 <dt id="arg-breaks">breaks<a class="anchor" aria-label="anchor" href="#arg-breaks"></a></dt>
-<dd><p>A vector of scale breaks. Only works for discrete scales.
-The values should be the same as in the original scale, just different order.</p></dd>
+<dd><p>A vector of discrete breaks (discrete scale only)</p></dd>
+
+
+<dt id="arg-zero">zero<a class="anchor" aria-label="anchor" href="#arg-zero"></a></dt>
+<dd><p>The proportion of codomain to which the smallest/first value gets mapped to</p></dd>
+
+
+<dt id="arg-one">one<a class="anchor" aria-label="anchor" href="#arg-one"></a></dt>
+<dd><p>The proportion of codomain to which largest/last value gets mapped to</p></dd>
 
 
 <dt id="arg-direction">direction<a class="anchor" aria-label="anchor" href="#arg-direction"></a></dt>
@@ -113,6 +129,10 @@ The values should be the same as in the original scale, just different order.</p
 
 <dt id="arg-mult">mult<a class="anchor" aria-label="anchor" href="#arg-mult"></a></dt>
 <dd><p>Scale multiplier</p></dd>
+
+
+<dt id="arg-default">default<a class="anchor" aria-label="anchor" href="#arg-default"></a></dt>
+<dd><p>Whether to set other arguments as scale defaults</p></dd>
 
 </dl></div>
 
