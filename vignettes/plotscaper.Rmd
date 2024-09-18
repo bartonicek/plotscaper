@@ -95,7 +95,6 @@ When it finally comes a time to turn the recipe into an actual interactive figur
 
 ```{r}
 scene <- schema |> render()
-scene
 ```
 
 The `render` function takes the schema and turns it into a `htmlwidgets` widget that we can play with in RStudio viewer or embed in RMarkdown documents. However, it can also do a little bit more than that.

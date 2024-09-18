@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 > This section delves into deeper properties of `plotscaper`. If you are happy using the default figures to explore your data, feel free to skip it, however, you may still find it an interesting read.
 
-I started my PhD with the goal to make an interactive data visualization package that would be geared towards data exploration. I had done some work in applied research in the past, and had dabbled with using interactive graphics made in other frameworks and packages, however, in the end I always ended up going back to good old static plots. 
+I started my PhD with the goal of making an interactive data visualization package that would be geared towards data exploration. I had done some prior work in applied research, and had dabbled with using interactive graphics made in other frameworks and packages, however, in the end I always ended up going back to good old static plots. 
 
 The reason was that while these available packages offered a great deal of customizability, they also came with a lot of programming overhead. I could spend a lot of time to make really cool interactive figures, however, if I was the only audience for the figures, that seemed like a waste of time. Things would be different if I was presenting my data on a website or making dashboards for some larger organization, however, that wasn't my case: I just wanted to look at my data. 
 

@@ -3,8 +3,10 @@ title: "Available interactions"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Available interactions}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -102,11 +104,11 @@ The reason why `zero` and `one` have the value `0.1` and `0.9` by default is to 
 schema |> 
   set_scale("plot1", "x", zero = 0, one = 1) |> 
   set_scale("plot1", "y", zero = 0, one = 1) |>
-  set_scale("plot2", "x", zero = 0, one = 1) |> 
-  # The 'width' and 'y' scales in a barplot are a bit more complicated:
-  # - for y, zero is frozen (i.e. panning bars only stretches them up and down) 
+  # Barplot scales are a bit more complicated:
+  # - for 'y' scale, zero is frozen (i.e. panning stretches bars up and down) 
   #   so we need to unfreeze this parameter is modify it
-  # - for width, there is one more parameter that needs to be modified
+  # - for 'width', there is one more parameter that needs to be modified
+  set_scale("plot2", "x", zero = 0, one = 1) |> 
   set_scale("plot2", "y", zero = 0, one = 1, unfreeze = TRUE) |>
   set_scale("plot2", "width", zero = 0, one = 1, mult = 1) |> 
   render()
@@ -114,11 +116,11 @@ schema |>
 
 These plots don't look the best, as I'm sure you'd agree.
 
-Any changes to scale parameters are temporary by default - if you press the reset key (`R`), they revert back to default. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
+Any changes to scale parameters are temporary by default - if you press the reset key (`R`), they revert back to the defaults. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
 
-We could also implement panning by specifying the minimum and maximum of the data scale explicitly. I generally don't recommend doing this, since, again, this only works for continuous scales and also goes against how zooming and panning are implemented in `plotscaper`: user interactions manipulate `zero` and `one` only and do not touch the data values on scales (event `zoom(..., units = "data")` does this). If you set the data limits explicitly, you may encounter some weird behavior. Maybe not, but consider this a fair warning.
+We could also implement panning by specifying the minimum and maximum of the data scale explicitly. I generally don't recommend doing this, since this only works for continuous scales and also goes against how zooming and panning are implemented in `plotscaper`: user interactions manipulate `zero` and `one` only and do not touch the data values on scales (even `zoom(..., units = "data")` does this). If you set the data limits explicitly, you may encounter some weird behavior (maybe not, but consider this a fair warning).
 
-Anyway, I'd recommend using `zoom(..., units = "data")` but if you really want to mess with the data limits, you can:
+Anyway, I'd recommend using `zoom(..., units = "data")` but if you really want to mess with the data limits, you can do it:
 
 ```{r}
 schema |> 
@@ -127,7 +129,7 @@ schema |>
   render()
 ```
 
-(notice also that the points are stay constant size whereas `zoom` shrinks/grows objects in response to zooming/unzooming)
+(notice also that the points stay constant size, whereas `zoom` shrinks/grows objects in response to zooming/unzooming)
 
 Finally, we can also flip the direction of a scale like so:
 
@@ -139,7 +141,7 @@ schema |> set_scale("plot1", "y", direction = -1) |> render()
 
 We can also interactively reorder discrete scales. In a barplot, we can automatically sort bars by their value (`O` key).
 
-Server-side, we can do this by setting the `breaks` argument (and we have more fine-grained control - we can order the bars any side we want):
+Server-side, we can do this by setting the `breaks` argument (and we have more fine-grained control - we can order the bars any way we want):
 
 ```{r}
 schema |>
@@ -147,7 +149,7 @@ schema |>
   render()
 ```
 
-Just make sure that `breaks` match your factor levels exactly - failing to do so will result in a client-side error, which you will not see unless you open up the developer console (right click viewer panel + "inspect element").
+> Note: make sure that `breaks` match your factor levels exactly - failing to do so will result in a client-side error, which you will not see unless you open up the developer console (right click viewer panel + "inspect element").
 
 ## Size and opacity
 
@@ -159,15 +161,15 @@ These interactions make the most sense to me on client-side, I may add some util
 
 You can query any geometric object in `plotscaper` by pressing and holding the query key (`Q`) and hovering over it. 
 
-Like manipulating size and opacity, querying does not have a server-side analog. This is because all of the data summaries exist client-side only. This is also what `plotscaper` is relatively fast - everything is computed client-side, and communication with the server happens only when necessary. 
+Like manipulating size and opacity, querying does not have a server-side analog. This is because all of the data summaries exist client-side only. This is also what makes `plotscaper` relatively fast - everything is computed client-side, and communication with the R session happens only when necessary. 
 
-I could theoretically implement a way to query objects from the server-side, but coming up with a sensible API for this seems like a fairly pointless and complicated exercise - how do you specify that you want to query the summaries from rectangle #23 instead of rectangle #24 in code? Maybe I'll change my mind about this in the future. 
+I could theoretically implement a way to query objects from the server-side, but coming up with a sensible API for this seems like a fairly complicated (and pointless) exercise - while hovering over a rectangle is a simple and unambiguous way to specify that you want to query that specific rectangle at those specific coordinates, how would you do the same in code? Maybe I'll change my mind about this in the future. 
 
 For now, if you want the object summaries in R, you can always just subset the relevant rows (using `selected_cases` or `assigned_cases` to get the cases corresponding to the specific object) and compute the summaries yourself.
 
 ## Parametric interaction: normalization, histograms
 
-`plotscaper` also supports certain custom parametric interactions. For example, many of the aggregation plots such as barplot, histogram (1d or 2d), or fluctuation can be "normalized", meaning that, for example, we can turn a barplot into a spineplot, which sets the total height of all bars to one and maps the count/statistic to the bars' width. This is useful for accurately comparing proportions across bars of different heights. Client-side, we can do this by pressing the `N` key.
+`plotscaper` also supports certain custom parametric interactions. For example, many of the aggregation plots such as barplot, histogram (1d or 2d), or fluctuation can be "normalized", meaning that, for example, we can turn a barplot into a spineplot, which sets the total height of each bar to one and maps the count/statistic to the bars' width. This is useful for accurately comparing proportions across bars of different heights. Client-side, we can do this by pressing the `N` key.
 
 Server-side, we can call the `normalize` function. Compare the following two figures:
  
@@ -180,11 +182,11 @@ In the second figure, it's much easier to see that the proportion of the selecte
 
 ### Histogram binwidths and anchors
 
-Currently, the other parameters than can be set are histogram binwidth and anchors. This applies to both 1D and 2D histograms.
+Currently, the other parameters than can be interactively manipulated are histogram binwidth and anchors. This applies to both 1D and 2D histograms.
 
-On the client-side you can use the grow/shrink keys (`+`/`-`) to change the size of the bins, and the increment/decrement anchor keys (`'`/`;`) to change the anchor. For 2D histograms, you can only change the binwidth, for both axes simultaneously; it didn't seem to make sense to change anchor on both axes simultaneously, and I didn't want to complicate the user interface more than it already is. For more fine-grained control, use the server-side functions.   
+On the client-side you can use the grow/shrink keys (`+`/`-`) to change the size of the bins, and the increment/decrement anchor keys (`'`/`;`) to change the anchor. For 2D histograms, you can only change the binwidth, and this happens for both axes simultaneously; it didn't seem to make sense to change anchor on both axes simultaneously, and I didn't want to complicate the default interface by adding more keys. If you want fine-grained control over the 2D histogram, use the server-side functions.   
 
-On that note, on the server-side, you can use the `set-parameters` function:
+On that note, server-side, you can use the `set-parameters` function:
 
 ```{r}
 create_schema(mtcars) |> 
@@ -205,7 +207,8 @@ names(airquality) <- c("ozone", "solar radiation", "wind",
 create_schema(airquality) |>
   add_histogram2d(c("solar radiation", "ozone")) |>
   add_pcoords(names(airquality)) |>
-  set_parameters("plot1", width_x = 20, width_y = 15, anchor_y = 0) |>
+  set_parameters("plot1", width_x = 30, width_y = 15, 
+                  anchor_x = 0, anchor_y = 0) |>
   render()
 
 ```

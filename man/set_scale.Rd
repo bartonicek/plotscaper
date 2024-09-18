@@ -41,6 +41,8 @@ set_scale(
 \item{mult}{Scale multiplier}
 
 \item{default}{Whether to set other arguments as scale defaults}
+
+\item{unfreeze}{Whether to unfreeze frozen parameters (such as the lower y-axis limit in barplot)}
 }
 \description{
 This function sets the values of a scale within one plot

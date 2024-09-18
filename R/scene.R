@@ -1,40 +1,4 @@
-#' Create a `plotscaper` schema
-#'
-#' This function constructs a schema of an interactive
-#' `plotscaper` figure.
-#'
-#' @param data A dataframe
-#' @param options A list of options
-#' @returns An object of class `plotscaper_schema`
-#'
-#' @examples
-#' create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
-#' @export
-create_schema <- function(data = NULL) {
-
-  if (is.null(data)) stop("Please provide a data set.")
-
-  # Check for missing data
-  n_complete <- sum(stats::complete.cases(data))
-  n_missing <- nrow(data) - n_complete
-
-  if (n_missing > 0) {
-    warning(paste("Removed", n_missing, "rows with missing values from the data"))
-    data <- stats::na.omit(data)
-  }
-
-  schema <- list(data = data, queue = list())
-  schema <- structure(schema, class = "plotscaper_schema")
-  schema
-}
-
-#' @export
-print.plotscaper_schema <- function(schema) {
-  cat(paste0("plotscaper schema:\n",
-             paste(" ", schema$queue, collapse = "\n")))
-}
-
-#' Render a `plotscaper` schema
+#' Render a schema into an interactive scene
 #'
 #' This function takes a `plotscaper` schema and renders it as a
 #' concrete `htmlwidgets` widget.
@@ -42,7 +6,8 @@ print.plotscaper_schema <- function(schema) {
 #' @param schema A `plotscaper` schema object
 #' @param width Width
 #' @param height Height
-#' @param elementId Id of the HTML element
+#' @param elementId Id of the HTML element to render the scene in (optional)
+#' @param options A list of options
 #'
 #' @export
 render <- function(schema, width = NULL, height = NULL,
@@ -98,9 +63,9 @@ render <- function(schema, width = NULL, height = NULL,
 }
 
 #' @export
-print.plotscaper_scene <- function(scene) {
-  scene$rendered <- TRUE
-  print(scene$widget)
+print.plotscaper_scene <- function(x, ...) {
+  x$rendered <- TRUE
+  print(x$widget)
 }
 
 #' Shiny bindings for plotscaper

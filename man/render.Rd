@@ -2,7 +2,7 @@
 % Please edit documentation in R/scene.R
 \name{render}
 \alias{render}
-\title{Render a \code{plotscaper} schema}
+\title{Render a schema into an interactive scene}
 \usage{
 render(schema, width = NULL, height = NULL, elementId = NULL, options = NULL)
 }
@@ -13,7 +13,9 @@ render(schema, width = NULL, height = NULL, elementId = NULL, options = NULL)
 
 \item{height}{Height}
 
-\item{elementId}{Id of the HTML element}
+\item{elementId}{Id of the HTML element to render the scene in (optional)}
+
+\item{options}{A list of options}
 }
 \description{
 This function takes a \code{plotscaper} schema and renders it as a

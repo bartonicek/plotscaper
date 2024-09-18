@@ -1,14 +1,18 @@
 
-dispatch_message <- function(x, ...) UseMethod("dispatch_message")
+#' Dispatches a message to a plotscaper scene or schema
+#' @param x A plotscaper scene or schema
+#' @param message A list that will get converted to JSON message at appropriate time
+#' @export
+dispatch_message <- function(x, message) UseMethod("dispatch_message")
 
 #' @export
-dispatch_message.plotscaper_schema <- function(schema, message) {
-  schema$queue <- push(schema$queue, message)
-  schema
+dispatch_message.plotscaper_schema <- function(x, message) {
+  x$queue <- push(x$queue, message)
+  x
 }
 
 #' @export
-dispatch_message.plotscaper_scene <- function(scene, message) {
+dispatch_message.plotscaper_scene <- function(x, message) {
 
   if (!interactive()) {
     stop("You can only send messages to scene from within an interactive R session",
@@ -18,17 +22,17 @@ dispatch_message.plotscaper_scene <- function(scene, message) {
   await <- message$await
   message <- format_message(message)
 
-  if (!scene$rendered) {
-    scene$widget$x$queue <- push(scene$widget$x$queue, message)
-    print(scene)
-    return(scene)
+  if (!x$rendered) {
+    x$widget$x$queue <- push(x$widget$x$queue, message)
+    print(x)
+    return(x)
   }
 
   if (!is.null(await) && await) {
-    return(server_await(scene, message))
+    return(server_await(x, message))
   }
 
-  server_send(scene, message)
+  server_send(x, message)
 }
 
 #' Add a plot to a scene or schema
@@ -193,6 +197,7 @@ reset <- function(x) {
 #' @param direction Scale direction. Can be `1` or `-1`
 #' @param mult Scale multiplier
 #' @param default Whether to set other arguments as scale defaults
+#' @param unfreeze Whether to unfreeze frozen parameters (such as the lower y-axis limit in barplot)
 #'
 #' @export
 set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
