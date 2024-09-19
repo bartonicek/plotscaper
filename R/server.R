@@ -8,16 +8,18 @@
 #' @export
 start_server <- function(random_port = FALSE) {
   if (random_port) plotscaper_global$port <- httpuv::randomPort()
-  tryCatch(launch(), error = function() message(error_message))
+  launch()
 }
 
-error_message <- "Failed to launch an httpuv server for interactive communication between R session and the figure.
-If address is in use, try plotscaper::start_server(random_port = TRUE) or httpuv::stopAllServers()."
+error_message <- paste("Failed to launch httpuv server for communication between the R session and figure.",
+                       "If address is already in use, try plotscaper::start_server(random_port = TRUE) or httpuv::stopAllServers().")
 
 launch <- function() {
   host <- plotscaper_global$host
   port <- plotscaper_global$port
-  plotscaper_global$server <- httpuv::startServer(host, port, handler)
+  tryCatch({
+    plotscaper_global$server <- httpuv::startServer(host, port, handler)
+  }, error = function(error) stop(error_message, call. = FALSE))
 
   message(paste0("Server started on port ", plotscaper_global$port,
                  " (handles communication between R session and figure)."))

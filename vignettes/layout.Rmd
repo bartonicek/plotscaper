@@ -29,7 +29,7 @@ schema <- create_schema(airquality) |>
   add_scatterplot(c("solar radiation", "ozone")) |>
   add_barplot(c("day")) |>
   add_histogram(c("wind")) |>
-  add_pcoords(names(airquality)[1:4])
+  add_pcoords(names(airquality))
 
 schema |> render()
 
@@ -80,17 +80,17 @@ layout <- matrix(c(
 schema |> set_layout(layout) |> render()
 ```
 
-The matrix can be of any size, the only requirements is that the plot areas must be contiguous, meaning that e.g. this would not be valid:
+The matrix can be of any size, the only requirement is that the plot areas must be contiguous, meaning that e.g. this would not be a valid layout:
 
 ```{r}
 #| eval: false
 
 layout <- matrix(c(
-  2, 1,
+  2, 1, # Cannot split plotting regions like this
   1, 2
-), ncol = 2) # How do you draw this?
+), ncol = 2) 
 ```
 
-Also, all of the plots should be ideally included in the layout. If they're not, you'll get a pop-up warning, and the layout might not work as well.
+Also, all of the plots should be included in the layout. If they are not, a pop-up warning will show up. You can decide whether you want to proceed with the figure, however, be warned that the layout may not work well.
 
-You can call the `set_layout` function from inside a running R session too with `scene |> set_layout(...)` (and you will get a client-side update to the current figure).
+Finally, you can call the `set_layout` function from inside a running R session with `scene |> set_layout(...)` (and you will get a client-side update to the current figure).
