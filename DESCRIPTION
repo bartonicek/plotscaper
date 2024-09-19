@@ -1,6 +1,6 @@
 Package: plotscaper
 Title: Explore Your Data with Interactive Figures
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
