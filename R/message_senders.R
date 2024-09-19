@@ -61,9 +61,12 @@ add_plot <- function(x, spec) {
   }
 
   data <- deep_unbox(spec)
-  # Undo jsonlite::unbox
+
+  # Undo jsonlite::unbox for variables and queries (= vectors)
   data$variables <- variables
   data$queries <- queries
+
+  data$id <- jsonlite::unbox(uuid::UUIDgenerate())
 
   message <- list(type = "add-plot", data = data)
   dispatch_message(x, message)
