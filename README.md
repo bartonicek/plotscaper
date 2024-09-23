@@ -45,11 +45,12 @@ create_schema(airquality) |>
 <img src="man/figures/readme1.pngunnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 In your viewer, you should now see something like the (static) image
-above, however, your version should be fully interactive. Alternatively,
-to see a fully interactive version of the figure online, go to [Getting
-started](plotscaper.html) (the image above is just a static snapshot
-because Github doesn’t allow JavaScript in `README.md`. The other
-vignettes are full HTML files rendered with RMarkdown and do support
-JavaScript as a result).
+above, however, your version should be fully interactive. Try clicking
+and dragging the scatterplot to select a few points!
 
-Try clicking and dragging the scatterplot to select a few points!
+Alternatively, to see a fully interactive version of the figure online,
+go to [Getting started](plotscaper.html).
+
+(the image above is just a static snapshot because Github doesn’t allow
+JavaScript in `README.md`. The other vignettes are full HTML files
+rendered with RMarkdown and do support JavaScript as a result)
