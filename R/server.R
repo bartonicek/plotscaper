@@ -93,7 +93,7 @@ check_connections <- function() {
     stop("No running server. Start it with plotscaper::start_server().")
   }
   if (is.null(plotscaper_global$scene)) {
-    stop("No scene connected to server. Did you forget to call `render()`?")
+    stop("No scene connected to server. Did you forget to call `render(launch_server = TRUE)`?")
   }
 }
 

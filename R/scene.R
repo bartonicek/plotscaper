@@ -10,7 +10,8 @@
 #' @param options A list of options
 #'
 #' @export
-render <- function(schema, width = NULL, height = NULL,
+render <- function(schema, launch_server = TRUE,
+                   width = NULL, height = NULL,
                    elementId = NULL, options = NULL) {
 
   scene <- new.env()
@@ -21,7 +22,7 @@ render <- function(schema, width = NULL, height = NULL,
   }
 
   server <- plotscaper_global$server
-  if (is.null(server) && interactive()) {
+  if (launch_server && is.null(server) && interactive()) {
     start_server()
     server <- plotscaper_global$server
   }

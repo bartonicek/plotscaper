@@ -4,7 +4,14 @@
 \alias{render}
 \title{Render a schema into an interactive scene}
 \usage{
-render(schema, width = NULL, height = NULL, elementId = NULL, options = NULL)
+render(
+  schema,
+  launch_server = TRUE,
+  width = NULL,
+  height = NULL,
+  elementId = NULL,
+  options = NULL
+)
 }
 \arguments{
 \item{schema}{A \code{plotscaper} schema object}
