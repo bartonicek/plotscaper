@@ -16,6 +16,8 @@ render(
 \arguments{
 \item{schema}{A \code{plotscaper} schema object}
 
+\item{launch_server}{Whether to launch a httpuv server for interaction with figure}
+
 \item{width}{Width}
 
 \item{height}{Height}

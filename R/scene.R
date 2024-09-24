@@ -4,6 +4,7 @@
 #' concrete `htmlwidgets` widget.
 #'
 #' @param schema A `plotscaper` schema object
+#' @param launch_server Whether to launch a httpuv server for interaction with figure
 #' @param width Width
 #' @param height Height
 #' @param elementId Id of the HTML element to render the scene in (optional)

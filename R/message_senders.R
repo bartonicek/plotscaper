@@ -33,6 +33,7 @@ dispatch_message.plotscaper_scene <- function(x, message) {
   }
 
   server_send(x, message)
+  invisible(x)
 }
 
 #' Add a plot to a scene or schema
