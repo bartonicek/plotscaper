@@ -73,7 +73,7 @@ add_plot <- function(x, spec) {
   dispatch_message(x, message)
 }
 
-plot_types <- c("scatter", "bar", "histo", "histo2d",
+plot_types <- c("scatter", "bar", "bibar", "histo", "histo2d",
                 "fluct", "pcoords")
 
 #' Remove the last plot from a scene or schema

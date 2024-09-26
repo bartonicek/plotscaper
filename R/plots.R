@@ -41,6 +41,27 @@ add_barplot <- function(x, variables = NULL, options = NULL) {
   add_plot(x, spec)
 }
 
+#' Add a mirrored barplot to a scene or schema
+#'
+#' This function adds a mirrored barplot to a `plotscaper` scene or schema.
+#'
+#' @param x A `plotscaper` scene or schema object
+#' @param variables A vector of variable names:
+#' one discrete (required), one or two continuous (required)
+#' @param options A list of options
+#'
+#' @seealso [add_plot()]
+#' @export
+add_bibarplot <- function(x, variables = NULL, options = NULL) {
+  if (is.null(variables) || length(variables) < 2) {
+    stop("Please provide at least one discrete and one continuous variable")
+  }
+  check_variables(x, variables)
+
+  spec <- c(list(type = "bibar", variables = variables), options)
+  add_plot(x, spec)
+}
+
 #' Add a histogram to a scene or schema
 #'
 #' This function adds a histogram to a `plotscaper` scene or schema.
