@@ -80,7 +80,7 @@ The schema then is really just a list of messages:
 schema
 ```
 
-Typically, you'll use the schema to add plots. However, you can also do other things such as select cases or set axis limits:
+Typically, you'll use the schema to add more plots. However, you can also do other things such as select cases or set axis limits:
 
 ```{r}
 schema <- schema |>
