@@ -24,7 +24,6 @@ dispatch_message.plotscaper_scene <- function(x, message) {
 
   if (!x$rendered) {
     x$widget$x$queue <- push(x$widget$x$queue, message)
-    print(x) # Render
     return(x)
   }
 

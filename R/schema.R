@@ -43,3 +43,37 @@ print.plotscaper_schema <- function(x, ...) {
   cat(paste0("plotscaper schema:\n",
              paste(" ", x$queue, collapse = "\n")))
 }
+
+# .DollarNames.plotscaper_schema <- function(x, pattern) {
+#   c(names(x), get_plot_keys(x))
+# }
+#
+# `$.plotscaper_schema` <- function(x, i) {
+#
+# }
+#
+# `[[.plotscaper_schema` <- function(x, i) {
+#   if (!is.numeric(i)) NextMethod()
+#
+# }
+#
+# get_plot_keys <- function(schema) {
+#   counts <- list()
+#   plots <- c()
+#
+#   for (msg in schema$queue) {
+#     type <- msg$type
+#     plot_type <- msg$data$type
+#     if (!(type == "add-plot")) next
+#     if (is.null(counts[[plot_type]])) counts[[plot_type]] = 0
+#     counts[[plot_type]] <- counts[[plot_type]] + 1
+#
+#     plots <- c(plots, paste0(plot_type, counts[[plot_type]]))
+#   }
+#
+#   plots
+# }
+#
+#
+
+
