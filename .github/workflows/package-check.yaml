@@ -1,7 +1,5 @@
+name: Package check
 on: [push, pull_request]
-
-name: check
-
 jobs:
   check:
     runs-on: ${{ matrix.os }}
@@ -20,7 +18,4 @@ jobs:
           tools: base
       - uses: s-u/R-actions/pkg-check@v2
         with:
-          debian-deps: libssl-dev
-          macos-deps: openssl
-          windows-deps: openssl
           check-flags: --as-cran
