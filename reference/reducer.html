@@ -9,7 +9,7 @@ in a plotscaper plot."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">plotscaper</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,7 @@ of the same type as <code>previous</code>.</p></li>
 <span class="r-in"><span><span class="fu"><a href="create_schema.html">create_schema</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="add_barplot.html">add_barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"mpg"</span><span class="op">)</span>, options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>reducer <span class="op">=</span> <span class="va">r</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> plotscaper schema:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   list(type = "add-plot", data = list(type = "bar", variables = c("cyl", "mpg"), reducer = list(initialfn = "() =&gt; 0", reducefn = "(x, y) =&gt; Math.max(x, y)", name = "max"), id = "67fd750f-b5b8-43f2-81d3-5d0b73dfb9f9"))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> add-plot { type: bar, variables: c("cyl", "mpg"), reducer: list(initialfn = "() =&gt; 0", reducefn = "(x, y) =&gt; Math.max(x, y)", name = "max") }</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
