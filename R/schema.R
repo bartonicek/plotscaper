@@ -40,9 +40,19 @@ create_schema <- function(data = NULL, options = NULL) {
 
 #' @export
 print.plotscaper_schema <- function(x, ...) {
-  cat(paste0("plotscaper schema:\n",
-             paste(" ", x$queue, collapse = "\n")))
+  formatted_messages <- lapply(x$queue, print_format_message)
+  formatted <- paste(formatted_messages, collapse = "\n")
+  cat(paste0("plotscaper schema:\n", formatted))
 }
+
+print_format_message <- function(msg) {
+  type <- msg$type
+  data <- msg$data[names(msg$data) != "id"]
+
+  data_string <- paste0(names(data), ": ", data, collapse = ", ")
+  paste(type, "{", data_string, "}")
+}
+
 
 
 
