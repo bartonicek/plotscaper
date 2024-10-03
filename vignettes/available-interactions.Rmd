@@ -79,6 +79,18 @@ By default, the `zoom` function uses the `pct` units, meaning that the coordinat
 schema |> zoom("plot1", c(0, 0, 10, 50), units = "data") |> render()
 ```
 
+Notice also that we need to provide the functions above a plot identifier as the second argument (first if we are using a pipe `|>`). The plot identifier is always in the form of `"[prefix][numeric suffix]"`, where the prefix can either be generic `"plot"` or it can refer to a specific plot type, such as `"scatter"`, `"bar"`, or `"histo"`. The suffix identifies the plot by a position in the figure, in the left-to-right, top-to-bottom order. For example, the `"plot1"` identifier identifies the left-top-most plot in the figure, `"scatter1"` identifies the left-top-most *scatterplot*, etc...
+
+You can always retrieve a list of the available plot identifiers from a scene or schema by using the `get_plot_ids` function:
+
+```{r}
+schema |> get_plot_ids()
+```
+
+(the function returns the list of the identifiers indexed by the plot type)
+
+Identifiers can also be shortened. You can read more about identifiers at `?id`. 
+
 ### Panning
 
 Panning is also supported out of the box. To pan a plot, simply click and hold the right mouse button and move the mouse. 
@@ -117,6 +129,16 @@ schema |>
 These plots don't look the best, as I'm sure you'd agree.
 
 Any changes to scale parameters are temporary by default - if you press the reset key (`R`), they revert back to the defaults. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
+
+If you want to inspect the values that a scale uses, you can use the `get_scale` function:
+
+```{r}
+#| eval: false
+# NOT RUN - this only works in an active R session
+scene |> get_scale("plot1", "x")
+```
+
+The output is a somewhat complicated `list()`, if you want to learn about how it works have a look at the documentation for `?get_scale`. 
 
 We could also implement panning by specifying the minimum and maximum of the data scale explicitly. I generally don't recommend doing this, since this only works for continuous scales and also goes against how zooming and panning are implemented in `plotscaper`: user interactions manipulate `zero` and `one` only and do not touch the data values on scales (even `zoom(..., units = "data")` does this). If you set the data limits explicitly, you may encounter some weird behavior (maybe not, but consider this a fair warning).
 

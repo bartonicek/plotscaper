@@ -2,12 +2,15 @@
 % Please edit documentation in R/message_senders.R
 \name{selected_cases}
 \alias{selected_cases}
-\title{Check selected cases}
+\title{Get selected cases}
 \usage{
 selected_cases(x)
 }
 \arguments{
 \item{x}{A \code{plotscaper} scene}
+}
+\value{
+A numeric vector of case ids
 }
 \description{
 This function returns the cases of the data which are selected

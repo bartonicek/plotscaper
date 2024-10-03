@@ -49,7 +49,11 @@ print_format_message <- function(msg) {
   type <- msg$type
   data <- msg$data[names(msg$data) != "id"]
 
-  data_string <- paste0(names(data), ": ", data, collapse = ", ")
+  data_string <- ""
+  if (length(data) > 0) {
+    data_string <- paste0(names(data), ": ", data, collapse = ", ")
+  }
+
   paste(type, "{", data_string, "}")
 }
 

@@ -145,19 +145,21 @@ assign_cases <- function(x, cases = NULL, group = 1) {
   dispatch_message(x, message)
 }
 
-#' Check selected cases
+#' Get selected cases
 #'
 #' This function returns the cases of the data which are selected
 #' within a `plotscaper` scene.
 #'
 #' @param x A `plotscaper` scene
+#' @returns A numeric vector of case ids
+#'
 #' @export
 selected_cases <- function(x) {
   message <- list(type = "get-selected", await = TRUE)
   dispatch_message(x, message)
 }
 
-#' Check assigned cases
+#' Get assigned cases
 #'
 #' This function returns the cases of the data which
 #' are assigned to a specific permanent group within
@@ -165,6 +167,8 @@ selected_cases <- function(x) {
 #'
 #' @param x A `plotscaper` scene
 #' @param group The group to retrieve the cases of (can be: 1, 2, or 3)
+#' @returns A numeric vector of case ids
+#'
 #' @export
 assigned_cases <- function(x, group = 1) {
   data <- list(group = group)
@@ -182,6 +186,86 @@ assigned_cases <- function(x, group = 1) {
 #' @export
 reset <- function(x) {
   dispatch_message(x, list(type = "reset"))
+}
+
+#' Get a plot scale
+#'
+#' This function returns a specific scale from a specifc plot
+#' in a `plotscaper` scene.
+#'
+#' @param x A `plotscaper` scene
+#' @param id A string id of the plot. See [id]
+#' @return A list of scale properties
+#'
+#' @details
+#' This function is primarily meant for internal use, however, you can
+#' use it to learn how `plotscaper` implements scales. The output can look
+#' a bit overwhelming, however, it's not too complicated once you understand
+#' how `plotscaper` scales work.
+#'
+#' Each scale has two important properties:
+#'
+#' - Domain: The space values are translated *from*
+#' - Codomain: The space values are translated *to*
+#'
+#' For example, in a typical scatterplot, the `x` scale might have the range of
+#' the data (e.g. [1, 10]) as its domain and the width of the plotting region
+#' as its codomain (e.g. [0, 800] pixels).
+#'
+#' The scale's job is to link the domain and codomain, such that
+#' we can *push* values forward through the scale, first through the domain
+#' and then the codomain. This is done by translating to an intermediate
+#' range [0, 1]. For example, using the `x` scale above, we might first
+#' translate the value `5.5` to `0.5` (midpoint of the domain) and then
+#' translate `0.5` to `400` (midpoint of the codomain). We may also be able
+#' to reverse the process and *pull* values back through the scale, first
+#' through the codomain and then through the domain.
+#'
+#' Scale, domain, and codomain each have `props` and `defaults` properties
+#' which store the relevant values. For example, for a continuous scale,
+#' `props` and `defaults` store the `min` and `max` as well as a transformation
+#' function and its inverse (`trans`, `inv`), for a discrete point scale,
+#' they store the vector of labels, their order, etc...
+#'
+#' On `scale`, the `props` and `defaults` store the following properties:
+#' `zero`, `one`, `scale`, `mult`. The `zero` and `one` properties modify where
+#' the normalized domain values get placed in the codomain, and vice versa.
+#' Suppose our `x` [1, 10], [0, 800] scale had `zero = 0.1` and `one = 0.9`.
+#' Then data values get pushed to the following intermediate values:
+#'
+#' - The value `1` to `0.1` since `0.1 + (1 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1`
+#' - The value `2` to `0.1889` since `0.1 + (2 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1889`
+#' - The value `3` to `0.2778` since `0.1 + ((3 - 1) / (10 - 1)) * (0.9 - 0.1) = 0.2778`
+#' - ...
+#' - The value `10` to `0.9` since `0.1 + ((10 - 1) / (10 - 1)) * (0.9 - 0.1) = 0.9`
+#'
+#' When those values get translated to the space of the codomain,
+#' we end up with 10% margins on each side, i.e.
+#'
+#' - The value `1` gets pushed to `80` pixels
+#' - ...
+#' - The value `10` gets pushed to `720` pixels
+#'
+#' The `scale` and `mult` properties both multiply the normalized domain values.
+#' They work the same way, however, they are different semantically: `scale` is
+#' meant to be constant whereas `mult` may change dynamically,
+#' through interaction. For example, by default, in a barplot, the `width` scale
+#' gets assigned the `scale` value of `1 / k`, where `k` is the number of
+#' categories/bars, and a `mult` value of 0.9. This means that each bar is
+#' `1 / k * 0.9 * [plot width in pixels]` wide, and we can dynamically make it
+#' wider or narrower by pressing the `+/-` keys to modify the `mult` property
+#' (but not the `scale` property).
+#'
+#' @export
+get_scale <- function(x, id = NULL, scale = NULL) {
+  if (is.null(id)) stop("Please specify a plot id")
+  if (is.null(scale)) {
+    stop("Please specify a valid scale: x, y, width, height, area, or size")
+  }
+
+  data <- list(id = jsonlite::unbox(id), scale = jsonlite::unbox(scale))
+  message <- list(type = "get-scale", await = TRUE, data = data)
+  dispatch_message(x, message)
 }
 
 #' Set values of a scale
@@ -208,7 +292,9 @@ set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
                       mult = NULL, default = NULL, unfreeze = NULL) {
 
   if (is.null(id)) stop("Please specify a plot id")
-  if (is.null(scale)) stop("Please specify a valid scale: x, y, area, or size")
+  if (is.null(scale)) {
+    stop("Please specify a valid scale: x, y, width, height, area, or size")
+  }
 
   data <- list(id = id, scale = scale, zero = zero, one = one, min = min,
                direction = direction, max = max, mult = mult,
@@ -314,6 +400,67 @@ set_parameters <- function(x, id = NULL, width = NULL, anchor = NULL,
   message <- list(type = "set-parameters", data = data)
   dispatch_message(x, message)
 }
+
+#' Return a list of plot ids from a plotscaper scene or schema
+#' @param x A plotscaper scene or schema
+#' @export
+get_plot_ids <- function(x) UseMethod("get_plot_ids")
+
+#' @export
+get_plot_ids.plotscaper_schema <- function(x) {
+  messages <- x$queue
+
+  plots <- c()
+  counts <- list()
+
+  for (msg in messages) {
+    if (msg$type == "pop-plot") {
+      plots <- plots[-length(plots)]
+    } else if (msg$type == "remove-plot") {
+      id <- msg$data$id
+      plots <- plots[-which(plots == id)]
+      plots <- update_counts(plots)
+    } else if (msg$type == "add-plot") {
+      plot_type <- msg$data$type
+
+      if (is.null(counts[[plot_type]])) {
+        counts[[plot_type]] <- 1
+      }
+
+      plots <- c(plots, paste0(plot_type, counts[[plot_type]]))
+      counts[[plot_type]] <- counts[[plot_type]] + 1
+    }
+  }
+
+  update_counts(plots)
+}
+
+update_counts <- function(plots) {
+  counts <- list()
+  result <- c()
+
+  for (plot in plots) {
+    plot_number <- numeric_suffix(plot)
+    plot_type <- gsub(plot_number, "", plot)
+
+    if (is.null(counts[[plot_type]])) {
+      counts[[plot_type]] <- 1
+    }
+
+    new_number <- counts[[plot_type]]
+    result <- c(result, paste0(plot_type, new_number))
+    counts[[plot_type]] <- counts[[plot_type]] + 1
+  }
+
+  result
+}
+
+#' @export
+get_plot_ids.plotscaper_scene <- function(x) {
+  message <- list(type = "get-plot-ids", await = TRUE)
+  dispatch_message(x, message)
+}
+
 
 #' Plot id
 #'

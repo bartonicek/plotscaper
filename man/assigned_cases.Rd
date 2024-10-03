@@ -2,7 +2,7 @@
 % Please edit documentation in R/message_senders.R
 \name{assigned_cases}
 \alias{assigned_cases}
-\title{Check assigned cases}
+\title{Get assigned cases}
 \usage{
 assigned_cases(x, group = 1)
 }
@@ -10,6 +10,9 @@ assigned_cases(x, group = 1)
 \item{x}{A \code{plotscaper} scene}
 
 \item{group}{The group to retrieve the cases of (can be: 1, 2, or 3)}
+}
+\value{
+A numeric vector of case ids
 }
 \description{
 This function returns the cases of the data which

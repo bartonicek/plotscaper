@@ -49,7 +49,8 @@ above, however, your version should be fully interactive. Try clicking
 and dragging the scatterplot to select a few points!
 
 Alternatively, to see a fully interactive version of the figure online,
-go to [Getting started](plotscaper.html).
+go to one of the vignettes such as [Get
+started](articles/plotscaper.html).
 
 (the image above is just a static snapshot because Github doesn’t allow
 JavaScript in `README.md`. The other vignettes are full HTML files

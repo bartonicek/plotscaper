@@ -32,3 +32,13 @@ deep_unbox <- function(x) {
 snake_to_camel <- function(x) {
   gsub("_(\\w?)", "\\U\\1", x, perl = TRUE)
 }
+
+numeric_suffix <- function(x) {
+  as.numeric(gsub("\\D+([0-9]+)$", "\\1", x))
+}
+
+increment_suffix <- function(x) {
+  suffix <- numeric_suffix(x)
+  prefix <- gsub(suffix, "", x)
+  paste0(prefix, suffix + 1)
+}
