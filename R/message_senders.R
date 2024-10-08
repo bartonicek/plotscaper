@@ -210,13 +210,13 @@ reset <- function(x) {
 #' - Codomain: The space values are translated *to*
 #'
 #' For example, in a typical scatterplot, the `x` scale might have the range of
-#' the data (e.g. [1, 10]) as its domain and the width of the plotting region
-#' as its codomain (e.g. [0, 800] pixels).
+#' the data (e.g. `[1, 10]`) as its domain and the width of the plotting region
+#' as its codomain (e.g. `[0, 800]` pixels).
 #'
 #' The scale's job is to link the domain and codomain, such that
 #' we can *push* values forward through the scale, first through the domain
 #' and then the codomain. This is done by translating to an intermediate
-#' range [0, 1]. For example, using the `x` scale above, we might first
+#' range `[0, 1]`. For example, using the `x` scale above, we might first
 #' translate the value `5.5` to `0.5` (midpoint of the domain) and then
 #' translate `0.5` to `400` (midpoint of the codomain). We may also be able
 #' to reverse the process and *pull* values back through the scale, first
@@ -231,7 +231,7 @@ reset <- function(x) {
 #' On `scale`, the `props` and `defaults` store the following properties:
 #' `zero`, `one`, `scale`, `mult`. The `zero` and `one` properties modify where
 #' the normalized domain values get placed in the codomain, and vice versa.
-#' Suppose our `x` (1-10, 0-800px) scale had `zero = 0.1` and `one = 0.9`.
+#' Suppose our `x` (`[1, 10]`, `[0, 800]` px) scale had `zero = 0.1` and `one = 0.9`.
 #' Then data values get pushed to the following intermediate values:
 #'
 #' - The value `1` to `0.1` since `0.1 + (1 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1`

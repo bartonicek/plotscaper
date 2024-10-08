@@ -33,13 +33,13 @@ Each scale has two important properties:
 }
 
 For example, in a typical scatterplot, the \code{x} scale might have the range of
-the data (e.g. \link{1, 10}) as its domain and the width of the plotting region
-as its codomain (e.g. \link{0, 800} pixels).
+the data (e.g. \verb{[1, 10]}) as its domain and the width of the plotting region
+as its codomain (e.g. \verb{[0, 800]} pixels).
 
 The scale's job is to link the domain and codomain, such that
 we can \emph{push} values forward through the scale, first through the domain
 and then the codomain. This is done by translating to an intermediate
-range \link{0, 1}. For example, using the \code{x} scale above, we might first
+range \verb{[0, 1]}. For example, using the \code{x} scale above, we might first
 translate the value \code{5.5} to \code{0.5} (midpoint of the domain) and then
 translate \code{0.5} to \code{400} (midpoint of the codomain). We may also be able
 to reverse the process and \emph{pull} values back through the scale, first
@@ -54,7 +54,7 @@ they store the vector of labels, their order, etc...
 On \code{scale}, the \code{props} and \code{defaults} store the following properties:
 \code{zero}, \code{one}, \code{scale}, \code{mult}. The \code{zero} and \code{one} properties modify where
 the normalized domain values get placed in the codomain, and vice versa.
-Suppose our \code{x} (1-10, 0-800px) scale had \code{zero = 0.1} and \code{one = 0.9}.
+Suppose our \code{x} (\verb{[1, 10]}, \verb{[0, 800]} px) scale had \code{zero = 0.1} and \code{one = 0.9}.
 Then data values get pushed to the following intermediate values:
 \itemize{
 \item The value \code{1} to \code{0.1} since \code{0.1 + (1 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1}
