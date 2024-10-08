@@ -10,6 +10,8 @@ get_scale(x, id = NULL, scale = NULL)
 \item{x}{A \code{plotscaper} scene}
 
 \item{id}{A string id of the plot. See \link{id}}
+
+\item{scale}{A string id of the scale (\code{x}, \code{y}, \code{width}, \code{height}, \code{area}, or \code{size})}
 }
 \value{
 A list of scale properties
@@ -52,7 +54,7 @@ they store the vector of labels, their order, etc...
 On \code{scale}, the \code{props} and \code{defaults} store the following properties:
 \code{zero}, \code{one}, \code{scale}, \code{mult}. The \code{zero} and \code{one} properties modify where
 the normalized domain values get placed in the codomain, and vice versa.
-Suppose our \code{x} \link{1, 10}, \link{0, 800} scale had \code{zero = 0.1} and \code{one = 0.9}.
+Suppose our \code{x} (1-10, 0-800px) scale had \code{zero = 0.1} and \code{one = 0.9}.
 Then data values get pushed to the following intermediate values:
 \itemize{
 \item The value \code{1} to \code{0.1} since \code{0.1 + (1 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1}

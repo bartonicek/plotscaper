@@ -195,6 +195,7 @@ reset <- function(x) {
 #'
 #' @param x A `plotscaper` scene
 #' @param id A string id of the plot. See [id]
+#' @param scale A string id of the scale (`x`, `y`, `width`, `height`, `area`, or `size`)
 #' @return A list of scale properties
 #'
 #' @details
@@ -230,7 +231,7 @@ reset <- function(x) {
 #' On `scale`, the `props` and `defaults` store the following properties:
 #' `zero`, `one`, `scale`, `mult`. The `zero` and `one` properties modify where
 #' the normalized domain values get placed in the codomain, and vice versa.
-#' Suppose our `x` [1, 10], [0, 800] scale had `zero = 0.1` and `one = 0.9`.
+#' Suppose our `x` (1-10, 0-800px) scale had `zero = 0.1` and `one = 0.9`.
 #' Then data values get pushed to the following intermediate values:
 #'
 #' - The value `1` to `0.1` since `0.1 + (1 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1`

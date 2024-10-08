@@ -50,7 +50,7 @@ Transient and permanent selection combine into a Cartesian product (just a fancy
 
 Now, it might not be the best idea to have 8 different selection groups present in a plot at a single time - from static data visualization, we know that the number of distinct groups we can efficiently perceive based on color is limited, so once we go past, say, three we really start to strain our visual system. 
 
-However, combining transient selection with permanent selection can be useful for quickly answering queries about nested subsets of our data. For example, here's how we can figure out what proportion of 8-cylinder cars are automatic:  
+However, combining transient selection with permanent selection can be useful for quickly answering queries about nested subsets of our data. For example, here's how we can figure out how many of the 8-cylinder cars are also automatic:  
 
 ```{r}
 schema |> 

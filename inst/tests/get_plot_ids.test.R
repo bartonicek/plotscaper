@@ -22,4 +22,24 @@ stopifnot(
             c("scatter1", "scatter2", "bar1", "bar2"))
 )
 
+scene <- schema |> render()
 
+scene
+stopifnot(
+  all.equal(scene |> get_plot_ids(),
+            c("scatter1", "scatter2", "scatter3", "bar1", "bar2"))
+)
+
+scene |> pop_plot()
+
+stopifnot(
+  all.equal(scene |> get_plot_ids(),
+            c("scatter1", "scatter2", "scatter3", "bar1"))
+)
+
+scene |> remove_plot("scatter2")
+
+stopifnot(
+  all.equal(scene |> get_plot_ids(),
+            c("scatter1", "scatter2", "bar1"))
+)
