@@ -81,12 +81,12 @@ how <code>plotscaper</code> scales work.</p>
 <p>Each scale has two important properties:</p><ul><li><p>Domain: The space values are translated <em>from</em></p></li>
 <li><p>Codomain: The space values are translated <em>to</em></p></li>
 </ul><p>For example, in a typical scatterplot, the <code>x</code> scale might have the range of
-the data (e.g. 1, 10) as its domain and the width of the plotting region
-as its codomain (e.g. 0, 800 pixels).</p>
+the data (e.g. <code>[1, 10]</code>) as its domain and the width of the plotting region
+as its codomain (e.g. <code>[0, 800]</code> pixels).</p>
 <p>The scale's job is to link the domain and codomain, such that
 we can <em>push</em> values forward through the scale, first through the domain
 and then the codomain. This is done by translating to an intermediate
-range 0, 1. For example, using the <code>x</code> scale above, we might first
+range <code>[0, 1]</code>. For example, using the <code>x</code> scale above, we might first
 translate the value <code>5.5</code> to <code>0.5</code> (midpoint of the domain) and then
 translate <code>0.5</code> to <code>400</code> (midpoint of the codomain). We may also be able
 to reverse the process and <em>pull</em> values back through the scale, first
@@ -99,7 +99,7 @@ they store the vector of labels, their order, etc...</p>
 <p>On <code>scale</code>, the <code>props</code> and <code>defaults</code> store the following properties:
 <code>zero</code>, <code>one</code>, <code>scale</code>, <code>mult</code>. The <code>zero</code> and <code>one</code> properties modify where
 the normalized domain values get placed in the codomain, and vice versa.
-Suppose our <code>x</code> (1-10, 0-800px) scale had <code>zero = 0.1</code> and <code>one = 0.9</code>.
+Suppose our <code>x</code> (<code>[1, 10]</code>, <code>[0, 800]</code> px) scale had <code>zero = 0.1</code> and <code>one = 0.9</code>.
 Then data values get pushed to the following intermediate values:</p><ul><li><p>The value <code>1</code> to <code>0.1</code> since <code>0.1 + (1 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1</code></p></li>
 <li><p>The value <code>2</code> to <code>0.1889</code> since <code>0.1 + (2 - 1) / (10 - 1) * (0.9 - 0.1) = 0.1889</code></p></li>
 <li><p>The value <code>3</code> to <code>0.2778</code> since <code>0.1 + ((3 - 1) / (10 - 1)) * (0.9 - 0.1) = 0.2778</code></p></li>
