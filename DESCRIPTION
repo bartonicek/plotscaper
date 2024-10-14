@@ -1,6 +1,6 @@
 Package: plotscaper
 Title: Explore Your Data with Interactive Figures
-Version: 0.1.9
+Version: 0.2.0
 Authors@R: 
     person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre"))
 Description: A framework for creating interactive figures for data exploration. 
