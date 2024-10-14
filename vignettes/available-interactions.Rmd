@@ -73,6 +73,8 @@ Server-side, we can use the `zoom` function to zoom into a specific region of a 
 schema |> zoom("plot1", c(0.25, 0.25, 0.75, 0.75)) |> render()
 ```
 
+We can think of the coordinates as a rectangle starting at the 25th percentiles and ending at the 75th percentiles, of both the x- and the y-axis. On each axis, this covers exactly 50% of plot area, and since we are doing this along both axes, the resulting size of the region is $0.5 ^2 = 0.25$ or 25% (or 1/4). 
+
 By default, the `zoom` function uses the `pct` units, meaning that the coordinates we provide (vector of rectangle corners: `x0, y0, x1, y1`) are interpreted as percentages. We can change the `units` argument to `abs` (absolute pixels) or `data` (data coordinates; continuous scales only):
 
 ```{r}
@@ -99,9 +101,9 @@ Server-side, I haven't provided a direct utility for panning. However, as I will
 
 ### Scales
 
-To achieve the same result as manually panning, we can set the `zero` and `one` properties on the x- and y-scales. In simple terms, `zero` and `one` determine where the minimum and maximum of the data get mapped to on the codomain (screen position, in this case). For example, if `zero = 0` and `one = 1` and we're mapping to a plotting region 800 pixels wide, then the minimum data value will get mapped to 0px and the maximum will get mapped to 800px. If `zero = 0.1` and `one = 0.9` (the default), the minimum data values gets mapped to `0.1 * 800 = 80` pixels and the maximum will get mapped to `(800 * 0.9) = 720` pixels. Simple enough, right?
+To achieve the same result as panning panning manually, we can set the `zero` and `one` properties on the x- and y-scales. In simple terms, `zero` and `one` determine where the minimum and maximum of the data get mapped to on the codomain (screen position, in this case). For example, if `zero = 0` and `one = 1` and we're mapping to a plotting region 800 pixels wide, then the minimum data value will get mapped to 0px and the maximum will get mapped to 800px. If `zero = 0.1` and `one = 0.9` (the default), the minimum data values gets mapped to `0.1 * 800 = 80` pixels and the maximum will get mapped to `(800 * 0.9) = 720` pixels. Simple enough, right?
 
-We can emulate panning by incrementing zero and one the same amount for a given scale. For example, here's how we can "pan" both plots 50% of the viewport's width to the left:
+We can emulate panning by incrementing zero and one the same amount for a given scale. For example, here's how we can "pan" both plots 50% of the viewport's width to the right:
 
 ```{r}
 schema |> 
@@ -110,7 +112,7 @@ schema |>
   render()
 ```
 
-The reason why `zero` and `one` have the value `0.1` and `0.9` by default is to prevent objects from overlapping the plotting region borders by expanding the scale. Here's how it looks like when they're set to `0` and `1`: 
+The reason why `zero` and `one` have the value `0.1` and `0.9` by default is to prevent objects from overlapping the plotting region borders by expanding the scale. Here's how it looks like when they're actually set to the values `0` and `1`: 
 
 ```{r}
 schema |> 
@@ -118,19 +120,19 @@ schema |>
   set_scale("plot1", "y", zero = 0, one = 1) |>
   # Barplot scales are a bit more complicated:
   # - for 'y' scale, zero is frozen (i.e. panning stretches bars up and down) 
-  #   so we need to unfreeze this parameter is modify it
-  # - for 'width', there is one more parameter that needs to be modified
+  #   so we need to unfreeze this parameter to modify it
+  # - for 'width', there is one more parameter that determines the width of the bar
   set_scale("plot2", "x", zero = 0, one = 1) |> 
   set_scale("plot2", "y", zero = 0, one = 1, unfreeze = TRUE) |>
   set_scale("plot2", "width", zero = 0, one = 1, mult = 1) |> 
   render()
 ```
 
-These plots don't look the best, as I'm sure you'd agree.
+These aren't the best looking plots, as I'm sure you'd agree. Sensible default margins are very useful, most of the time.
 
-Any changes to scale parameters are temporary by default - if you press the reset key (`R`), they revert back to the defaults. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
+Any changes to the scale parameters are temporary by default - if you press the reset key (`R`), they revert back to the defaults. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
 
-If you want to inspect the values that a scale uses, you can use the `get_scale` function:
+Finally, if you want to inspect the values that a scale uses to translate data on the JavaScript side, you can use the `get_scale` function:
 
 ```{r}
 #| eval: false
@@ -138,7 +140,7 @@ If you want to inspect the values that a scale uses, you can use the `get_scale`
 scene |> get_scale("plot1", "x")
 ```
 
-The output is a somewhat complicated `list()`, if you want to learn about how it works have a look at the documentation for `?get_scale`. 
+The output is a somewhat complicated `list()`. If you want to learn about how it works have a look at the documentation for `?get_scale`. 
 
 We could also implement panning by specifying the minimum and maximum of the data scale explicitly. I generally don't recommend doing this, since this only works for continuous scales and also goes against how zooming and panning are implemented in `plotscaper`: user interactions manipulate `zero` and `one` only and do not touch the data values on scales (even `zoom(..., units = "data")` does this). If you set the data limits explicitly, you may encounter some weird behavior (maybe not, but consider this a fair warning).
 

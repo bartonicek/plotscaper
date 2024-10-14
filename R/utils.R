@@ -1,7 +1,6 @@
 
-last <- function(list) {
-  list[[length(list)]]
-}
+nth <- function(list, n) list[[n]]
+last <- function(list) list[[length(list)]]
 
 push <- function(list, x) {
   list[[length(list) + 1]] <- x
@@ -42,3 +41,8 @@ increment_suffix <- function(x) {
   prefix <- gsub(suffix, "", x)
   paste0(prefix, suffix + 1)
 }
+
+get_terms <- function(x) {
+  x |> deparse() |> strsplit("\\+") |> nth(1) |> trimws()
+}
+
