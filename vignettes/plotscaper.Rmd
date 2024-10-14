@@ -176,12 +176,14 @@ Likewise, there are functions such as `pop_plot` and `remove_plot` which can be 
 Sometimes, when rendering multiple figures quickly, the figure may fail to connect to the server or the server may failed to be launched altogether. Often, the cause is that the default port number is already taken. I will try to fix this bug in the future, however, for the time being, you can always fix it by running either of the following functions: 
 
 ```{r}
+#| eval: false
 start_server(random_port = TRUE) # Starts a server on a new random port
 ```
 
 or:
 
 ```{r}
+#| eval: false
 httpuv::stopAllServers() # Stops all servers, now you should be able to relaunch the server
 ```
 

@@ -48,3 +48,9 @@ set_scale(
 This function sets the values of a scale within one plot
 inside a \code{plotscaper} scene or schema.
 }
+\examples{
+scene <- create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
+scene
+scene |> set_scale("plot1", "x", min = 0, max = 10, direction = -1)
+
+}
