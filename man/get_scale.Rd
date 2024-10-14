@@ -82,12 +82,3 @@ categories/bars, and a \code{mult} value of 0.9. This means that each bar is
 wider or narrower by pressing the \verb{+/-} keys to modify the \code{mult} property
 (but not the \code{scale} property).
 }
-\examples{
-\dontrun{
-# you can only run this in interactive R session
-scene <- create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
-scene
-scene |> get_scale("plot1", "x") # Returns a complicated list
-}
-
-}

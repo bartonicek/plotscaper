@@ -15,18 +15,3 @@ remove_plot(x, id = NULL)
 This function removes a specific plot from a \code{plotscaper}
 scene or schema.
 }
-\examples{
-\dontrun{
-# you can only run this in interactive R session
-scene <- create_schema(mtcars) |>
-  add_scatterplot(c("wt", "mpg")) |>
-  add_scatterplot(c("disp", "mpg")) |>
-  add_barplot(c("cyl")) |>
-  render()
-
-scene
-scene |> remove_plot("scatter2") # Removes the second scatterplot
-scene |> remove_plot("plot2") # Removes the second plot (barplot)
-}
-
-}

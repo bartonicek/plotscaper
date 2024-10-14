@@ -25,9 +25,3 @@ plot. The coordinates of the rectangular area can be specified
 with either percentages of the plotting region, absolute
 coordinates (pixels), or data coordinates.
 }
-\examples{
-scene <- create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
-scene
-scene |> zoom("plot1", c(0.25, 0.25, 0.75, 0.75)) # Zoom into the middle 25\% of the plot
-
-}
