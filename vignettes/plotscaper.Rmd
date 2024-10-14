@@ -90,6 +90,8 @@ schema <- schema |>
 schema
 ```
 
+In fact, most of the things you can do with the schema you can also do interactively, and vice versa. We will see that in the next section.
+
 ### Rendering a scene
 
 When it finally comes a time to turn the recipe into an actual interactive figure or *scene*, we can do so by calling the `render` function:
@@ -99,7 +101,7 @@ scene <- schema |> render()
 scene
 ```
 
-The `render` function takes the schema and turns it into a `htmlwidgets` widget that we can play with in RStudio viewer or embed in RMarkdown documents. However, it can also do a little bit more than that.
+The `render` function takes the schema and turns it into a `htmlwidgets` widget that we can interact with in RStudio viewer or embed in RMarkdown documents. However, it can also do a little bit more than that.
 
 *If you're following along in RStudio*, try this:
 
@@ -167,7 +169,21 @@ scene |> assigned_cases()
 
 That means that you can, for example, render a figure, select some cases of the data using a mouse, and then call `scene |> selected_cases()` to get the row indices of those cases. This doesn't really make sense when writing a schema - the only way to select cases is via an explicit call to `select_cases`, so we would be querying cases that we have already specified before. 
 
-Likewise, there are functions such as `pop_plot` and `remove_plot` which can be used to remove plots from scene. These don't really make sense to use while writing a schema - if you know that you don't want a specific plot, you can just delete the call to add it to the recipe. However, they *do* make sense when interacting with a scene inside a running R session. Perhaps you found some interesting trend in your data and want to see if it holds in other plots, but you're running out of space in the viewer - you can `pop_plot` to remove the last plot and `add_*` to add a new plot, all the while keeping the rest of the state of the figure intact!     
+Likewise, there are functions such as `pop_plot` and `remove_plot` which can be used to remove plots from scene. These don't really make sense to use while writing a schema - if you know that you don't want a specific plot, you can just delete the line which adds it to the recipe. However, they *do* make sense when interacting with a scene inside a running R session. Perhaps you found some interesting trend in your data and want to see if it holds in other plots, but you're running out of space in the viewer - you can `pop_plot` to remove the last plot and `add_*` to add a new plot, all the while keeping the rest of the state of the figure intact!     
+
+## Troubleshooting the scene
+
+Sometimes, when rendering multiple figures quickly, the figure may fail to connect to the server or the server may failed to be launched altogether. Often, the cause is that the default port number is already taken. I will try to fix this bug in the future, however, for the time being, you can always fix it by running either of the following functions: 
+
+```{r}
+start_server(random_port = TRUE) # Starts a server on a new random port
+```
+
+or:
+
+```{r}
+httpuv::stopAllServers() # Stops all servers, now you should be able to relaunch the server
+```
 
 ## Bonus: Scatterplot matrix
 
