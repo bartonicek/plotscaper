@@ -93,8 +93,19 @@ pop_plot <- function(x) {
 #'
 #' @param x A plotscaper scene or schema
 #' @param id A string id of the plot. See [id]
-#'
 #' @export
+#'
+#' @examples
+#' scene <- create_schema(mtcars) |>
+#'   add_scatterplot(c("wt", "mpg")) |>
+#'   add_scatterplot(c("disp", "mpg")) |>
+#'   add_barplot(c("cyl")) |>
+#'   render()
+#'
+#' scene
+#' scene |> remove_plot("scatter2") # Removes the second scatterplot
+#' scene |> remove_plot("plot2") # Removes the second plot (barplot)
+#'
 remove_plot <- function(x, id = NULL) {
   if (is.null(id) || !is.character(id)) {
     stop("Please provide a plot id (e.g. 'plot1' or 'scatter3')", .call = TRUE)
@@ -114,6 +125,15 @@ remove_plot <- function(x, id = NULL) {
 #' @param x A `plotscaper` scene or schema
 #' @param cases The cases (rows) to select
 #' @export
+#'
+#' @examples
+#' scene <- create_schema(mtcars) |>
+#'   add_scatterplot(c("wt", "mpg")) |>
+#'   add_barplot(c("cyl")) |>
+#'   render()
+#'
+#' scene |> select_cases(1:10) # Select the first 10 cases
+#'
 select_cases <- function(x, cases = NULL) {
   if (is.null(cases) || !is.numeric(cases)) {
     stop("Please provide a list of cases you want to select")
@@ -258,6 +278,12 @@ reset <- function(x) {
 #' (but not the `scale` property).
 #'
 #' @export
+#'
+#' @examples
+#' scene <- create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
+#' scene
+#' scene |> get_scale("plot1", "x") # Returns a complicated list
+#'
 get_scale <- function(x, id = NULL, scale = NULL) {
   if (is.null(id)) stop("Please specify a plot id")
   if (is.null(scale)) {
@@ -288,6 +314,12 @@ get_scale <- function(x, id = NULL, scale = NULL) {
 #' @param unfreeze Whether to unfreeze frozen parameters (such as the lower y-axis limit in barplot)
 #'
 #' @export
+#'
+#' @examples
+#' scene <- create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
+#' scene
+#' scene |> set_scale("plot1", "x", min = 0, max = 10, direction = -1)
+#'
 set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
                       breaks = NULL, zero = NULL, one = NULL, direction = NULL,
                       mult = NULL, default = NULL, unfreeze = NULL) {
@@ -325,6 +357,10 @@ set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
 #' only works if both scales are continuous).
 #'
 #' @export
+#' scene <- create_schema(mtcars) |> add_scatterplot(c("wt", "mpg")) |> render()
+#' scene
+#' scene |> zoom("plot1", c(0.25, 0.25, 0.75, 0.75)) # Zoom into the middle 25% of the plot
+#'
 zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
   if (is.null(id)) stop("Please specify a plot id")
   data <- list(id = jsonlite::unbox(id), coords = coords,

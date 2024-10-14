@@ -17,3 +17,12 @@ within a \code{plotscaper} scene or schema by assigning
 them to transient selection.
 Transient group assignment is removed by clicking.
 }
+\examples{
+scene <- create_schema(mtcars) |>
+  add_scatterplot(c("wt", "mpg")) |>
+  add_barplot(c("cyl")) |>
+  render()
+
+scene |> select_cases(1:10) # Select the first 10 cases
+
+}
