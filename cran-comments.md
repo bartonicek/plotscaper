@@ -1,3 +1,9 @@
+## Resubmission
+
+This is a resubmission. What I've done: 
+- fixed two URLs in the algebra.Rmd vignette
+- removed problematic word in the Description section of the DESCRIPTION file
+
 ## R CMD check results
 
 0 errors | 0 warnings | 1 note
