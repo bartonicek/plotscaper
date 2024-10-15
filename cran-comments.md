@@ -1,7 +1,7 @@
 ## Resubmission
 
 This is a resubmission. What I've done:
-- Fixed URL in ./vignettes/references.bib that I've missed previously
+- Fixed URL in ./vignettes/references.bib that I've missed previously, my apologies
 
 ## Resubmission
 
