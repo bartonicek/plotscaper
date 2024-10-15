@@ -235,7 +235,7 @@ But some operators just don't behave the same way. The one example we already di
 
 So, there are some "nice" statistics that have this property of preserving set unions, and others which don't. Can we make this idea "niceness" precise? It turns out there is a mathematical concept that describes exactly this.
 
-The word [Monoid]((https://en.wikipedia.org/wiki/Monoid)) sounds scary but it's really nothing too complicated. A monoid is really just three things:
+The word [Monoid](https://en.wikipedia.org/wiki/Monoid) sounds scary but it's really nothing too complicated. A monoid is really just three things:
 
 - Some set of values $M$
 - A binary operation $\otimes: M \times M \to M$
