@@ -1,5 +1,10 @@
 ## Resubmission
 
+This is a resubmission. What I've done:
+- Fixed URL in ./vignettes/references.bib that I've missed previously
+
+## Resubmission
+
 This is a resubmission. What I've done: 
 - fixed two URLs in the algebra.Rmd vignette
 - removed problematic word in the Description section of the DESCRIPTION file
