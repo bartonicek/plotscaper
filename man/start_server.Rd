@@ -10,6 +10,9 @@ start_server(random_port = FALSE)
 \item{random_port}{Whether to use a random port number.
 Useful if the default port is already taken.}
 }
+\value{
+Nothing (called for side effects)
+}
 \description{
 This function starts an \code{httpuv} server for an interactive communication
 between the R session and \code{plotscaper} scenes.

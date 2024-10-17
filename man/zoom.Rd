@@ -19,6 +19,9 @@ Can be "pct" (percentages of the plotting region), "abs" (absolute
 screen coordinates, in pixels), or "data" (data coordinates;
 only works if both scales are continuous).}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function zooms into a rectangular area of the specified
 plot. The coordinates of the rectangular area can be specified

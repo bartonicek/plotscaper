@@ -32,6 +32,9 @@ set_parameters(
 
 \item{anchor_y}{2D histogram anchor (y-axis)}
 }
+\value{
+The scene or schema back
+}
 \description{
 This functions sets reactive paramaters on a plot such as a histogram.
 }

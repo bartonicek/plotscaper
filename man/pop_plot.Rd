@@ -9,6 +9,9 @@ pop_plot(x)
 \arguments{
 \item{x}{A plotscaper scene or schema}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function removes the last plot from a \code{plotscaper}
 scene or schema.

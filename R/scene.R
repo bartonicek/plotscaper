@@ -9,6 +9,7 @@
 #' @param height Height
 #' @param elementId Id of the HTML element to render the scene in (optional)
 #' @param options A list of options
+#' @returns An object of class `plotscaper_scene`
 #'
 #' @export
 render <- function(schema, launch_server = TRUE,
@@ -83,6 +84,7 @@ print.plotscaper_scene <- function(x, ...) {
 #' @param env The environment in which to evaluate \code{expr}.
 #' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
 #'   is useful if you want to save an expression in a variable.
+#' @returns A Shiny widget output
 #'
 #' @name plotscaper-shiny
 #'
@@ -92,6 +94,7 @@ plotscaperOutput <- function(outputId, width = '100%', height = '400px'){
 }
 
 #' @rdname plotscaper-shiny
+#' @returns A rendered Shiny widget
 #' @export
 renderPlotscaper <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted

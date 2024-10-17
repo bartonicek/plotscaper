@@ -14,7 +14,7 @@
 #' @param initialfn An JavaScript initializing function
 #' @param reducefn A JavaScript reducer function specified
 #' @param name A name for the reducer (a string)
-#' @returns A reducer (which is just a `list`)
+#' @returns A reducer (which is really just a `list` with some additional formatting)
 #'
 #' @examples
 #' r <- reducer(initialfn = "() => 0",

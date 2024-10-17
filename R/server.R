@@ -5,6 +5,8 @@
 #' Uses `plotscaper_global` options.
 #' @param random_port Whether to use a random port number.
 #' Useful if the default port is already taken.
+#' @returns Nothing (called for side effects)
+#'
 #' @export
 start_server <- function(random_port = FALSE) {
   if (random_port) plotscaper_global$port <- httpuv::randomPort()

@@ -11,6 +11,9 @@ set_layout(x, layout = NULL)
 
 \item{layout}{A numeric matrix of plot ids, arranged into contiguous rectangles}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function sets a layout for a \code{plotscaper} scene. Similar to the
 \code{graphics::layout} function.

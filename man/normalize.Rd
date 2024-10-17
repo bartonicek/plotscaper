@@ -11,6 +11,9 @@ normalize(x, id = NULL)
 
 \item{id}{A string id of the plot. See \link{id}}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function switches the representation of a plot to a normalized one,
 e.g. spineplot, spinogram, etc...

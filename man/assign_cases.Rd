@@ -13,6 +13,9 @@ assign_cases(x, cases = NULL, group = 1)
 
 \item{group}{The group to assign the cases to (can be 1, 2, or 3)}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function assigns specific cases (rows of the data)
 to a permanent group within a \code{plotscaper} scene or schema.

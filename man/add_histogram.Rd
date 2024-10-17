@@ -14,6 +14,9 @@ one continuous (required), one continuous (optional)}
 
 \item{options}{A list of options}
 }
+\value{
+The scene or schema back, with the plot added appropriately
+}
 \description{
 This function adds a histogram to a \code{plotscaper} scene or schema.
 }

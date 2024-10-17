@@ -11,6 +11,9 @@ dispatch_message(x, message)
 
 \item{message}{A list that will get converted to JSON message at appropriate time}
 }
+\value{
+The scene or schema back
+}
 \description{
 Dispatches a message to a plotscaper scene or schema
 }

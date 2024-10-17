@@ -2,6 +2,7 @@
 #' Dispatches a message to a plotscaper scene or schema
 #' @param x A plotscaper scene or schema
 #' @param message A list that will get converted to JSON message at appropriate time
+#' @returns The scene or schema back
 #' @export
 dispatch_message <- function(x, message) UseMethod("dispatch_message")
 
@@ -44,6 +45,8 @@ dispatch_message.plotscaper_scene <- function(x, message) {
 #'
 #' @param x A plotscaper scene or schema
 #' @param spec A list with the plot specification
+#' @returns The scene or schema back
+#'
 #' @export
 add_plot <- function(x, spec) {
 
@@ -81,6 +84,8 @@ plot_types <- c("scatter", "bar", "bibar", "histo", "histo2d",
 #' scene or schema.
 #'
 #' @param x A plotscaper scene or schema
+#' @returns The scene or schema back
+#'
 #' @export
 pop_plot <- function(x) {
   dispatch_message(x, list(type = "pop-plot"))
@@ -93,6 +98,8 @@ pop_plot <- function(x) {
 #'
 #' @param x A plotscaper scene or schema
 #' @param id A string id of the plot. See [id]
+#' @returns The scene or schema back
+#'
 #' @export
 #'
 remove_plot <- function(x, id = NULL) {
@@ -113,6 +120,8 @@ remove_plot <- function(x, id = NULL) {
 #'
 #' @param x A `plotscaper` scene or schema
 #' @param cases The cases (rows) to select
+#' @returns The scene or schema back
+#'
 #' @export
 select_cases <- function(x, cases = NULL) {
   if (is.null(cases) || !is.numeric(cases)) {
@@ -133,6 +142,8 @@ select_cases <- function(x, cases = NULL) {
 #' @param x A `plotscaper` scene or schema
 #' @param cases The cases (rows) to select
 #' @param group The group to assign the cases to (can be 1, 2, or 3)
+#' @returns The scene or schema back
+#'
 #' @export
 assign_cases <- function(x, cases = NULL, group = 1) {
   if (is.null(cases) || !is.numeric(cases)) {
@@ -183,6 +194,8 @@ assigned_cases <- function(x, group = 1) {
 #' axis limits/levels of zoom will be restored to default.
 #'
 #' @param x A `plotscaper` scene or schema
+#' @returns The scene or schema back
+#'
 #' @export
 reset <- function(x) {
   dispatch_message(x, list(type = "reset"))
@@ -196,7 +209,7 @@ reset <- function(x) {
 #' @param x A `plotscaper` scene
 #' @param id A string id of the plot. See [id]
 #' @param scale A string id of the scale (`x`, `y`, `width`, `height`, `area`, or `size`)
-#' @return A list of scale properties
+#' @returns A list of scale properties
 #'
 #' @details
 #' This function is primarily meant for internal use, however, you can
@@ -286,6 +299,7 @@ get_scale <- function(x, id = NULL, scale = NULL) {
 #' @param mult Scale multiplier
 #' @param default Whether to set other arguments as scale defaults
 #' @param unfreeze Whether to unfreeze frozen parameters (such as the lower y-axis limit in barplot)
+#' @returns The scene or schema back
 #'
 #' @export
 set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
@@ -323,6 +337,7 @@ set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
 #' Can be "pct" (percentages of the plotting region), "abs" (absolute
 #' screen coordinates, in pixels), or "data" (data coordinates;
 #' only works if both scales are continuous).
+#' @returns The scene or schema back
 #'
 #' @export
 zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
@@ -340,6 +355,8 @@ zoom <- function(x, id = NULL, coords = NULL, units = "pct") {
 #'
 #' @param x A `plotscaper` scene
 #' @param layout A numeric matrix of plot ids, arranged into contiguous rectangles
+#' @returns The scene or schema back
+#'
 #' @export
 set_layout <- function(x, layout = NULL) {
   if (is.null(layout)) stop("Please provide layout as a numeric matrix.")
@@ -353,6 +370,8 @@ set_layout <- function(x, layout = NULL) {
 #' This function clears an existing layout. See [set_layout()].
 #'
 #' @param x A `plotscaper` scene
+#' @returns The scene or schema back
+#'
 #' @export
 clear_layout <- function(x) {
   message <- list(type = "clear-layout")
@@ -366,6 +385,8 @@ clear_layout <- function(x) {
 #'
 #' @param x A `plotscaper` scene
 #' @param id A string id of the plot. See [id]
+#' @returns The scene or schema back
+#'
 #' @export
 normalize <- function(x, id = NULL) {
   if (is.null(id)) stop("Please specify a plot id")
@@ -385,7 +406,8 @@ normalize <- function(x, id = NULL) {
 #' @param anchor_x 2D histogram anchor (x-axis)
 #' @param width_y 2D histogram binwidth (y-axis)
 #' @param anchor_y 2D histogram anchor (y-axis)
-
+#' @returns The scene or schema back
+#'
 #' @export
 set_parameters <- function(x, id = NULL, width = NULL, anchor = NULL,
                       width_x = NULL, anchor_x = NULL,
@@ -404,6 +426,8 @@ set_parameters <- function(x, id = NULL, width = NULL, anchor = NULL,
 
 #' Return a list of plot ids from a plotscaper scene or schema
 #' @param x A plotscaper scene or schema
+#' @returns The scene or schema back
+#'
 #' @export
 get_plot_ids <- function(x) UseMethod("get_plot_ids")
 

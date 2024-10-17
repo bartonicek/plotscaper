@@ -11,6 +11,9 @@ select_cases(x, cases = NULL)
 
 \item{cases}{The cases (rows) to select}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function selects specific cases (rows of the data)
 within a \code{plotscaper} scene or schema by assigning

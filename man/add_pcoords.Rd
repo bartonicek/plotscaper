@@ -14,6 +14,9 @@ at least two continuous or discrete variables}
 
 \item{options}{A list of options}
 }
+\value{
+The scene or schema back, with the plot added appropriately
+}
 \description{
 This function adds a parallel coordinates plot
 to a \code{plotscaper} scene or schema.

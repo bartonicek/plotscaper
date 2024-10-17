@@ -14,6 +14,9 @@ one discrete (required), one or two continuous (required)}
 
 \item{options}{A list of options}
 }
+\value{
+The scene or schema back, with the plot added appropriately
+}
 \description{
 This function adds a mirrored barplot to a \code{plotscaper} scene or schema.
 }

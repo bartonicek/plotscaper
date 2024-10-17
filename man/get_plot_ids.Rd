@@ -9,6 +9,9 @@ get_plot_ids(x)
 \arguments{
 \item{x}{A plotscaper scene or schema}
 }
+\value{
+The scene or schema back
+}
 \description{
 Return a list of plot ids from a plotscaper scene or schema
 }

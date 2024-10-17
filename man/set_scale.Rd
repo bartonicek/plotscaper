@@ -44,6 +44,9 @@ set_scale(
 
 \item{unfreeze}{Whether to unfreeze frozen parameters (such as the lower y-axis limit in barplot)}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function sets the values of a scale within one plot
 inside a \code{plotscaper} scene or schema.

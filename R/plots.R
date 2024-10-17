@@ -6,6 +6,7 @@
 #' @param variables A vector of variable names:
 #' two continuous or discrete (required), one continuous (optional)
 #' @param options A list of options
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -28,6 +29,7 @@ add_scatterplot <- function(x, variables = NULL, options = NULL) {
 #' @param variables A vector of variable names:
 #' one discrete (required), one continuous (optional)
 #' @param options A list of options
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -49,6 +51,7 @@ add_barplot <- function(x, variables = NULL, options = NULL) {
 #' @param variables A vector of variable names:
 #' one discrete (required), one or two continuous (required)
 #' @param options A list of options
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -70,6 +73,7 @@ add_bibarplot <- function(x, variables = NULL, options = NULL) {
 #' @param variables A vector of variable names:
 #' one continuous (required), one continuous (optional)
 #' @param options A list of options
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -91,6 +95,7 @@ add_histogram <- function(x, variables = NULL, options = NULL) {
 #' @param variables A vector of variable names:
 #' two discrete (required), one continuous (optional)
 #' @param options A list of options
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -113,7 +118,7 @@ add_fluctplot <- function(x, variables = NULL, options = NULL) {
 #' @param variables A vector of variable names:
 #' at least two continuous or discrete variables
 #' @param options A list of options
-#'
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -135,6 +140,7 @@ add_pcoords <- function(x, variables = NULL, options = NULL) {
 #' @param variables A vector of variable names:
 #' two continuous (required), one continuous (optional)
 #' @param options A list of options
+#' @returns The scene or schema back, with the plot added appropriately
 #'
 #' @seealso [add_plot()]
 #' @export
@@ -147,10 +153,6 @@ add_histogram2d <- function(x, variables = NULL, options = NULL) {
   spec <- c(list(type = "histo2d", variables = variables), options)
   add_plot(x, spec)
 }
-
-# add_notes <- function(scene) {
-#   add_plot(scene, "note", NULL, list(ignore_encodings = TRUE))
-# }
 
 check_variables <- function(x, variables) {
   missing <- setdiff(variables, names(x$data))

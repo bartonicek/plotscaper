@@ -26,6 +26,9 @@ render(
 
 \item{options}{A list of options}
 }
+\value{
+An object of class \code{plotscaper_scene}
+}
 \description{
 This function takes a \code{plotscaper} schema and renders it as a
 concrete \code{htmlwidgets} widget.

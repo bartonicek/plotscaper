@@ -11,6 +11,9 @@ remove_plot(x, id = NULL)
 
 \item{id}{A string id of the plot. See \link{id}}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function removes a specific plot from a \code{plotscaper}
 scene or schema.

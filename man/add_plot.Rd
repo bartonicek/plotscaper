@@ -11,6 +11,9 @@ add_plot(x, spec)
 
 \item{spec}{A list with the plot specification}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function adds a plot to an existing \code{plotscaper}
 scene or schema. Not meant to be called directly

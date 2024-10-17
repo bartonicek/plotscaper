@@ -14,7 +14,7 @@ reducer(initialfn = NULL, reducefn = NULL, name = NULL)
 \item{name}{A name for the reducer (a string)}
 }
 \value{
-A reducer (which is just a \code{list})
+A reducer (which is really just a \code{list} with some additional formatting)
 }
 \description{
 Constructs a reducer that can be used to show alternative summaries

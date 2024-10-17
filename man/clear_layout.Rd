@@ -9,6 +9,9 @@ clear_layout(x)
 \arguments{
 \item{x}{A \code{plotscaper} scene}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function clears an existing layout. See \code{\link[=set_layout]{set_layout()}}.
 }

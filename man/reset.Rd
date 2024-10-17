@@ -9,6 +9,9 @@ reset(x)
 \arguments{
 \item{x}{A \code{plotscaper} scene or schema}
 }
+\value{
+The scene or schema back
+}
 \description{
 This function resets a \code{plotscaper} scene or schema.
 All selection/group assignment will be removed, and
