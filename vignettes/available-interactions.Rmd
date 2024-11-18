@@ -132,6 +132,15 @@ These aren't the best looking plots, as I'm sure you'd agree. Sensible default m
 
 Any changes to the scale parameters are temporary by default - if you press the reset key (`R`), they revert back to the defaults. If you want the changes to persist, add `default = TRUE` argument to the `set_scale` call.
 
+Continuous scales can also be transformed via log10 and square-root transformations. This can be done like so:
+
+```{r}
+schema |> 
+  set_scale("plot1", "x", transformation = "log10") |> 
+  set_scale("plot1", "y", transformation = "sqrt") |>
+  render()
+```
+
 Finally, if you want to inspect the values that a scale uses to translate data on the JavaScript side, you can use the `get_scale` function:
 
 ```{r}

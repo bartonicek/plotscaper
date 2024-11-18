@@ -29,6 +29,10 @@ Next, open up RStudio and run the following code:
 #| fig-width: 7
 #| fig-height: 5
 library(plotscaper)
+
+devtools::load_all()
+httpuv::stopAllServers()
+
 names(airquality) <- c("ozone", "solar radiation", "wind", 
                        "temperature", "month", "day")
 

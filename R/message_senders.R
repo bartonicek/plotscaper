@@ -292,6 +292,7 @@ get_scale <- function(x, id = NULL, scale = NULL) {
 #' @param scale A string identifying scale. Can be: "x", "y", "area", or "size".
 #' @param min Scale minimum (continuous scales only)
 #' @param max Scale maximum (continuous scales only)
+#' @param transformation A transformation to apply ("log10" or "sqrt", continuous only)
 #' @param breaks A vector of discrete breaks (discrete scale only)
 #' @param zero The proportion of codomain to which the smallest/first value gets mapped to
 #' @param one The proportion of codomain to which largest/last value gets mapped to
@@ -303,16 +304,18 @@ get_scale <- function(x, id = NULL, scale = NULL) {
 #'
 #' @export
 set_scale <- function(x, id = NULL, scale = NULL, min = NULL, max = NULL,
-                      breaks = NULL, zero = NULL, one = NULL, direction = NULL,
-                      mult = NULL, default = NULL, unfreeze = NULL) {
+                      transformation = NULL, breaks = NULL, zero = NULL,
+                      one = NULL, direction = NULL, mult = NULL,
+                      default = NULL, unfreeze = NULL) {
 
   if (is.null(id)) stop("Please specify a plot id")
   if (is.null(scale)) {
     stop("Please specify a valid scale: x, y, width, height, area, or size")
   }
 
-  data <- list(id = id, scale = scale, zero = zero, one = one, min = min,
-               direction = direction, max = max, mult = mult,
+  data <- list(id = id, scale = scale,
+               min = min, max = max, transformation = transformation,
+               zero = zero, one = one, direction = direction, mult = mult,
                default = default, unfreeze = unfreeze)
 
   for (key in names(data)) data[[key]] <- jsonlite::unbox(data[[key]])
