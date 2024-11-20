@@ -29,5 +29,6 @@ Suggests:
     palmerpenguins,
     dplyr
 Config/testthat/edition: 3
-URL: https://bartonicek.github.io/plotscaper/
+URL: https://bartonicek.github.io/plotscaper/, https://github.com/bartonicek/plotscaper
 VignetteBuilder: knitr
+BugReports: https://github.com/bartonicek/plotscaper/issues
