@@ -10,6 +10,7 @@ set_scale(
   scale = NULL,
   min = NULL,
   max = NULL,
+  transformation = NULL,
   breaks = NULL,
   zero = NULL,
   one = NULL,
@@ -29,6 +30,8 @@ set_scale(
 \item{min}{Scale minimum (continuous scales only)}
 
 \item{max}{Scale maximum (continuous scales only)}
+
+\item{transformation}{A transformation to apply ("log10" or "sqrt", continuous only)}
 
 \item{breaks}{A vector of discrete breaks (discrete scale only)}
 
