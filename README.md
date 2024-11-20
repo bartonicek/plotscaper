@@ -18,7 +18,9 @@ dependencies/framework for reactivity.
 
 ## Quick start
 
-To get started, install `plotscaper` with:
+To get started, install `plotscaper`, either from CRAN (by running
+`install.packages("plotscaper")`), or, if you want the latest
+development version, run the following:
 
 ``` r
 devtools::install_github("bartonicek/plotscaper")
