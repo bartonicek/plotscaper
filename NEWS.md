@@ -1,3 +1,5 @@
+# plotscaper 0.2.5
+
 # plotscaper 0.2.4
 
 - Added `log10` and `sqrt` continuous scale transformations
