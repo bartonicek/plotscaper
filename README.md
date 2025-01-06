@@ -42,6 +42,7 @@ create_schema(airquality) |>
   render()
 #> Warning in create_schema(airquality): Removed 42 rows with missing values from
 #> the data
+#> file:////tmp/RtmpV5fr7h/file6b18100e2285/widget6b183f569082.html screenshot completed
 ```
 
 <img src="man/figures/readme1.pngunnamed-chunk-3-1.png" style="display: block; margin: auto;" />
