@@ -1,4 +1,5 @@
-This is a small patch release integrating a feature fix in the JavaScript version of the package.
+This is a small patch release integrating some changes to CSS of the underlying 
+JavaScript package to make it work better with bookdown.
 
 ## R CMD check results
 
