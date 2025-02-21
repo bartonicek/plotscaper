@@ -1,0 +1,96 @@
+---
+title: "Layout"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Layout}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Adding and removing plots
+
+As you have probably seen in other vignettes, you can add plots using the various `add_plot` functions:
+
+```{r}
+
+library(plotscaper)
+
+names(airquality) <- c("ozone", "solar radiation", "wind", 
+                       "temperature", "month", "day")
+
+schema <- create_schema(airquality) |>
+  add_scatterplot(c("solar radiation", "ozone")) |>
+  add_barplot(c("day")) |>
+  add_histogram(c("wind")) |>
+  add_pcoords(names(airquality))
+
+schema |> render()
+
+```
+
+You can also remove plots:
+
+```{r}
+schema |> 
+  remove_plot("bar1") |> # Remove the first barplot added to the figure
+  pop_plot() |> # Remove the last plot added to the figure - typically, the bottom-right one
+  render()
+```
+
+This does not make much sense server-side, since, if you don't want a specific plot to be in the figure, you can just not add the figure in the first place. However, on the client-side, this can be very useful, since you can modify the figure on the fly:
+
+```{r}
+#| eval: false
+# NOT RUN - this only makes sense inside a running R session
+scene <- create_schema(airquality) |> render()
+
+scene |> add_scatterplot(c("solar radiation", "ozone"))
+scene |> add_barplot(c("day")) # Oops, maybe I want a histogram instead
+scene |> pop_plot()
+scene |> add_histogram(c("wind")) 
+```
+
+Some of this was already discussed in the [Get started](plotscaper.html) section.
+
+## Layout
+
+We can also modify the layout of a plotscaper figure, using an interface that's very similar to `graphics::layout`. If you're not familiar with this function, we can provide it a numeric matrix, with values identifying plotting regions as contiguous rectangles, and the plots will be appropriately resized:
+
+```{r}
+
+# 1. Big scatterplot on the top left
+# 2. Small barplot on the top right
+# 3. Small histogram on the right
+# 4. Wide parallel coordinates plot on the bottom
+# 0. (empty space on the bottom right)
+
+layout <- matrix(c(
+  1, 1, 2,
+  1, 1, 3,
+  4, 4, 0
+), ncol = 3, byrow = TRUE)
+
+schema |> set_layout(layout) |> render()
+```
+
+The matrix can be of any size, the only requirement is that the plot areas must be contiguous, meaning that e.g. this would not be a valid layout:
+
+```{r}
+#| eval: false
+
+layout <- matrix(c(
+  2, 1, # Cannot split plotting regions like this
+  1, 2
+), ncol = 2) 
+```
+
+Also, all of the plots should be included in the layout. If they are not, a pop-up warning will show up. You can decide whether you want to proceed with the figure, however, be warned that the layout may not work well.
+
+Finally, you can call the `set_layout` function from inside a running R session with `scene |> set_layout(...)` (and you will get a client-side update to the current figure).

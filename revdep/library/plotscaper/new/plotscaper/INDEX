@@ -1,0 +1,35 @@
+add_barplot             Add a barplot to a scene or schema
+add_bibarplot           Add a mirrored barplot to a scene or schema
+add_fluctplot           Add a fluctuation diagram to a scene or schema
+add_histogram           Add a histogram to a scene or schema
+add_histogram2d         Add a 2D histogram to a scene or schema
+add_pcoords             Add a parallel coordinates plot to a scene or
+                        schema
+add_plot                Add a plot to a scene or schema
+add_scatterplot         Add a scatterplot to a scene or schema
+assign_cases            Assign cases to a group
+assigned_cases          Get assigned cases
+clear_layout            Set interactive scene layout
+create_schema           Create a 'plotscaper' schema
+dispatch_message        Dispatches a message to a plotscaper scene or
+                        schema
+get_plot_ids            Return a list of plot ids from a plotscaper
+                        scene or schema
+get_scale               Get a plot scale
+id                      Plot id
+normalize               Normalize a plot
+plotscaper-shiny        Shiny bindings for plotscaper
+plotscaper_global       A Plotscaper Global Configuration Object
+pop_plot                Remove the last plot from a scene or schema
+reducer                 Create a reducer
+remove_plot             Remove specific plot from a scene or schema
+render                  Render a schema into an interactive scene
+reset                   Reset a scene or schema
+select_cases            Select cases of the data
+selected_cases          Get selected cases
+set_layout              Set interactive scene layout
+set_parameters          Set reactive parameters
+set_scale               Set values of a scale
+start_server            Start a server for communication between the R
+                        session and 'plostcaper' scenes
+zoom                    Zoom into an area of a plot

@@ -1,0 +1,29 @@
+Package: plotscaper
+Title: Explore Your Data with Interactive Figures
+Version: 0.2.6
+Authors@R: 
+    person("Adam", "Bartonicek", , "bartonicek@gmail.com", role = c("aut", "cre", "cph"))
+Description: A framework for creating interactive figures for data exploration. 
+    All plots are automatically linked and support several kinds of interactive features,
+    including selection, zooming, panning, and parameter manipulation. The figures
+    can be interacted with either manually, using a mouse and a keyboard, 
+    or by running code from inside an active R session.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Depends: R (>= 4.1)
+Imports: htmlwidgets (>= 1.6), httpuv (>= 1.6), jsonlite (>= 1.8),
+        knitr, stats, uuid
+Suggests: rmarkdown, ggplot2, patchwork, palmerpenguins, dplyr
+Config/testthat/edition: 3
+URL: https://bartonicek.github.io/plotscaper/,
+        https://github.com/bartonicek/plotscaper
+VignetteBuilder: knitr
+BugReports: https://github.com/bartonicek/plotscaper/issues
+NeedsCompilation: no
+Packaged: 2025-01-07 15:32:15 UTC; adam
+Author: Adam Bartonicek [aut, cre, cph]
+Maintainer: Adam Bartonicek <bartonicek@gmail.com>
+Repository: CRAN
+Date/Publication: 2025-01-07 15:50:02 UTC
+Built: R 4.4.2; ; 2025-02-21 14:40:41 UTC; unix

@@ -1,0 +1,39 @@
+Package: later
+Type: Package
+Title: Utilities for Scheduling Functions to Execute Later with Event
+        Loops
+Version: 1.4.1
+Authors@R: c(
+    person("Winston", "Chang", role = c("aut", "cre"), email = "winston@posit.co"),
+    person("Joe", "Cheng", role = c("aut"), email = "joe@posit.co"),
+    person("Charlie", "Gao", role = c("aut"), email = "charlie.gao@shikokuchuo.net", comment = c(ORCID = "0000-0002-0750-061X")),
+    person(family = "Posit Software, PBC", role = "cph"),
+    person("Marcus", "Geelnard", role = c("ctb", "cph"), comment = "TinyCThread library, https://tinycthread.github.io/"),
+    person("Evan", "Nemerson", role = c("ctb", "cph"), comment = "TinyCThread library, https://tinycthread.github.io/")
+    )
+Description: Executes arbitrary R or C functions some time after the current
+    time, after the R execution stack has emptied. The functions are scheduled
+    in an event loop.
+URL: https://r-lib.github.io/later/, https://github.com/r-lib/later
+BugReports: https://github.com/r-lib/later/issues
+License: MIT + file LICENSE
+Imports: Rcpp (>= 0.12.9), rlang
+LinkingTo: Rcpp
+RoxygenNote: 7.3.2
+Suggests: knitr, nanonext, R6, rmarkdown, testthat (>= 2.1.0)
+VignetteBuilder: knitr
+Encoding: UTF-8
+NeedsCompilation: yes
+Packaged: 2024-11-27 22:51:17 UTC; jcheng
+Author: Winston Chang [aut, cre],
+  Joe Cheng [aut],
+  Charlie Gao [aut] (<https://orcid.org/0000-0002-0750-061X>),
+  Posit Software, PBC [cph],
+  Marcus Geelnard [ctb, cph] (TinyCThread library,
+    https://tinycthread.github.io/),
+  Evan Nemerson [ctb, cph] (TinyCThread library,
+    https://tinycthread.github.io/)
+Maintainer: Winston Chang <winston@posit.co>
+Repository: CRAN
+Date/Publication: 2024-11-27 23:40:02 UTC
+Built: R 4.4.2; x86_64-pc-linux-gnu; 2024-12-22 09:25:42 UTC; unix
