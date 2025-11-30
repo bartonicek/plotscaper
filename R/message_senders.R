@@ -119,15 +119,32 @@ remove_plot <- function(x, id = NULL) {
 #' Transient group assignment is removed by clicking.
 #'
 #' @param x A `plotscaper` scene or schema
-#' @param cases The cases (rows) to select
+#' @param cases indices for cases to select. Standard subsetting rules
+#'   apply (logical, numeric and character indexing, recycling etc. - see
+#'   \code{\link{[}}). Matching indices will be selected and others
+#'   de-selected.
+#' @param attach_data logical, if \code{TRUE} then \code{cases}
+#'   are evaluated with the data attached so the expression can
+#'   contain references to variable names, e.g.,
+#'   \code{bill_length > 45},
 #' @returns The scene or schema back
 #'
 #' @export
-select_cases <- function(x, cases = NULL) {
+select_cases <- function(x, cases = NULL, attach_data = TRUE) {
+  cases <- if (missing(cases)) seq_len(nrow(x$data)) else {
+    i <- if (attach_data) {
+      e <- substitute(cases)
+      eval(e, x$data, parent.frame())
+    } else cases
+    ## fall back to standard indexing on the full index vector
+    all <- seq_len(nrow(x$data))
+    names(all) <- row.names(x$data)
+    all[i]
+  }
   if (is.null(cases) || !is.numeric(cases)) {
     stop("Please provide a list of cases you want to select")
   }
-  cases <- cases - 1 # Correct for 0-based indexing on the JavaScript side
+  cases <- cases - 1L # Correct for 0-based indexing on the JavaScript side
   data <- list(cases = cases)
   message <- list(type = "set-selected", data = list(cases = cases))
   dispatch_message(x, message)
@@ -140,12 +157,24 @@ select_cases <- function(x, cases = NULL) {
 #' Permanent group assignments are only removed by double-clicking.
 #'
 #' @param x A `plotscaper` scene or schema
-#' @param cases The cases (rows) to select
+#' @param cases The cases (rows) to select (see \code{\link{select_cases}})
 #' @param group The group to assign the cases to (can be 1, 2, or 3)
+#' @param attach_data logical, if \code{TRUE} then \code{cases} are
+#'   evaluated with the dataset attached (see \code{\link{select_cases}})
 #' @returns The scene or schema back
 #'
 #' @export
-assign_cases <- function(x, cases = NULL, group = 1) {
+assign_cases <- function(x, cases = NULL, group = 1L, attach_data = TRUE) {
+  cases <- if (missing(cases)) seq_len(nrow(x$data)) else {
+    i <- if (attach_data) {
+      e <- substitute(cases)
+      eval(e, x$data, parent.frame())
+    } else cases
+    ## fall back to standard indexing on the full index vector
+    all <- seq_len(nrow(x$data))
+    names(all) <- row.names(x$data)
+    all[i]
+  }
   if (is.null(cases) || !is.numeric(cases)) {
     stop("Please provide a list of cases you want to assign to a group")
   }
